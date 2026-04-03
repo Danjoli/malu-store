@@ -5,16 +5,17 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
-// Determine if the application is in maintenance mode...
+// Verifica modo de manutenção
 if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
     require $maintenance;
 }
 
-// Register the Composer autoloader...
-require __DIR__.'/../malu_store/vendor/autoload.php';
+// Autoload do Composer (CORRIGIDO)
+require __DIR__.'/../vendor/autoload.php';
 
-// Bootstrap Laravel and handle the request...
+// Bootstrap do Laravel (CORRIGIDO)
 /** @var Application $app */
-$app = require_once __DIR__.'/../malu_store/bootstrap/app.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
 
+// Processa a requisição
 $app->handleRequest(Request::capture());
