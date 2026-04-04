@@ -25,7 +25,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\OrdersController;
 use App\Http\Controllers\Admin\ShipmentController;
-
+use App\Http\Controllers\Public\FreteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -176,6 +176,15 @@ Route::middleware('auth')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | FRETE (MELHOR ENVIO)
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post('/frete/calcular', [FreteController::class, 'calcular'])
+        ->name('frete.calcular');
+
+    /*
+    |--------------------------------------------------------------------------
     | PAGAMENTOS
     |--------------------------------------------------------------------------
     */
@@ -191,25 +200,25 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/payment/card/{order}', [PaymentController::class, 'processCard'])
         ->name('payment.card.process');
-        
+
     /*
     |--------------------------------------------------------------------------
     | STATUS DO PAGAMENTO (AJAX)
     |--------------------------------------------------------------------------
     */
-    
+
     Route::get('/payment/status/{order}', [PaymentController::class, 'status'])
         ->name('payment.status');
-    
+
     /*
     |--------------------------------------------------------------------------
     | RESULTADO DO PAGAMENTO
     |--------------------------------------------------------------------------
     */
-    
+
     Route::get('/payment-success/{order}', [PaymentController::class, 'success'])
         ->name('payment.success');
-    
+
     Route::get('/payment-error/{order}', [PaymentController::class, 'error'])
         ->name('payment.error');
 

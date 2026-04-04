@@ -39,4 +39,9 @@ return [
         'token' => env('MP_ACCESS_TOKEN'),
     ],
 
+    'melhor_envio' => [
+        'token' => env('MELHOR_ENVIO_TOKEN'),
+        'url' => env('MELHOR_ENVIO_URL'),
+    ],
+
 ];

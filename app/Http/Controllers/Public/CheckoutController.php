@@ -11,6 +11,7 @@ use App\Models\Cart;
 use App\Models\Address;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Shipment;
 
 class CheckoutController extends Controller
 {
@@ -40,7 +41,7 @@ class CheckoutController extends Controller
 
         $subtotal = $cart->items->sum(fn($item) => $item->price * $item->quantity);
         $shipping = 0;
-        $total = $subtotal + $shipping;
+        $total = $subtotal;
 
         $address = Address::where('user_id', $user->id)
             ->where('is_default', true)
@@ -78,36 +79,19 @@ class CheckoutController extends Controller
             'state' => 'required|string|max:2',
             'cep' => 'required|string|max:20',
             'cpf' => 'required|string|max:14',
-            'is_default' => 'nullable|boolean'
+            'is_default' => 'nullable|boolean',
+
+            // 🔥 NOVO (frete)
+            'shipping_cost' => 'required|numeric|min:0',
+            'carrier' => 'required|string|max:100',
         ];
 
-        $attributes = [
-            'label' => 'Etiqueta',
-            'recipient_name' => 'Nome do destinatário',
-            'phone' => 'Telefone',
-            'street' => 'Rua',
-            'number' => 'Número',
-            'complement' => 'Complemento',
-            'neighborhood' => 'Bairro',
-            'city' => 'Cidade',
-            'state' => 'Estado',
-            'cep' => 'CEP',
-            'cpf' => 'CPF',
-        ];
-
-        $messages = [
-            'required' => 'O campo :attribute é obrigatório',
-            'string' => 'O campo :attribute deve ser um texto',
-            'max' => 'O campo :attribute não pode ter mais de :max caracteres',
-            'boolean' => 'O campo :attribute deve ser verdadeiro ou falso',
-        ];
-
-        $validatedData = $request->validate($rules, $messages, $attributes);
+        $validatedData = $request->validate($rules);
 
         DB::beginTransaction();
 
         try {
-            // Endereço
+            // 📍 Endereço
             $address = Address::updateOrCreate(
                 [
                     'user_id' => $user->id,
@@ -135,7 +119,7 @@ class CheckoutController extends Controller
                     ->update(['is_default' => false]);
             }
 
-            // Carrinho
+            // 🛒 Carrinho
             $cart = Cart::with('items.variant')
                 ->where('user_id', $user->id)
                 ->where('status', 'active')
@@ -146,37 +130,37 @@ class CheckoutController extends Controller
             }
 
             $subtotal = $cart->items->sum(fn($item) => $item->price * $item->quantity);
-            $shipping = 0;
+
+            // 🔥 FRETE DINÂMICO
+            $shipping = (float) $request->shipping_cost;
             $total = $subtotal + $shipping;
 
             /*
             |--------------------------------------------------------------
-            | NOVA LÓGICA CORRETA
+            | Verificar pedido pendente
             |--------------------------------------------------------------
             */
             $existingOrder = Order::where('user_id', $user->id)
                 ->where('status', 'pending')
                 ->latest()
                 ->first();
-            
+
             if ($existingOrder) {
-            
-                // SE NÃO FOR BOLETO → pode reutilizar
+
                 if ($existingOrder->payment_method !== 'boleto') {
-            
+
                     if ($existingOrder->total == $total) {
                         DB::commit();
                         return redirect()->route('payment', $existingOrder->id);
                     }
-            
-                    // se mudou → cancela
+
                     $existingOrder->update(['status' => 'cancelled']);
                 }
             }
 
             /*
             |--------------------------------------------------------------
-            | Criar novo pedido
+            | Criar Pedido
             |--------------------------------------------------------------
             */
             $order = Order::create([
@@ -189,6 +173,11 @@ class CheckoutController extends Controller
                 'status' => 'pending',
             ]);
 
+            /*
+            |--------------------------------------------------------------
+            | Criar Itens do Pedido
+            |--------------------------------------------------------------
+            */
             foreach ($cart->items as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
@@ -201,6 +190,18 @@ class CheckoutController extends Controller
                     'quantity' => $item->quantity
                 ]);
             }
+
+            /*
+            |--------------------------------------------------------------
+            | 🚚 Criar ENVIO
+            |--------------------------------------------------------------
+            */
+            Shipment::create([
+                'order_id' => $order->id,
+                'carrier' => $request->carrier,
+                'shipping_cost' => $shipping,
+                'status' => 'pending'
+            ]);
 
             DB::commit();
 
@@ -238,8 +239,6 @@ class CheckoutController extends Controller
     {
         $request->validate([
             'payment_method' => 'required'
-        ], [], [
-            'payment_method' => 'Método de pagamento'
         ]);
 
         $user = Auth::user();

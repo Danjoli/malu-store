@@ -25,12 +25,32 @@
                 <input type="hidden" name="address_id" value="{{ $address->id ?? '' }}">
 
                 <div class="mb-4">
-                    <label class="block mb-1">Identificação do Endereço</label>
-                    <input type="text" name="label" placeholder="Ex: Casa, Trabalho"
-                        value="{{ old('label', $address->label ?? '') }}"
+                    <label class="block mb-1">CEP</label>
+                    <input type="text" name="cep"
+                        value="{{ old('cep', $address->cep ?? '') }}"
                         class="w-full border rounded-lg px-4 py-2">
                 </div>
 
+                <!-- BOTÃO CALCULAR FRETE -->
+                <div class="mb-4">
+                    <button type="button" id="btn-calcular-frete"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-lg">
+                        Calcular Frete
+                    </button>
+                </div>
+
+                <!-- LISTA DE FRETES -->
+                <div id="fretes-container" class="mb-4 hidden">
+                    <label class="block mb-2 font-semibold">Escolha o Frete</label>
+                    <div id="lista-fretes" class="space-y-2"></div>
+                </div>
+
+                <!-- INPUTS HIDDEN -->
+                <input type="hidden" name="shipping_cost" id="shipping_cost">
+                <input type="hidden" name="carrier" id="carrier">
+                <input type="hidden" name="service" id="service"> <!-- 🔥 importante -->
+
+                <!-- RESTO DOS CAMPOS -->
                 <div class="mb-4">
                     <label class="block mb-1">Nome do Destinatário</label>
                     <input type="text" name="recipient_name"
@@ -68,47 +88,10 @@
                 </div>
 
                 <div class="mb-4">
-                    <label class="block mb-1">Complemento</label>
-                    <input type="text" name="complement"
-                        value="{{ old('complement', $address->complement ?? '') }}"
-                        class="w-full border rounded-lg px-4 py-2">
-                </div>
-
-                <div class="mb-4">
-                    <label class="block mb-1">Bairro</label>
-                    <input type="text" name="neighborhood"
-                        value="{{ old('neighborhood', $address->neighborhood ?? '') }}"
-                        class="w-full border rounded-lg px-4 py-2">
-                </div>
-
-                <div class="mb-4">
                     <label class="block mb-1">Cidade</label>
                     <input type="text" name="city"
                         value="{{ old('city', $address->city ?? '') }}"
                         class="w-full border rounded-lg px-4 py-2">
-                </div>
-
-                <div class="mb-4">
-                    <label class="block mb-1">Estado</label>
-                    <input type="text" name="state" maxlength="2"
-                        placeholder="SP"
-                        value="{{ old('state', $address->state ?? '') }}"
-                        class="w-full border rounded-lg px-4 py-2">
-                </div>
-
-                <div class="mb-4">
-                    <label class="block mb-1">CEP</label>
-                    <input type="text" name="cep"
-                        value="{{ old('cep', $address->cep ?? '') }}"
-                        class="w-full border rounded-lg px-4 py-2">
-                </div>
-
-                <div class="mb-4 flex items-center gap-2">
-                    <input type="checkbox" name="is_default" value="1"
-                        {{ old('is_default') !== null
-                            ? (old('is_default') ? 'checked' : '')
-                            : (($address->is_default ?? false) ? 'checked' : '') }}>
-                    <label>Definir como endereço padrão</label>
                 </div>
 
         </div>
@@ -124,36 +107,38 @@
                 <div class="flex justify-between items-start mb-4">
                     <div class="flex gap-3">
                         <img src="{{ asset('products/' . $item->image_snapshot) }}"
-                            alt="{{ $item->name_snapshot }}"
                             class="w-16 h-16 object-cover rounded-lg border">
                         <div>
                             <p class="font-medium">{{ $item->name_snapshot }}</p>
                             <p class="text-sm text-gray-500">
                                 Qtd: {{ $item->quantity }}
-                                @if($item->color_snapshot) • Cor: {{ $item->color_snapshot }} @endif
-                                @if($item->size_snapshot) • Tam: {{ $item->size_snapshot }} @endif
                             </p>
                         </div>
                     </div>
-                    <span class="font-medium">R$ {{ number_format($item->total, 2, ',', '.') }}</span>
+                    <span class="font-medium">
+                        R$ {{ number_format($item->total, 2, ',', '.') }}
+                    </span>
                 </div>
             @endforeach
 
+            <!-- 🔥 FRETE DINÂMICO -->
             <div class="flex justify-between mb-2 mt-4">
                 <span>Frete</span>
-                <span>R$ {{ number_format($shipping, 2, ',', '.') }}</span>
+                <span id="valor-frete">R$ 0,00</span>
             </div>
 
             <hr class="my-4">
 
+            <!-- 🔥 TOTAL DINÂMICO -->
             <div class="flex justify-between font-bold text-lg mb-6">
                 <span>Total</span>
-                <span>R$ {{ number_format($total, 2, ',', '.') }}</span>
+                <span id="valor-total">
+                    R$ {{ number_format($total, 2, ',', '.') }}
+                </span>
             </div>
 
-            <!-- BOTÃO FINALIZAR PEDIDO -->
             <button type="submit"
-                class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition">
+                class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700">
                 Finalizar Pedido
             </button>
 
@@ -168,14 +153,91 @@
 
 @push('scripts')
 <script>
-    // Máscara simples de CPF
-    const cpfInput = document.getElementById('cpf');
-    cpfInput.addEventListener('input', function(e) {
-        let v = this.value.replace(/\D/g,'');
-        v = v.replace(/(\d{3})(\d)/,'$1.$2');
-        v = v.replace(/(\d{3})(\d)/,'$1.$2');
-        v = v.replace(/(\d{3})(\d{1,2})$/,'$1-$2');
-        this.value = v;
+
+// CPF máscara
+const cpfInput = document.getElementById('cpf');
+cpfInput.addEventListener('input', function() {
+    let v = this.value.replace(/\D/g,'');
+    v = v.replace(/(\d{3})(\d)/,'$1.$2');
+    v = v.replace(/(\d{3})(\d)/,'$1.$2');
+    v = v.replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+    this.value = v;
+});
+
+// TOTAL BASE
+const totalBase = {{ $subtotal }};
+
+// CALCULAR FRETE
+document.getElementById('btn-calcular-frete').addEventListener('click', async () => {
+
+    const cep = document.querySelector('input[name="cep"]').value;
+
+    const response = await fetch('/frete/calcular', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({ cep })
     });
+
+    const data = await response.json();
+
+    const container = document.getElementById('fretes-container');
+    const lista = document.getElementById('lista-fretes');
+
+    lista.innerHTML = '';
+
+    data.forEach(frete => {
+
+        if (!frete.price) return;
+
+        const div = document.createElement('div');
+        div.classList.add('border', 'p-3', 'rounded-lg');
+
+        div.innerHTML = `
+            <label class="flex justify-between items-center">
+                <div>
+                    <input type="radio" name="frete_opcao"
+                        value="${frete.price}"
+                        data-carrier="${frete.name}"
+                        data-service="${frete.id}">
+                    <strong>${frete.name}</strong><br>
+                    <small>${frete.delivery_time} dias</small>
+                </div>
+                <span>R$ ${parseFloat(frete.price).toFixed(2)}</span>
+            </label>
+        `;
+
+        lista.appendChild(div);
+    });
+
+    container.classList.remove('hidden');
+});
+
+// ESCOLHER FRETE
+document.addEventListener('change', function(e) {
+    if (e.target.name === 'frete_opcao') {
+
+        const valor = parseFloat(e.target.value);
+        const carrier = e.target.dataset.carrier;
+        const service = e.target.dataset.service;
+
+        document.getElementById('shipping_cost').value = valor;
+        document.getElementById('carrier').value = carrier;
+        document.getElementById('service').value = service;
+
+        // Atualiza frete
+        document.getElementById('valor-frete').innerText =
+            'R$ ' + valor.toFixed(2);
+
+        // Atualiza total
+        const total = totalBase + valor;
+
+        document.getElementById('valor-total').innerText =
+            'R$ ' + total.toFixed(2);
+    }
+});
+
 </script>
 @endpush
