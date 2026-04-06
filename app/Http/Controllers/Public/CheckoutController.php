@@ -67,6 +67,11 @@ class CheckoutController extends Controller
             return redirect()->route('login');
         }
 
+        // COLOCA AQUI
+        if (!$request->shipping_cost || !$request->carrier) {
+            return back()->with('error', 'Selecione um frete antes de continuar.');
+        }
+
         $rules = [
             'label' => 'nullable|string|max:100',
             'recipient_name' => 'required|string|max:255',
@@ -81,9 +86,10 @@ class CheckoutController extends Controller
             'cpf' => 'required|string|max:14',
             'is_default' => 'nullable|boolean',
 
-            // 🔥 NOVO (frete)
+            // NOVO (frete)
             'shipping_cost' => 'required|numeric|min:0',
             'carrier' => 'required|string|max:100',
+            'service' => 'required|string',
         ];
 
         $validatedData = $request->validate($rules);
@@ -91,7 +97,7 @@ class CheckoutController extends Controller
         DB::beginTransaction();
 
         try {
-            // 📍 Endereço
+            // Endereço
             $address = Address::updateOrCreate(
                 [
                     'user_id' => $user->id,
@@ -200,6 +206,7 @@ class CheckoutController extends Controller
                 'order_id' => $order->id,
                 'carrier' => $request->carrier,
                 'shipping_cost' => $shipping,
+                'shipment_id' => $request->service,
                 'status' => 'pending'
             ]);
 

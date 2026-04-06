@@ -6,10 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Shipment;
 use App\Models\Order;
 use Illuminate\Http\Request;
+use App\Services\MelhorEnvioService;
 
 class ShipmentController extends Controller
 {
-    // LISTAR ENVIOS
+    // 📦 LISTAR ENVIOS
     public function index()
     {
         $shipments = Shipment::with('order.user')
@@ -19,44 +20,16 @@ class ShipmentController extends Controller
         return view('admin.shipments.index', compact('shipments'));
     }
 
-    // FORM CRIAR
-    public function create()
-    {
-        $orders = Order::with('user')->get();
+    // ❌ REMOVEMOS CREATE (não faz sentido manual)
+    // Os envios já são criados no checkout
 
-        return view('admin.shipments.create', compact('orders'));
-    }
-
-    // SALVAR ENVIO
-    public function store(Request $request)
-    {
-        $request->validate([
-            'order_id' => 'required|exists:orders,id',
-            'carrier' => 'required|string|max:255',
-            'tracking_code' => 'nullable|string|max:255',
-            'shipping_cost' => 'required|numeric',
-            'status' => 'required|string'
-        ]);
-
-        Shipment::create([
-            'order_id' => $request->order_id,
-            'carrier' => $request->carrier,
-            'tracking_code' => $request->tracking_code,
-            'shipping_cost' => $request->shipping_cost,
-            'status' => $request->status
-        ]);
-
-        return redirect()->route('admin.shipments.index')
-            ->with('success', 'Envio criado com sucesso!');
-    }
-
-    // FORM EDITAR
+    // ✏️ EDITAR
     public function edit(Shipment $shipment)
     {
         return view('admin.shipments.edit', compact('shipment'));
     }
 
-    // ATUALIZAR ENVIO
+    // 🔄 ATUALIZAR
     public function update(Request $request, Shipment $shipment)
     {
         $request->validate([
@@ -66,14 +39,93 @@ class ShipmentController extends Controller
             'status' => 'required|string'
         ]);
 
-        $shipment->update([
-            'carrier' => $request->carrier,
-            'tracking_code' => $request->tracking_code,
-            'shipping_cost' => $request->shipping_cost,
-            'status' => $request->status
-        ]);
+        $shipment->update($request->only([
+            'carrier',
+            'tracking_code',
+            'shipping_cost',
+            'status'
+        ]));
 
         return redirect()->route('admin.shipments.index')
             ->with('success', 'Envio atualizado!');
+    }
+
+    // 🚀 GERAR ETIQUETA (🔥 PRINCIPAL)
+    public function gerarEtiqueta($id, MelhorEnvioService $service)
+    {
+        $shipment = Shipment::with('order.items', 'order.address', 'order.user')
+            ->findOrFail($id);
+
+        $order = $shipment->order;
+
+        // 🔒 Evita duplicação
+        if ($shipment->tracking_code) {
+            return back()->with('error', 'Etiqueta já foi gerada!');
+        }
+
+        // 🔒 Só após pagamento
+        if ($order->status !== 'paid') {
+            return back()->with('error', 'Pedido ainda não foi pago.');
+        }
+
+        try {
+
+            // 📦 Montar payload
+            $data = [
+                "service" => $shipment->shipment_id, // 🔥 ESSENCIAL
+                "from" => [
+                    "name" => "Sua Loja",
+                    "phone" => "11999999999",
+                    "email" => "contato@sualoja.com",
+                    "address" => "Rua Origem",
+                    "number" => "100",
+                    "city" => "São Paulo",
+                    "state_abbr" => "SP",
+                    "postal_code" => "01010-000"
+                ],
+                "to" => [
+                    "name" => $order->address->recipient_name,
+                    "phone" => $order->address->phone,
+                    "email" => $order->user->email,
+                    "address" => $order->address->street,
+                    "number" => $order->address->number,
+                    "district" => $order->address->neighborhood,
+                    "city" => $order->address->city,
+                    "state_abbr" => $order->address->state,
+                    "postal_code" => $order->address->cep
+                ],
+                "products" => $order->items->map(function ($item) {
+                    return [
+                        "name" => $item->name_snapshot,
+                        "quantity" => $item->quantity,
+                        "unitary_value" => $item->price,
+                        "weight" => 1,
+                        "width" => 15,
+                        "height" => 10,
+                        "length" => 20
+                    ];
+                })->toArray()
+            ];
+
+            // 🛒 Adicionar ao carrinho
+            $cart = $service->adicionarAoCarrinho($data);
+
+            // 💳 Comprar etiqueta
+            $checkout = $service->comprarEtiqueta([
+                "orders" => [$cart['id']]
+            ]);
+
+            // 📌 Atualizar banco
+            $shipment->update([
+                'tracking_code' => $checkout['tracking'] ?? null,
+                'status' => 'shipped',
+                'shipped_at' => now()
+            ]);
+
+            return back()->with('success', 'Etiqueta gerada com sucesso!');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Erro ao gerar etiqueta: ' . $e->getMessage());
+        }
     }
 }

@@ -28,4 +28,14 @@ class MelhorEnvioService {
     {
         return $this->request('shipment/calculate', $dados);
     }
+
+    public function adicionarAoCarrinho($data)
+    {
+        return $this->request('cart', $data);
+    }
+
+    public function comprarEtiqueta($data)
+    {
+        return $this->request('shipment/checkout', $data);
+    }
 }

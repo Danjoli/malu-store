@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             onSubmit: (formData) => {
                 return new Promise(async (resolve, reject) => {
-            
+
                     try {
                         const res = await fetch("{{ route('payment.card.process', $order->id) }}", {
                             method: "POST",
@@ -54,24 +54,27 @@ document.addEventListener("DOMContentLoaded", async function () {
                                 email: formData.payer.email
                             })
                         });
-            
+
                         const result = await res.json();
-            
+
                         if(result.status === 'paid'){
                             window.location.href = "/payment-success/{{ $order->id }}";
                         } else if(result.status === 'pending'){
                             window.location.href = "/payment-pending/{{ $order->id }}";
-                        } else {
+                        else if(result.success === false){
+                            alert("Erro: " + (result.error?.message || "Pagamento recusado"));
+                        }
+                        else {
                             window.location.href = "/payment-error/{{ $order->id }}";
                         }
-            
+
                         resolve();
-            
+
                     } catch (e) {
                         console.error(e);
                         reject();
                     }
-            
+
                 });
             },
 

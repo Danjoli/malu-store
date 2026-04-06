@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+
+use App\Models\Cart;
+use App\Models\Order;
 
 use MercadoPago\Client\Payment\PaymentClient;
 use MercadoPago\MercadoPagoConfig;
-
-use App\Models\Order;
 
 class PaymentController extends Controller
 {
@@ -27,7 +30,6 @@ class PaymentController extends Controller
     {
         $order = Order::with('user')->findOrFail($orderId);
 
-        // bloqueia se expirado
         if ($order->expires_at && now()->greaterThan($order->expires_at)) {
             return redirect()->route('payment', $order->id)
                 ->with('error', 'Este pagamento expirou.');
@@ -72,7 +74,6 @@ class PaymentController extends Controller
     {
         $order = Order::with(['user', 'address', 'user.addresses'])->findOrFail($orderId);
 
-        // bloqueia se expirado
         if (
             $order->expires_at &&
             now()->greaterThan($order->expires_at) &&
@@ -82,12 +83,13 @@ class PaymentController extends Controller
                 'status' => 'expired',
                 'gateway_status' => 'expired'
             ]);
-        
+
             return redirect()->route('payment.error', [
                 'order' => $order->id,
                 'reason' => 'expired'
             ]);
         }
+
         $client = new PaymentClient();
 
         $address = $order->address ?? $order->user->addresses->first();
@@ -103,8 +105,7 @@ class PaymentController extends Controller
         }
 
         try {
-
-            $expiresAt = now()->addWeekdays(3); // 3 dias úteis
+            $expiresAt = now()->addWeekdays(3);
             $dateOfExpiration = $expiresAt->format('Y-m-d\TH:i:s.vP');
 
             $payment = $client->create([
@@ -114,17 +115,14 @@ class PaymentController extends Controller
                 "notification_url" => route('webhook.mercadopago'),
                 "external_reference" => (string) $order->id,
                 "date_of_expiration" => $dateOfExpiration,
-
                 "payer" => [
                     "email" => $order->user->email,
                     "first_name" => $order->user->name ?? 'Cliente',
                     "last_name" => "Cliente",
-
                     "identification" => [
                         "type" => "CPF",
                         "number" => $cpf
                     ],
-
                     "address" => [
                         "zip_code" => preg_replace('/\D/', '', $address->cep),
                         "street_name" => $address->street,
@@ -160,17 +158,14 @@ class PaymentController extends Controller
     | CARTÃO
     |--------------------------------------------------------------------------
     */
-    
     public function createCard($orderId)
     {
         $order = Order::with('user')->findOrFail($orderId);
-    
         return view('public.payment.card', compact('order'));
     }
-    
+
     public function processCard(Request $request, $orderId)
     {
-        // 🔒 Validação dos dados
         $request->validate([
             'token' => 'required|string',
             'payment_method_id' => 'required|string',
@@ -178,31 +173,37 @@ class PaymentController extends Controller
             'installments' => 'required|integer|min:1',
             'cpf' => 'required|string',
         ]);
-    
+
         $order = Order::with('user')->findOrFail($orderId);
-    
-        // 🔥 Proteção contra pagamento duplicado
+
         if ($order->status === 'paid') {
             return response()->json([
                 'success' => true,
                 'status' => 'paid'
             ]);
         }
-    
+
         $client = new PaymentClient();
-    
-        \DB::beginTransaction();
-    
+
+        DB::beginTransaction();
+
         try {
-    
-            // 🔄 Recarrega pedido dentro da transação
             $order->refresh();
-    
+
             if ($order->status === 'paid') {
-                \DB::rollBack();
+                DB::rollBack();
                 return response()->json(['status' => 'paid']);
             }
-    
+
+            $cpf = preg_replace('/\D/', '', $request->cpf);
+
+            if (strlen($cpf) !== 11) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'CPF inválido'
+                ], 422);
+            }
+
             $payment = $client->create([
                 "transaction_amount" => (float) $order->total,
                 "token" => $request->token,
@@ -212,80 +213,78 @@ class PaymentController extends Controller
                 "issuer_id" => (int) $request->issuer_id,
                 "notification_url" => route('webhook.mercadopago'),
                 "external_reference" => (string) $order->id,
-    
                 "payer" => [
                     "email" => $request->email ?? $order->user->email,
                     "identification" => [
                         "type" => "CPF",
-                        "number" => preg_replace('/\D/', '', $request->cpf)
+                        "number" => $cpf
                     ]
                 ]
             ]);
-    
-            // 🔥 Mapear status
+
+            Log::info('Pagamento MercadoPago', [
+                'status' => $payment->status,
+                'status_detail' => $payment->status_detail
+            ]);
+
             $status = match($payment->status) {
                 'approved' => 'paid',
                 'pending', 'in_process' => 'pending',
                 'rejected' => 'failed',
                 default => 'pending'
             };
-    
-            // 💾 Atualizar pedido
+
             $order->update([
                 'gateway_payment_id' => $payment->id,
                 'status' => $status,
                 'gateway_status' => $payment->status
             ]);
-            
-            // 🔥 TESTE DIRETO (SEM WEBHOOK)
+
             if ($status === 'paid') {
-            
-                \Log::info('🔥 TESTE CONVERTENDO CARRINHO DIRETO', [
-                    'user_id' => $order->user_id
-                ]);
-            
                 Cart::where('user_id', $order->user_id)
-                    ->update([
-                        'status' => 'converted'
-                    ]);
+                    ->update(['status' => 'converted']);
             }
-    
-            \DB::commit();
-    
+
+            DB::commit();
+
             return response()->json([
                 'success' => true,
-                'status' => $status
+                'status' => $status,
+                'status_detail' => $payment->status_detail
             ]);
-    
+
         } catch (\MercadoPago\Exceptions\MPApiException $e) {
-    
-            \DB::rollBack();
-    
+
+            DB::rollBack();
+
             $response = $e->getApiResponse()->getContent();
-    
-            \Log::error('Erro MercadoPago', [
+
+            Log::error('Erro MercadoPago', [
                 'response' => $response
             ]);
-    
+
             return response()->json([
                 'success' => false,
                 'error' => $response
             ], 500);
-    
+
         } catch (\Exception $e) {
-    
-            \DB::rollBack();
-    
-            \Log::error('Erro geral pagamento', [
-                'error' => $e->getMessage()
+
+            DB::rollBack();
+
+            Log::error('Erro geral pagamento', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
             ]);
-    
+
             return response()->json([
                 'success' => false,
                 'error' => 'Erro interno'
             ], 500);
         }
     }
+
 
     /*
     |--------------------------------------------------------------------------
@@ -296,22 +295,17 @@ class PaymentController extends Controller
     {
         $order = Order::findOrFail($orderId);
 
-        if (
-            $order->expires_at &&
-            now()->greaterThan($order->expires_at) &&
+        if ($order->expires_at && now()->greaterThan($order->expires_at) &&
             !in_array($order->status, ['paid', 'cancelled'])
         ) {
             $order->update([
                 'status' => 'expired',
                 'gateway_status' => 'expired'
             ]);
-
             $order->status = 'expired';
         }
 
-        return response()->json([
-            'status' => $order->status
-        ]);
+        return response()->json(['status' => $order->status]);
     }
 
     /*

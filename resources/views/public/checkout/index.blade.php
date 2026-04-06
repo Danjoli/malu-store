@@ -12,7 +12,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
-        <!-- FORMULÁRIO DE ENDEREÇO -->
+        <!-- FORMULÁRIO -->
         <div class="bg-white p-6 rounded-xl shadow">
 
             <h2 class="text-xl font-semibold mb-4">
@@ -24,6 +24,7 @@
 
                 <input type="hidden" name="address_id" value="{{ $address->id ?? '' }}">
 
+                <!-- CEP -->
                 <div class="mb-4">
                     <label class="block mb-1">CEP</label>
                     <input type="text" name="cep"
@@ -31,7 +32,7 @@
                         class="w-full border rounded-lg px-4 py-2">
                 </div>
 
-                <!-- BOTÃO CALCULAR FRETE -->
+                <!-- BOTÃO -->
                 <div class="mb-4">
                     <button type="button" id="btn-calcular-frete"
                         class="bg-blue-600 text-white px-4 py-2 rounded-lg">
@@ -39,18 +40,18 @@
                     </button>
                 </div>
 
-                <!-- LISTA DE FRETES -->
+                <!-- FRETES -->
                 <div id="fretes-container" class="mb-4 hidden">
                     <label class="block mb-2 font-semibold">Escolha o Frete</label>
                     <div id="lista-fretes" class="space-y-2"></div>
                 </div>
 
-                <!-- INPUTS HIDDEN -->
+                <!-- HIDDEN -->
                 <input type="hidden" name="shipping_cost" id="shipping_cost">
                 <input type="hidden" name="carrier" id="carrier">
-                <input type="hidden" name="service" id="service"> <!-- 🔥 importante -->
+                <input type="hidden" name="service" id="service">
 
-                <!-- RESTO DOS CAMPOS -->
+                <!-- RESTO -->
                 <div class="mb-4">
                     <label class="block mb-1">Nome do Destinatário</label>
                     <input type="text" name="recipient_name"
@@ -69,7 +70,6 @@
                     <label class="block mb-1">CPF</label>
                     <input type="text" name="cpf" id="cpf"
                         value="{{ old('cpf', $address->cpf ?? '') }}"
-                        placeholder="000.000.000-00"
                         class="w-full border rounded-lg px-4 py-2">
                 </div>
 
@@ -88,15 +88,30 @@
                 </div>
 
                 <div class="mb-4">
+                    <label class="block mb-1">Bairro</label>
+                    <input type="text" name="neighborhood"
+                        value="{{ old('neighborhood', $address->neighborhood ?? '') }}"
+                        class="w-full border rounded-lg px-4 py-2">
+                </div>
+
+                <div class="mb-4">
                     <label class="block mb-1">Cidade</label>
                     <input type="text" name="city"
                         value="{{ old('city', $address->city ?? '') }}"
                         class="w-full border rounded-lg px-4 py-2">
                 </div>
 
+                <div class="mb-4">
+                    <label class="block mb-1">Estado</label>
+                    <input type="text" name="state"
+                        maxlength="2"
+                        value="{{ old('state', $address->state ?? '') }}"
+                        class="w-full border rounded-lg px-4 py-2">
+                </div>
+
         </div>
 
-        <!-- RESUMO DO PEDIDO -->
+        <!-- RESUMO -->
         <div class="bg-white p-6 rounded-xl shadow">
 
             <h2 class="text-xl font-semibold mb-4">
@@ -104,24 +119,12 @@
             </h2>
 
             @foreach ($cart->items as $item)
-                <div class="flex justify-between items-start mb-4">
-                    <div class="flex gap-3">
-                        <img src="{{ asset('products/' . $item->image_snapshot) }}"
-                            class="w-16 h-16 object-cover rounded-lg border">
-                        <div>
-                            <p class="font-medium">{{ $item->name_snapshot }}</p>
-                            <p class="text-sm text-gray-500">
-                                Qtd: {{ $item->quantity }}
-                            </p>
-                        </div>
-                    </div>
-                    <span class="font-medium">
-                        R$ {{ number_format($item->total, 2, ',', '.') }}
-                    </span>
+                <div class="flex justify-between mb-4">
+                    <span>{{ $item->name_snapshot }} (x{{ $item->quantity }})</span>
+                    <span>R$ {{ number_format($item->total, 2, ',', '.') }}</span>
                 </div>
             @endforeach
 
-            <!-- 🔥 FRETE DINÂMICO -->
             <div class="flex justify-between mb-2 mt-4">
                 <span>Frete</span>
                 <span id="valor-frete">R$ 0,00</span>
@@ -129,7 +132,6 @@
 
             <hr class="my-4">
 
-            <!-- 🔥 TOTAL DINÂMICO -->
             <div class="flex justify-between font-bold text-lg mb-6">
                 <span>Total</span>
                 <span id="valor-total">
@@ -138,7 +140,7 @@
             </div>
 
             <button type="submit"
-                class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700">
+                class="w-full bg-green-600 text-white py-3 rounded-lg">
                 Finalizar Pedido
             </button>
 
@@ -154,6 +156,14 @@
 @push('scripts')
 <script>
 
+// FORMATAR R$
+const formatar = (v) => {
+    return v.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    });
+};
+
 // CPF máscara
 const cpfInput = document.getElementById('cpf');
 cpfInput.addEventListener('input', function() {
@@ -164,13 +174,21 @@ cpfInput.addEventListener('input', function() {
     this.value = v;
 });
 
-// TOTAL BASE
 const totalBase = {{ $subtotal }};
 
 // CALCULAR FRETE
 document.getElementById('btn-calcular-frete').addEventListener('click', async () => {
 
     const cep = document.querySelector('input[name="cep"]').value;
+
+    if (!cep || cep.length < 8) {
+        alert('Digite um CEP válido');
+        return;
+    }
+
+    const btn = document.getElementById('btn-calcular-frete');
+    btn.innerText = 'Calculando...';
+    btn.disabled = true;
 
     const response = await fetch('/frete/calcular', {
         method: 'POST',
@@ -183,6 +201,9 @@ document.getElementById('btn-calcular-frete').addEventListener('click', async ()
 
     const data = await response.json();
 
+    btn.innerText = 'Calcular Frete';
+    btn.disabled = false;
+
     const container = document.getElementById('fretes-container');
     const lista = document.getElementById('lista-fretes');
 
@@ -193,7 +214,7 @@ document.getElementById('btn-calcular-frete').addEventListener('click', async ()
         if (!frete.price) return;
 
         const div = document.createElement('div');
-        div.classList.add('border', 'p-3', 'rounded-lg');
+        div.classList.add('border', 'p-3', 'rounded-lg', 'cursor-pointer');
 
         div.innerHTML = `
             <label class="flex justify-between items-center">
@@ -205,7 +226,7 @@ document.getElementById('btn-calcular-frete').addEventListener('click', async ()
                     <strong>${frete.name}</strong><br>
                     <small>${frete.delivery_time} dias</small>
                 </div>
-                <span>R$ ${parseFloat(frete.price).toFixed(2)}</span>
+                <span>${formatar(parseFloat(frete.price))}</span>
             </label>
         `;
 
@@ -227,15 +248,25 @@ document.addEventListener('change', function(e) {
         document.getElementById('carrier').value = carrier;
         document.getElementById('service').value = service;
 
-        // Atualiza frete
-        document.getElementById('valor-frete').innerText =
-            'R$ ' + valor.toFixed(2);
+        document.getElementById('valor-frete').innerText = formatar(valor);
 
-        // Atualiza total
         const total = totalBase + valor;
+        document.getElementById('valor-total').innerText = formatar(total);
 
-        document.getElementById('valor-total').innerText =
-            'R$ ' + total.toFixed(2);
+        // destaque
+        document.querySelectorAll('#lista-fretes > div').forEach(el => {
+            el.classList.remove('border-green-500');
+        });
+
+        e.target.closest('div').classList.add('border-green-500');
+    }
+});
+
+// VALIDAR SUBMIT
+document.querySelector('form').addEventListener('submit', function(e) {
+    if (!document.getElementById('shipping_cost').value) {
+        e.preventDefault();
+        alert('Selecione um frete antes de finalizar.');
     }
 });
 

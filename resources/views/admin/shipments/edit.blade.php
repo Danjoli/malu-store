@@ -15,21 +15,31 @@
     @csrf
     @method('PUT')
 
-    {{-- Transportadora --}}
+    {{-- 🔒 Transportadora (readonly) --}}
     <div>
         <label class="block font-medium mb-1">
             Transportadora
         </label>
 
         <input type="text"
-               name="carrier"
-               value="{{ old('carrier', $shipment->carrier) }}"
-               class="w-full border rounded p-2"
-               placeholder="Ex: Correios, Jadlog, DHL">
+               value="{{ $shipment->carrier }}"
+               class="w-full border rounded p-2 bg-gray-100"
+               readonly>
     </div>
 
+    {{-- 🔒 Custo (readonly) --}}
+    <div>
+        <label class="block font-medium mb-1">
+            Custo do Frete
+        </label>
 
-    {{-- Código de rastreio --}}
+        <input type="text"
+               value="R$ {{ number_format($shipment->shipping_cost, 2, ',', '.') }}"
+               class="w-full border rounded p-2 bg-gray-100"
+               readonly>
+    </div>
+
+    {{-- ✏️ Código de rastreio --}}
     <div>
         <label class="block font-medium mb-1">
             Código de Rastreamento
@@ -42,23 +52,7 @@
                placeholder="Ex: BR123456789">
     </div>
 
-
-    {{-- Custo do frete --}}
-    <div>
-        <label class="block font-medium mb-1">
-            Custo do Frete
-        </label>
-
-        <input type="number"
-               step="0.01"
-               name="shipping_cost"
-               value="{{ old('shipping_cost', $shipment->shipping_cost) }}"
-               class="w-full border rounded p-2"
-               placeholder="0.00">
-    </div>
-
-
-    {{-- Status --}}
+    {{-- 🔄 Status --}}
     <div>
         <label class="block font-medium mb-1">
             Status
@@ -89,7 +83,6 @@
 
         </select>
     </div>
-
 
     {{-- Botões --}}
     <div class="flex justify-between items-center pt-4">

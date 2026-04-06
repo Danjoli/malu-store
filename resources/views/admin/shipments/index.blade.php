@@ -6,11 +6,6 @@
 
 <div class="flex justify-between items-center mb-6">
     <h1 class="text-3xl font-bold">Envios</h1>
-
-    <a href="{{ route('admin.shipments.create') }}"
-       class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 shadow">
-        + Novo Envio
-    </a>
 </div>
 
 <div class="bg-white shadow rounded overflow-hidden">
@@ -18,7 +13,6 @@
 
         <table class="w-full text-left">
 
-            {{-- Cabeçalho --}}
             <thead class="bg-gray-100 text-gray-700 uppercase text-sm">
                 <tr>
                     <th class="p-3">Pedido</th>
@@ -31,45 +25,44 @@
                 </tr>
             </thead>
 
-            {{-- Conteúdo --}}
             <tbody>
 
                 @forelse($shipments as $shipment)
 
                     <tr class="border-t hover:bg-gray-50 transition">
 
-                        {{-- Pedido --}}
                         <td class="p-3 font-semibold">
                             #{{ $shipment->order->id }}
                         </td>
 
-                        {{-- Cliente --}}
                         <td class="p-3">
                             {{ $shipment->order->user->name }}
                         </td>
 
-                        {{-- Transportadora --}}
                         <td class="p-3">
                             {{ $shipment->carrier }}
                         </td>
 
-                        {{-- Código de rastreio --}}
+                        {{-- 🔥 Rastreamento melhorado --}}
                         <td class="p-3">
-                            {{ $shipment->tracking_code ?? '—' }}
+                            @if($shipment->tracking_code)
+                                <span class="text-blue-600 font-medium">
+                                    {{ $shipment->tracking_code }}
+                                </span>
+                            @else
+                                <span class="text-gray-400">—</span>
+                            @endif
                         </td>
 
-                        {{-- Frete --}}
                         <td class="p-3">
                             R$ {{ number_format($shipment->shipping_cost, 2, ',', '.') }}
                         </td>
 
-                        {{-- Status --}}
+                        {{-- 🔥 STATUS BONITO --}}
                         <td class="p-3">
                             <span class="px-2 py-1 text-xs rounded
                                 @if($shipment->status == 'pending')
                                     bg-yellow-200 text-yellow-800
-                                @elseif($shipment->status == 'processing')
-                                    bg-purple-200 text-purple-800
                                 @elseif($shipment->status == 'shipped')
                                     bg-blue-200 text-blue-800
                                 @elseif($shipment->status == 'delivered')
@@ -82,12 +75,40 @@
                             </span>
                         </td>
 
-                        {{-- Ações --}}
-                        <td class="p-3 text-right">
-                            <a href="{{ route('admin.shipments.edit', $shipment) }}"
-                               class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm">
-                                Editar
-                            </a>
+                        {{-- 🚀 AÇÕES PROFISSIONAIS --}}
+                        <td class="p-3 text-right space-x-2">
+
+                            {{-- 🔥 GERAR ETIQUETA --}}
+                            @if(!$shipment->tracking_code && $shipment->order->status == 'paid')
+                                <form action="{{ route('admin.shipments.gerar', $shipment->id) }}"
+                                      method="POST" class="inline">
+                                    @csrf
+                                    <button class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm">
+                                        Gerar Etiqueta
+                                    </button>
+                                </form>
+                            @endif
+
+                            {{-- 🧾 IMPRIMIR ETIQUETA --}}
+                            @if($shipment->tracking_code)
+                                <a href="#"
+                                   class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm">
+                                    Imprimir
+                                </a>
+                            @endif
+
+                            {{-- ✏️ EDITAR --}}
+                            @if($shipment->status !== 'delivered')
+                                <a href="{{ route('admin.shipments.edit', $shipment) }}"
+                                class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm">
+                                    Editar
+                                </a>
+                            @else
+                                <span class="bg-gray-300 text-gray-600 px-3 py-1 rounded text-sm cursor-not-allowed">
+                                    Bloqueado
+                                </span>
+                            @endif
+
                         </td>
 
                     </tr>
