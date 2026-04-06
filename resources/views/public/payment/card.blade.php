@@ -57,14 +57,13 @@ document.addEventListener("DOMContentLoaded", async function () {
 
                         const result = await res.json();
 
-                        if(result.status === 'paid'){
+                        if (result.status === 'paid') {
                             window.location.href = "/payment-success/{{ $order->id }}";
-                        } else if(result.status === 'pending'){
+                        } else if (result.status === 'pending') {
                             window.location.href = "/payment-pending/{{ $order->id }}";
-                        else if(result.success === false){
+                        } else if (result.success === false) {
                             alert("Erro: " + (result.error?.message || "Pagamento recusado"));
-                        }
-                        else {
+                        } else {
                             window.location.href = "/payment-error/{{ $order->id }}";
                         }
 

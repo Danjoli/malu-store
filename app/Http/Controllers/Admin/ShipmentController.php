@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Shipment;
-use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Services\MelhorEnvioService;
 
@@ -20,9 +19,6 @@ class ShipmentController extends Controller
         return view('admin.shipments.index', compact('shipments'));
     }
 
-    // ❌ REMOVEMOS CREATE (não faz sentido manual)
-    // Os envios já são criados no checkout
-
     // ✏️ EDITAR
     public function edit(Shipment $shipment)
     {
@@ -32,25 +28,26 @@ class ShipmentController extends Controller
     // 🔄 ATUALIZAR
     public function update(Request $request, Shipment $shipment)
     {
+        // 🔒 trava envios finalizados
+        if (in_array($shipment->status, ['delivered', 'cancelled'])) {
+            return back()->with('error', 'Este envio não pode mais ser alterado.');
+        }
+
         $request->validate([
-            'carrier' => 'required|string|max:255',
             'tracking_code' => 'nullable|string|max:255',
-            'shipping_cost' => 'required|numeric',
             'status' => 'required|string'
         ]);
 
-        $shipment->update($request->only([
-            'carrier',
-            'tracking_code',
-            'shipping_cost',
-            'status'
-        ]));
+        $shipment->update([
+            'tracking_code' => $request->tracking_code,
+            'status' => $request->status
+        ]);
 
         return redirect()->route('admin.shipments.index')
             ->with('success', 'Envio atualizado!');
     }
 
-    // 🚀 GERAR ETIQUETA (🔥 PRINCIPAL)
+    // 🚀 GERAR ETIQUETA
     public function gerarEtiqueta($id, MelhorEnvioService $service)
     {
         $shipment = Shipment::with('order.items', 'order.address', 'order.user')
@@ -58,35 +55,44 @@ class ShipmentController extends Controller
 
         $order = $shipment->order;
 
-        // 🔒 Evita duplicação
+        // 🔒 evitar duplicação
         if ($shipment->tracking_code) {
             return back()->with('error', 'Etiqueta já foi gerada!');
         }
 
-        // 🔒 Só após pagamento
+        // 🔒 só após pagamento
         if ($order->status !== 'paid') {
             return back()->with('error', 'Pedido ainda não foi pago.');
         }
 
+        // 🔒 validar CPF
+        if (!$order->address->cpf) {
+            return back()->with('error', 'CPF do destinatário não informado.');
+        }
+
         try {
 
-            // 📦 Montar payload
+            // 📦 PAYLOAD CORRETO
             $data = [
-                "service" => $shipment->shipment_id, // 🔥 ESSENCIAL
+                "service" => $shipment->shipment_id,
+
                 "from" => [
                     "name" => "Sua Loja",
                     "phone" => "11999999999",
                     "email" => "contato@sualoja.com",
+                    "document" => "02899542400", // 🔥 CNPJ OU CPF DA SUA LOJA
                     "address" => "Rua Origem",
                     "number" => "100",
                     "city" => "São Paulo",
                     "state_abbr" => "SP",
-                    "postal_code" => "01010-000"
+                    "postal_code" => "01010000"
                 ],
+
                 "to" => [
                     "name" => $order->address->recipient_name,
                     "phone" => $order->address->phone,
                     "email" => $order->user->email,
+                    "document" => preg_replace('/\D/', '', $order->address->cpf), // 🔥 FIX
                     "address" => $order->address->street,
                     "number" => $order->address->number,
                     "district" => $order->address->neighborhood,
@@ -94,37 +100,59 @@ class ShipmentController extends Controller
                     "state_abbr" => $order->address->state,
                     "postal_code" => $order->address->cep
                 ],
+
                 "products" => $order->items->map(function ($item) {
                     return [
                         "name" => $item->name_snapshot,
                         "quantity" => $item->quantity,
-                        "unitary_value" => $item->price,
-                        "weight" => 1,
-                        "width" => 15,
-                        "height" => 10,
-                        "length" => 20
+                        "unitary_value" => (float) $item->price
                     ];
-                })->toArray()
+                })->toArray(),
+
+                // 🔥 ESSENCIAL
+                "volumes" => [
+                    [
+                        "weight" => 0.3,
+                        "width" => 20,
+                        "height" => 5,
+                        "length" => 25
+                    ]
+                ]
             ];
 
-            // 🛒 Adicionar ao carrinho
+            // 🛒 adicionar ao carrinho
             $cart = $service->adicionarAoCarrinho($data);
 
-            // 💳 Comprar etiqueta
+            if (!isset($cart['id'])) {
+                dd($cart);
+            }
+
+            $cartId = $cart['id'];
+
+            // 💳 comprar etiqueta
             $checkout = $service->comprarEtiqueta([
-                "orders" => [$cart['id']]
+                "orders" => [$cartId]
             ]);
 
-            // 📌 Atualizar banco
+            // 🔍 debug resposta
+            \Log::info('Melhor Envio checkout', $checkout);
+
+            // 📌 atualizar banco
             $shipment->update([
                 'tracking_code' => $checkout['tracking'] ?? null,
                 'status' => 'shipped',
-                'shipped_at' => now()
+                'shipped_at' => now(),
+                'label_url' => $checkout['label'] ?? null // 🔥 PDF
             ]);
 
             return back()->with('success', 'Etiqueta gerada com sucesso!');
 
         } catch (\Exception $e) {
+
+            \Log::error('Erro ao gerar etiqueta', [
+                'message' => $e->getMessage()
+            ]);
+
             return back()->with('error', 'Erro ao gerar etiqueta: ' . $e->getMessage());
         }
     }

@@ -274,6 +274,8 @@ Route::prefix('admin')
         Route::resource('orders', OrdersController::class);
         Route::resource('shipments', ShipmentController::class);
 
+        Route::post('shipments/{id}/gerar-etiqueta', [ShipmentController::class, 'gerarEtiqueta'])
+            ->name('shipments.gerar');
     });
 
     /*

@@ -13,6 +13,7 @@ class Shipment extends Model
         'tracking_code',
         'shipping_cost',
         'status',
+        'label_url',
         'last_update',     // ✅ NOVO (status detalhado)
         'shipped_at',
         'delivered_at'
