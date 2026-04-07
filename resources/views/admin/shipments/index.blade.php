@@ -12,25 +12,21 @@
     <div class="overflow-x-auto">
 
         <table class="w-full text-left">
-
             <thead class="bg-gray-100 text-gray-700 uppercase text-sm">
                 <tr>
-                    <th class="p-3">Pedido</th>
-                    <th class="p-3">Cliente</th>
-                    <th class="p-3">Transportadora</th>
-                    <th class="p-3">Rastreamento</th>
-                    <th class="p-3">Frete</th>
-                    <th class="p-3">Status</th>
-                    <th class="p-3 text-right">Ações</th>
+                    <th scope="col" class="p-3">Pedido</th>
+                    <th scope="col" class="p-3">Cliente</th>
+                    <th scope="col" class="p-3">Transportadora</th>
+                    <th scope="col" class="p-3">Rastreamento</th>
+                    <th scope="col" class="p-3">Frete</th>
+                    <th scope="col" class="p-3">Status</th>
+                    <th scope="col" class="p-3 text-right">Ações</th>
                 </tr>
             </thead>
 
             <tbody>
-
                 @forelse($shipments as $shipment)
-
                     <tr class="border-t hover:bg-gray-50 transition">
-
                         <td class="p-3 font-semibold">
                             #{{ $shipment->order->id }}
                         </td>
@@ -40,10 +36,10 @@
                         </td>
 
                         <td class="p-3">
-                            {{ $shipment->carrier }}
+                            {{ $shipment->carrier ?? '—' }}
                         </td>
 
-                        {{-- 🔥 Rastreamento melhorado --}}
+                        {{-- Rastreamento --}}
                         <td class="p-3">
                             @if($shipment->tracking_code)
                                 <span class="text-blue-600 font-medium">
@@ -54,11 +50,12 @@
                             @endif
                         </td>
 
+                        {{-- Frete --}}
                         <td class="p-3">
-                            R$ {{ number_format($shipment->shipping_cost, 2, ',', '.') }}
+                            R$ {{ number_format($shipment->shipping_cost ?? 0, 2, ',', '.') }}
                         </td>
 
-                        {{-- 🔥 STATUS BONITO --}}
+                        {{-- Status --}}
                         <td class="p-3">
                             <span class="px-2 py-1 text-xs rounded
                                 @if($shipment->status == 'pending')
@@ -71,14 +68,14 @@
                                     bg-red-200 text-red-800
                                 @endif
                             ">
-                                {{ ucfirst($shipment->status) }}
+                                {{ ucfirst(str_replace('_',' ',$shipment->status)) }}
                             </span>
                         </td>
 
-                        {{-- 🚀 AÇÕES PROFISSIONAIS --}}
+                        {{-- Ações --}}
                         <td class="p-3 text-right space-x-2">
 
-                            {{-- 🔥 GERAR ETIQUETA --}}
+                            {{-- Gerar Etiqueta --}}
                             @if(!$shipment->tracking_code && $shipment->order->status == 'paid')
                                 <form action="{{ route('admin.shipments.gerar', $shipment->id) }}"
                                       method="POST" class="inline">
@@ -89,18 +86,18 @@
                                 </form>
                             @endif
 
-                            {{-- 🧾 IMPRIMIR ETIQUETA --}}
-                            @if($shipment->tracking_code)
-                                <a href="#"
+                            {{-- Imprimir Etiqueta --}}
+                            @if($shipment->tracking_code && $shipment->label_url)
+                                <a href="{{ $shipment->label_url }}" target="_blank"
                                    class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm">
                                     Imprimir
                                 </a>
                             @endif
 
-                            {{-- ✏️ EDITAR --}}
+                            {{-- Editar --}}
                             @if($shipment->status !== 'delivered')
                                 <a href="{{ route('admin.shipments.edit', $shipment) }}"
-                                class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm">
+                                   class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm">
                                     Editar
                                 </a>
                             @else
@@ -109,22 +106,27 @@
                                 </span>
                             @endif
 
+                            {{-- Atualizar Status Manual --}}
+                            @if($shipment->tracking_code)
+                                <form action="{{ route('admin.shipments.atualizarStatus', $shipment->id) }}"
+                                      method="POST" class="inline">
+                                    @csrf
+                                    <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">
+                                        Atualizar Status
+                                    </button>
+                                </form>
+                            @endif
+
                         </td>
-
                     </tr>
-
                 @empty
-
                     <tr>
                         <td colspan="7" class="p-6 text-center text-gray-500">
                             Nenhum envio cadastrado.
                         </td>
                     </tr>
-
                 @endforelse
-
             </tbody>
-
         </table>
 
     </div>

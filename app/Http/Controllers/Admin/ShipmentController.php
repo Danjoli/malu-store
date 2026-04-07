@@ -6,29 +6,38 @@ use App\Http\Controllers\Controller;
 use App\Models\Shipment;
 use Illuminate\Http\Request;
 use App\Services\MelhorEnvioService;
+use Illuminate\Support\Facades\Http;
 
 class ShipmentController extends Controller
 {
-    // 📦 LISTAR ENVIOS
+    /*
+    |----------------------------------------------------------------------
+    | 📦 LISTAR ENVIOS
+    |----------------------------------------------------------------------
+    */
     public function index()
     {
-        $shipments = Shipment::with('order.user')
-            ->latest()
-            ->get();
-
+        $shipments = Shipment::with('order.user')->latest()->get();
         return view('admin.shipments.index', compact('shipments'));
     }
 
-    // ✏️ EDITAR
+    /*
+    |----------------------------------------------------------------------
+    | ✏️ EDITAR
+    |----------------------------------------------------------------------
+    */
     public function edit(Shipment $shipment)
     {
         return view('admin.shipments.edit', compact('shipment'));
     }
 
-    // 🔄 ATUALIZAR
+    /*
+    |----------------------------------------------------------------------
+    | 🔄 ATUALIZAR
+    |----------------------------------------------------------------------
+    */
     public function update(Request $request, Shipment $shipment)
     {
-        // 🔒 trava envios finalizados
         if (in_array($shipment->status, ['delivered', 'cancelled'])) {
             return back()->with('error', 'Este envio não pode mais ser alterado.');
         }
@@ -47,7 +56,11 @@ class ShipmentController extends Controller
             ->with('success', 'Envio atualizado!');
     }
 
-    // 🚀 GERAR ETIQUETA
+    /*
+    |----------------------------------------------------------------------
+    | 🚀 GERAR ETIQUETA
+    |----------------------------------------------------------------------
+    */
     public function gerarEtiqueta($id, MelhorEnvioService $service)
     {
         $shipment = Shipment::with('order.items', 'order.address', 'order.user')
@@ -55,52 +68,44 @@ class ShipmentController extends Controller
 
         $order = $shipment->order;
 
-        // 🔒 evitar duplicação
         if ($shipment->tracking_code) {
             return back()->with('error', 'Etiqueta já foi gerada!');
         }
 
-        // 🔒 só após pagamento
         if ($order->status !== 'paid') {
             return back()->with('error', 'Pedido ainda não foi pago.');
         }
 
-        // 🔒 validar CPF
         if (!$order->address->cpf) {
             return back()->with('error', 'CPF do destinatário não informado.');
         }
 
         try {
-
-            // 📦 PAYLOAD CORRETO
             $data = [
                 "service" => $shipment->shipment_id,
-
                 "from" => [
                     "name" => "Sua Loja",
                     "phone" => "11999999999",
                     "email" => "contato@sualoja.com",
-                    "document" => "02899542400", // 🔥 CNPJ OU CPF DA SUA LOJA
+                    "document" => "02899542400",
                     "address" => "Rua Origem",
                     "number" => "100",
                     "city" => "São Paulo",
                     "state_abbr" => "SP",
                     "postal_code" => "01010000"
                 ],
-
                 "to" => [
                     "name" => $order->address->recipient_name,
                     "phone" => $order->address->phone,
                     "email" => $order->user->email,
-                    "document" => preg_replace('/\D/', '', $order->address->cpf), // 🔥 FIX
+                    "document" => preg_replace('/\D/', '', $order->address->cpf),
                     "address" => $order->address->street,
                     "number" => $order->address->number,
                     "district" => $order->address->neighborhood,
                     "city" => $order->address->city,
                     "state_abbr" => $order->address->state,
-                    "postal_code" => $order->address->cep
+                    "postal_code" => preg_replace('/\D/', '', $order->address->cep)
                 ],
-
                 "products" => $order->items->map(function ($item) {
                     return [
                         "name" => $item->name_snapshot,
@@ -108,8 +113,6 @@ class ShipmentController extends Controller
                         "unitary_value" => (float) $item->price
                     ];
                 })->toArray(),
-
-                // 🔥 ESSENCIAL
                 "volumes" => [
                     [
                         "weight" => 0.3,
@@ -120,40 +123,136 @@ class ShipmentController extends Controller
                 ]
             ];
 
-            // 🛒 adicionar ao carrinho
             $cart = $service->adicionarAoCarrinho($data);
 
             if (!isset($cart['id'])) {
-                dd($cart);
+                \Log::error('Erro carrinho Melhor Envio', $cart);
+                return back()->with('error', 'Erro ao adicionar ao carrinho.');
             }
 
             $cartId = $cart['id'];
 
-            // 💳 comprar etiqueta
-            $checkout = $service->comprarEtiqueta([
+            $purchase = $service->comprarEtiqueta([
                 "orders" => [$cartId]
             ]);
 
-            // 🔍 debug resposta
-            \Log::info('Melhor Envio checkout', $checkout);
+            $orderData = $purchase['purchase']['orders'][0] ?? $purchase['orders'][0] ?? null;
 
-            // 📌 atualizar banco
+            if (!$orderData) {
+                \Log::error('Erro ao obter dados do pedido comprado', $purchase);
+                return back()->with('error', 'Não foi possível obter dados do pedido.');
+            }
+
+            $trackingCode = $orderData['tracking']
+                            ?? $orderData['tracking_code']
+                            ?? $orderData['protocol']
+                            ?? null;
+
+            $labelUrl = $orderData['labels'][0]['url']
+                        ?? $orderData['label_url']
+                        ?? $orderData['label_pdf']
+                        ?? $orderData['service']['company']['tracking_link']
+                        ?? null;
+
             $shipment->update([
-                'tracking_code' => $checkout['tracking'] ?? null,
+                'tracking_code' => $trackingCode,
+                'label_url' => $labelUrl,
                 'status' => 'shipped',
-                'shipped_at' => now(),
-                'label_url' => $checkout['label'] ?? null // 🔥 PDF
+                'shipped_at' => now()
             ]);
 
             return back()->with('success', 'Etiqueta gerada com sucesso!');
 
         } catch (\Exception $e) {
-
-            \Log::error('Erro ao gerar etiqueta', [
-                'message' => $e->getMessage()
+            \Log::error('Erro geral envio', [
+                'message' => $e->getMessage(),
+                'stack' => $e->getTraceAsString()
             ]);
 
             return back()->with('error', 'Erro ao gerar etiqueta: ' . $e->getMessage());
         }
+    }
+
+    /*
+    |----------------------------------------------------------------------
+    | 🔄 ATUALIZAR STATUS MANUAL
+    |----------------------------------------------------------------------
+    */
+    public function atualizarStatus($id, MelhorEnvioService $service)
+    {
+        $shipment = Shipment::findOrFail($id);
+
+        if (!$shipment->shipment_id) {
+            return back()->with('error', 'Envio ainda não foi gerado na Melhor Envio.');
+        }
+
+        try {
+            $orderData = $service->consultarPedido($shipment->shipment_id);
+
+            $status = $orderData['status'] ?? $shipment->status;
+
+            $shipment->update([
+                'status' => $status,
+                'shipped_at' => $status === 'shipped' ? now() : $shipment->shipped_at,
+                'delivered_at' => $status === 'delivered' ? now() : $shipment->delivered_at,
+                'tracking_code' => $orderData['tracking_code'] ?? $shipment->tracking_code
+            ]);
+
+            return back()->with('success', 'Status atualizado manualmente!');
+
+        } catch (\Exception $e) {
+            \Log::error('Erro ao atualizar status', [
+                'message' => $e->getMessage(),
+                'stack' => $e->getTraceAsString()
+            ]);
+
+            return back()->with('error', 'Não foi possível atualizar o status.');
+        }
+    }
+
+    /*
+    |----------------------------------------------------------------------
+    | 🌐 WEBHOOK
+    |----------------------------------------------------------------------
+    */
+    public function webhook(Request $request)
+    {
+        $tokenEsperado = config('services.melhor_envio.webhook_token');
+        if ($request->header('Authorization') !== 'Bearer ' . $tokenEsperado) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+
+        \Log::info('Webhook Melhor Envio recebido', $request->all());
+
+        $data = $request->all();
+
+        if (isset($data['orders']) && count($data['orders']) > 0) {
+            foreach ($data['orders'] as $orderData) {
+                $tracking = $orderData['tracking'] ?? null;
+                if (!$tracking) continue;
+
+                $shipment = Shipment::where('tracking_code', $tracking)->first();
+                if (!$shipment) continue;
+
+                $status = $orderData['status'] ?? $shipment->status;
+                $updateData = ['status' => $status];
+
+                if ($status === 'shipped') $updateData['shipped_at'] = now();
+                if ($status === 'delivered') $updateData['delivered_at'] = now();
+                if (isset($orderData['tracking_code'])) $updateData['tracking_code'] = $orderData['tracking_code'];
+
+                $shipment->update($updateData);
+
+                // Notificar cliente
+                if (in_array($status, ['shipped','delivered'])) {
+                    $user = $shipment->order->user;
+                    \Mail::to($user->email)->queue(new \App\Mail\ShipmentStatusUpdated($shipment));
+                }
+
+                \Log::info("Envio {$shipment->id} atualizado via webhook", $updateData);
+            }
+        }
+
+        return response()->json(['success' => true]);
     }
 }

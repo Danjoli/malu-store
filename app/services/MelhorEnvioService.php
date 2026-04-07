@@ -38,4 +38,9 @@ class MelhorEnvioService {
     {
         return $this->request('shipment/checkout', $data);
     }
+
+    public function gerarEtiqueta($data)
+    {
+        return $this->request('shipment/generate', $data);
+    }
 }
