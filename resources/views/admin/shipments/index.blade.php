@@ -87,10 +87,10 @@
                             @endif
 
                             {{-- Imprimir Etiqueta --}}
-                            @if($shipment->tracking_code && $shipment->label_url)
+                            @if($shipment->label_url)
                                 <a href="{{ $shipment->label_url }}" target="_blank"
-                                   class="bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 text-sm">
-                                    Imprimir
+                                   class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm">
+                                    Imprimir TESTE
                                 </a>
                             @endif
 

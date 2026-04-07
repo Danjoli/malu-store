@@ -110,7 +110,7 @@
 
                     <!-- Imagem do produto -->
                     @if($item->image_snapshot)
-                        <img src="{{ asset('storage/' . $item->image_snapshot) }}" alt="{{ $item->name_snapshot }}" class="w-16 h-16 object-cover rounded">
+                        <img src="{{ asset('products/' . $item->image_snapshot) }}" alt="{{ $item->name_snapshot }}" class="w-16 h-16 object-cover rounded">
                     @else
                         <div class="w-16 h-16 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">
                             Sem imagem

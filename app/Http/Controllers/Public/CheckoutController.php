@@ -125,7 +125,7 @@ class CheckoutController extends Controller
                     ->update(['is_default' => false]);
             }
 
-            // 🛒 Carrinho
+            // Carrinho
             $cart = Cart::with('items.variant')
                 ->where('user_id', $user->id)
                 ->where('status', 'active')
@@ -137,7 +137,7 @@ class CheckoutController extends Controller
 
             $subtotal = $cart->items->sum(fn($item) => $item->price * $item->quantity);
 
-            // 🔥 FRETE DINÂMICO
+            // FRETE DINÂMICO
             $shipping = (float) $request->shipping_cost;
             $total = $subtotal + $shipping;
 
@@ -199,7 +199,7 @@ class CheckoutController extends Controller
 
             /*
             |--------------------------------------------------------------
-            | 🚚 Criar ENVIO
+            | Criar ENVIO
             |--------------------------------------------------------------
             */
             Shipment::create([

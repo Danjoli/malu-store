@@ -36,6 +36,8 @@ use App\Http\Controllers\Public\FreteController;
 Route::post('/webhook/mercadopago', [WebhookController::class, 'mercadopago'])
     ->name('webhook.mercadopago');
 
+Route::post('/webhook/melhor-envio', [ShipmentController::class, 'webhook'])
+    ->name('webhook.melhor-envio');
 
 /*
 |--------------------------------------------------------------------------
@@ -248,9 +250,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::post('/webhook/melhor-envio', [ShipmentController::class, 'webhook'])
-    ->name('webhook.melhor-envio');
-
 Route::prefix('admin')
     ->name('admin.')
     ->middleware('auth:admin')
@@ -282,7 +281,7 @@ Route::prefix('admin')
 
         // Atualizar status manual
         Route::post('shipments/{shipment}/atualizar-status', [ShipmentController::class, 'atualizarStatus'])
-            ->name('admin.shipments.atualizarStatus');
+            ->name('shipments.atualizarStatus');
     });
 
     /*

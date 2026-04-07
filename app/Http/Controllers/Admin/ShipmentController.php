@@ -12,7 +12,7 @@ class ShipmentController extends Controller
 {
     /*
     |----------------------------------------------------------------------
-    | 📦 LISTAR ENVIOS
+    | LISTAR ENVIOS
     |----------------------------------------------------------------------
     */
     public function index()
@@ -23,7 +23,7 @@ class ShipmentController extends Controller
 
     /*
     |----------------------------------------------------------------------
-    | ✏️ EDITAR
+    | EDITAR
     |----------------------------------------------------------------------
     */
     public function edit(Shipment $shipment)
@@ -33,7 +33,7 @@ class ShipmentController extends Controller
 
     /*
     |----------------------------------------------------------------------
-    | 🔄 ATUALIZAR
+    | ATUALIZAR
     |----------------------------------------------------------------------
     */
     public function update(Request $request, Shipment $shipment)
@@ -58,7 +58,7 @@ class ShipmentController extends Controller
 
     /*
     |----------------------------------------------------------------------
-    | 🚀 GERAR ETIQUETA
+    | GERAR ETIQUETA
     |----------------------------------------------------------------------
     */
     public function gerarEtiqueta($id, MelhorEnvioService $service)
@@ -175,7 +175,7 @@ class ShipmentController extends Controller
 
     /*
     |----------------------------------------------------------------------
-    | 🔄 ATUALIZAR STATUS MANUAL
+    | ATUALIZAR STATUS MANUAL
     |----------------------------------------------------------------------
     */
     public function atualizarStatus($id, MelhorEnvioService $service)
@@ -189,13 +189,31 @@ class ShipmentController extends Controller
         try {
             $orderData = $service->consultarPedido($shipment->shipment_id);
 
-            $status = $orderData['status'] ?? $shipment->status;
+            \Log::info('Resposta API Melhor Envio', $orderData);
+
+            $apiStatus = $orderData['status'] ?? null;
+
+            // Mapeamento correto
+            $statusMap = [
+                'created' => 'pending',
+                'released' => 'paid',
+                'generated' => 'shipped',
+                'posted' => 'shipped',
+                'in_transit' => 'shipped',
+                'delivered' => 'delivered',
+                'undelivered' => 'failed',
+                'suspended' => 'problem',
+                'paused' => 'waiting_action',
+                'cancelled' => 'cancelled',
+            ];
+
+            $status = $statusMap[$apiStatus] ?? $shipment->status;
 
             $shipment->update([
                 'status' => $status,
-                'shipped_at' => $status === 'shipped' ? now() : $shipment->shipped_at,
-                'delivered_at' => $status === 'delivered' ? now() : $shipment->delivered_at,
-                'tracking_code' => $orderData['tracking_code'] ?? $shipment->tracking_code
+                'shipped_at' => $apiStatus === 'posted' ? now() : $shipment->shipped_at,
+                'delivered_at' => $apiStatus === 'delivered' ? now() : $shipment->delivered_at,
+                'tracking_code' => $orderData['tracking'] ?? $shipment->tracking_code
             ]);
 
             return back()->with('success', 'Status atualizado manualmente!');
@@ -203,7 +221,6 @@ class ShipmentController extends Controller
         } catch (\Exception $e) {
             \Log::error('Erro ao atualizar status', [
                 'message' => $e->getMessage(),
-                'stack' => $e->getTraceAsString()
             ]);
 
             return back()->with('error', 'Não foi possível atualizar o status.');
@@ -212,46 +229,54 @@ class ShipmentController extends Controller
 
     /*
     |----------------------------------------------------------------------
-    | 🌐 WEBHOOK
+    | WEBHOOK
     |----------------------------------------------------------------------
     */
     public function webhook(Request $request)
     {
-        $tokenEsperado = config('services.melhor_envio.webhook_token');
-        if ($request->header('Authorization') !== 'Bearer ' . $tokenEsperado) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-
         \Log::info('Webhook Melhor Envio recebido', $request->all());
 
-        $data = $request->all();
+        $event = $request->input('event');
+        $data = $request->input('data');
 
-        if (isset($data['orders']) && count($data['orders']) > 0) {
-            foreach ($data['orders'] as $orderData) {
-                $tracking = $orderData['tracking'] ?? null;
-                if (!$tracking) continue;
-
-                $shipment = Shipment::where('tracking_code', $tracking)->first();
-                if (!$shipment) continue;
-
-                $status = $orderData['status'] ?? $shipment->status;
-                $updateData = ['status' => $status];
-
-                if ($status === 'shipped') $updateData['shipped_at'] = now();
-                if ($status === 'delivered') $updateData['delivered_at'] = now();
-                if (isset($orderData['tracking_code'])) $updateData['tracking_code'] = $orderData['tracking_code'];
-
-                $shipment->update($updateData);
-
-                // Notificar cliente
-                if (in_array($status, ['shipped','delivered'])) {
-                    $user = $shipment->order->user;
-                    \Mail::to($user->email)->queue(new \App\Mail\ShipmentStatusUpdated($shipment));
-                }
-
-                \Log::info("Envio {$shipment->id} atualizado via webhook", $updateData);
-            }
+        if (!$data) {
+            return response()->json(['error' => 'Payload inválido'], 400);
         }
+
+        $shipment = Shipment::where('shipment_id', $data['id'])->first();
+
+        if (!$shipment) {
+            return response()->json(['error' => 'Shipment não encontrado'], 404);
+        }
+
+        $apiStatus = $data['status'] ?? null;
+
+        $statusMap = [
+            'created' => 'pending',
+            'released' => 'paid',
+            'generated' => 'shipped',
+            'posted' => 'shipped',
+            'in_transit' => 'shipped',
+            'delivered' => 'delivered',
+            'undelivered' => 'failed',
+            'suspended' => 'problem',
+            'paused' => 'waiting_action',
+            'cancelled' => 'cancelled',
+        ];
+
+        $status = $statusMap[$apiStatus] ?? $shipment->status;
+
+        $shipment->update([
+            'status' => $status,
+            'tracking_code' => $data['tracking'] ?? $shipment->tracking_code,
+            'shipped_at' => $apiStatus === 'posted' ? now() : $shipment->shipped_at,
+            'delivered_at' => $apiStatus === 'delivered' ? now() : $shipment->delivered_at,
+        ]);
+
+        \Log::info("Envio atualizado via webhook", [
+            'shipment_id' => $shipment->id,
+            'status' => $status
+        ]);
 
         return response()->json(['success' => true]);
     }

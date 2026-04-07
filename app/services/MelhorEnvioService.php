@@ -15,11 +15,18 @@ class MelhorEnvioService {
         $this->token = config('services.melhor_envio.token');
     }
 
-    private function request($endpoint, $data = [])
+    private function request($endpoint, $data = [], $method = 'POST')
     {
-        $response = Http::withToken($this->token)
-            ->acceptJson()
-            ->post($this->baseUrl . $endpoint, $data);
+        $http = Http::withToken($this->token)
+            ->acceptJson();
+
+        $url = $this->baseUrl . $endpoint;
+
+        if ($method === 'GET') {
+            $response = $http->get($url, $data);
+        } else {
+            $response = $http->post($url, $data);
+        }
 
         return $response->json();
     }
@@ -42,5 +49,10 @@ class MelhorEnvioService {
     public function gerarEtiqueta($data)
     {
         return $this->request('shipment/generate', $data);
+    }
+
+    public function consultarPedido($shipmentId)
+    {
+        return $this->request("shipment/{$shipmentId}", [], 'GET');
     }
 }
