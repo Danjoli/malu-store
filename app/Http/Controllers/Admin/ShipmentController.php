@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Shipment;
 use Illuminate\Http\Request;
 use App\Services\MelhorEnvioService;
-use Illuminate\Support\Facades\Http;
 
 class ShipmentController extends Controller
 {
@@ -82,7 +81,7 @@ class ShipmentController extends Controller
 
         try {
             $data = [
-                "service" => $shipment->shipment_id,
+                "service" => $shipment->shipment_id, // ⚠️ ideal vir da cotação
                 "from" => [
                     "name" => "Sua Loja",
                     "phone" => "11999999999",
@@ -123,40 +122,42 @@ class ShipmentController extends Controller
                 ]
             ];
 
+            // 1. Adicionar ao carrinho
             $cart = $service->adicionarAoCarrinho($data);
 
             if (!isset($cart['id'])) {
-                \Log::error('Erro carrinho Melhor Envio', $cart);
+                \Log::error('Erro carrinho Melhor Envio', ['response' => $cart]);
                 return back()->with('error', 'Erro ao adicionar ao carrinho.');
             }
 
-            $cartId = $cart['id'];
-
+            // 2. Comprar etiqueta
             $purchase = $service->comprarEtiqueta([
-                "orders" => [$cartId]
+                "orders" => [$cart['id']]
             ]);
 
-            $orderData = $purchase['purchase']['orders'][0] ?? $purchase['orders'][0] ?? null;
-
-            if (!$orderData) {
-                \Log::error('Erro ao obter dados do pedido comprado', $purchase);
-                return back()->with('error', 'Não foi possível obter dados do pedido.');
+            if (!isset($purchase['purchase'])) {
+                \Log::error('Erro na compra', ['response' => $purchase]);
+                return back()->with('error', 'Erro ao comprar etiqueta.');
             }
 
-            $trackingCode = $orderData['tracking']
-                            ?? $orderData['tracking_code']
-                            ?? $orderData['protocol']
-                            ?? null;
+            // 3. GERAR etiqueta (🔥 ESSA PARTE QUE FALTAVA)
+            $generate = $service->gerarEtiqueta([
+                "orders" => [$cart['id']]
+            ]);
 
-            $labelUrl = $orderData['labels'][0]['url']
-                        ?? $orderData['label_url']
-                        ?? $orderData['label_pdf']
-                        ?? $orderData['service']['company']['tracking_link']
-                        ?? null;
+            // 4. Pegar dados finais
+            $orderData = $generate['orders'][0] ?? null;
 
+            if (!$orderData) {
+                \Log::error('Erro ao gerar etiqueta', ['response' => $generate]);
+                return back()->with('error', 'Erro ao gerar etiqueta.');
+            }
+
+            // 5. Atualizar banco
             $shipment->update([
-                'tracking_code' => $trackingCode,
-                'label_url' => $labelUrl,
+                'shipment_id' => $orderData['id'] ?? $shipment->shipment_id,
+                'tracking_code' => $orderData['tracking'] ?? null,
+                'label_url' => $orderData['labels'][0]['url'] ?? null,
                 'status' => 'shipped',
                 'shipped_at' => now()
             ]);
@@ -165,17 +166,16 @@ class ShipmentController extends Controller
 
         } catch (\Exception $e) {
             \Log::error('Erro geral envio', [
-                'message' => $e->getMessage(),
-                'stack' => $e->getTraceAsString()
+                'message' => $e->getMessage()
             ]);
 
-            return back()->with('error', 'Erro ao gerar etiqueta: ' . $e->getMessage());
+            return back()->with('error', 'Erro ao gerar etiqueta.');
         }
     }
 
     /*
     |----------------------------------------------------------------------
-    | ATUALIZAR STATUS MANUAL
+    | ATUALIZAR STATUS MANUAL (FALLBACK)
     |----------------------------------------------------------------------
     */
     public function atualizarStatus($id, MelhorEnvioService $service)
@@ -183,75 +183,90 @@ class ShipmentController extends Controller
         $shipment = Shipment::findOrFail($id);
 
         if (!$shipment->shipment_id) {
-            return back()->with('error', 'Envio ainda não foi gerado na Melhor Envio.');
+            return back()->with('error', 'Envio não existe na Melhor Envio.');
         }
 
         try {
             $orderData = $service->consultarPedido($shipment->shipment_id);
 
-            \Log::info('Resposta API Melhor Envio', $orderData);
+            \Log::info('Resposta API Melhor Envio', [
+                'data' => $orderData
+            ]);
 
-            $apiStatus = $orderData['status'] ?? null;
+            if (!$orderData || !isset($orderData['status'])) {
+                return back()->with('error', 'Resposta inválida da API.');
+            }
 
-            // Mapeamento correto
-            $statusMap = [
-                'created' => 'pending',
-                'released' => 'paid',
-                'generated' => 'shipped',
-                'posted' => 'shipped',
-                'in_transit' => 'shipped',
-                'delivered' => 'delivered',
-                'undelivered' => 'failed',
-                'suspended' => 'problem',
-                'paused' => 'waiting_action',
-                'cancelled' => 'cancelled',
-            ];
-
-            $status = $statusMap[$apiStatus] ?? $shipment->status;
+            $apiStatus = $orderData['status'];
+            $status = $this->mapStatus($apiStatus) ?? $shipment->status;
 
             $shipment->update([
                 'status' => $status,
+                'tracking_code' => $orderData['tracking'] ?? $shipment->tracking_code,
                 'shipped_at' => $apiStatus === 'posted' ? now() : $shipment->shipped_at,
                 'delivered_at' => $apiStatus === 'delivered' ? now() : $shipment->delivered_at,
-                'tracking_code' => $orderData['tracking'] ?? $shipment->tracking_code
             ]);
 
-            return back()->with('success', 'Status atualizado manualmente!');
+            return back()->with('success', 'Status atualizado!');
 
         } catch (\Exception $e) {
             \Log::error('Erro ao atualizar status', [
-                'message' => $e->getMessage(),
+                'message' => $e->getMessage()
             ]);
 
-            return back()->with('error', 'Não foi possível atualizar o status.');
+            return back()->with('error', 'Erro ao atualizar status.');
         }
     }
 
     /*
     |----------------------------------------------------------------------
-    | WEBHOOK
+    | WEBHOOK (PRINCIPAL)
     |----------------------------------------------------------------------
     */
     public function webhook(Request $request)
     {
-        \Log::info('Webhook Melhor Envio recebido', $request->all());
+        \Log::info('Webhook recebido', [
+            'payload' => $request->all()
+        ]);
 
-        $event = $request->input('event');
         $data = $request->input('data');
 
-        if (!$data) {
-            return response()->json(['error' => 'Payload inválido'], 400);
+        if (!$data || !isset($data['id'])) {
+            return response()->json(['ok' => true]);
         }
 
         $shipment = Shipment::where('shipment_id', $data['id'])->first();
 
         if (!$shipment) {
-            return response()->json(['error' => 'Shipment não encontrado'], 404);
+            return response()->json(['ok' => true]);
         }
 
         $apiStatus = $data['status'] ?? null;
+        $status = $this->mapStatus($apiStatus) ?? $shipment->status;
 
-        $statusMap = [
+        $shipment->update([
+            'status' => $status,
+            'tracking_code' => $data['tracking'] ?? $shipment->tracking_code,
+            'shipped_at' => $apiStatus === 'posted' ? now() : $shipment->shipped_at,
+            'delivered_at' => $apiStatus === 'delivered' ? now() : $shipment->delivered_at,
+        ]);
+
+        \Log::info('Atualizado via webhook', [
+            'shipment_id' => $shipment->id,
+            'status' => $status
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    /*
+    |----------------------------------------------------------------------
+    | MAPEAR STATUS (REUTILIZÁVEL)
+    |----------------------------------------------------------------------
+    */
+    private function mapStatus($apiStatus)
+    {
+        return [
             'created' => 'pending',
             'released' => 'paid',
             'generated' => 'shipped',
@@ -262,22 +277,6 @@ class ShipmentController extends Controller
             'suspended' => 'problem',
             'paused' => 'waiting_action',
             'cancelled' => 'cancelled',
-        ];
-
-        $status = $statusMap[$apiStatus] ?? $shipment->status;
-
-        $shipment->update([
-            'status' => $status,
-            'tracking_code' => $data['tracking'] ?? $shipment->tracking_code,
-            'shipped_at' => $apiStatus === 'posted' ? now() : $shipment->shipped_at,
-            'delivered_at' => $apiStatus === 'delivered' ? now() : $shipment->delivered_at,
-        ]);
-
-        \Log::info("Envio atualizado via webhook", [
-            'shipment_id' => $shipment->id,
-            'status' => $status
-        ]);
-
-        return response()->json(['success' => true]);
+        ][$apiStatus] ?? null;
     }
 }

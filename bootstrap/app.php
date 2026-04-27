@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
         */
         $middleware->validateCsrfTokens(except: [
             'webhook/mercadopago',
+            'webhook/melhor-envio',
         ]);
 
         /*
