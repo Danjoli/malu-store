@@ -206,7 +206,7 @@ class CheckoutController extends Controller
                 'order_id' => $order->id,
                 'carrier' => $request->carrier,
                 'shipping_cost' => $shipping,
-                'shipment_id' => $request->service,
+                'service_id' => $request->service,
                 'status' => 'pending'
             ]);
 

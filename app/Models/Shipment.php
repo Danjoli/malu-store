@@ -12,6 +12,7 @@ class Shipment extends Model
         'carrier',
         'tracking_code',
         'shipping_cost',
+        'service_id',
         'status',
         'label_url',
         'last_update',     // ✅ NOVO (status detalhado)
@@ -23,7 +24,7 @@ class Shipment extends Model
         'shipping_cost' => 'decimal:2',
         'shipped_at' => 'datetime',
         'delivered_at' => 'datetime',
-    ];
+];
 
     public function order()
     {
