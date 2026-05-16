@@ -107,9 +107,9 @@
                             @endif
 
                             {{-- Atualizar Status Manual --}}
-                            @if($shipment->tracking_code)
+                            @if($shipment->shipment_id)
                                 <form action="{{ route('admin.shipments.atualizarStatus', $shipment->id) }}"
-                                      method="POST" class="inline">
+                                    method="POST" class="inline">
                                     @csrf
                                     <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">
                                         Atualizar Status

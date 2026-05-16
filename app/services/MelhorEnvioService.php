@@ -53,6 +53,14 @@ class MelhorEnvioService {
 
     public function consultarPedido($shipmentId)
     {
-        return $this->request("shipment/{$shipmentId}", [], 'GET');
+        $response = Http::withToken($this->token)
+            ->acceptJson()
+            ->get($this->baseUrl . "shipment/check", [
+                'orders' => $shipmentId
+            ]);
+
+        dd($response->json());
+
+        return $response->json();
     }
 }

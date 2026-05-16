@@ -16,7 +16,9 @@ class ShipmentController extends Controller
     */
     public function index()
     {
-        $shipments = Shipment::with('order.user')->latest()->get();
+        $shipments = Shipment::with('order.user')
+            ->latest()
+            ->get();
 
         return view('admin.shipments.index', compact('shipments'));
     }
@@ -39,7 +41,11 @@ class ShipmentController extends Controller
     public function update(Request $request, Shipment $shipment)
     {
         if (in_array($shipment->status, ['delivered', 'cancelled'])) {
-            return back()->with('error', 'Este envio não pode mais ser alterado.');
+
+            return back()->with(
+                'error',
+                'Este envio não pode mais ser alterado.'
+            );
         }
 
         $request->validate([
@@ -77,24 +83,44 @@ class ShipmentController extends Controller
         | VALIDAÇÕES
         |----------------------------------------------------------------------
         */
-        if ($shipment->tracking_code) {
-            return back()->with('error', 'Etiqueta já foi gerada!');
+        if ($shipment->shipment_id) {
+
+            return back()->with(
+                'error',
+                'Etiqueta já foi gerada!'
+            );
         }
 
         if ($order->status !== 'paid') {
-            return back()->with('error', 'Pedido ainda não foi pago.');
+
+            return back()->with(
+                'error',
+                'Pedido ainda não foi pago.'
+            );
         }
 
         if (!$shipment->service_id) {
-            return back()->with('error', 'Serviço de frete não encontrado.');
+
+            return back()->with(
+                'error',
+                'Serviço de frete não encontrado.'
+            );
         }
 
         if (!$order->address) {
-            return back()->with('error', 'Endereço não encontrado.');
+
+            return back()->with(
+                'error',
+                'Endereço não encontrado.'
+            );
         }
 
         if (!$order->address->cpf) {
-            return back()->with('error', 'CPF do destinatário não informado.');
+
+            return back()->with(
+                'error',
+                'CPF do destinatário não informado.'
+            );
         }
 
         try {
@@ -125,13 +151,21 @@ class ShipmentController extends Controller
                     "name" => $order->address->recipient_name,
                     "phone" => $order->address->phone,
                     "email" => $order->user->email,
-                    "document" => preg_replace('/\D/', '', $order->address->cpf),
+                    "document" => preg_replace(
+                        '/\D/',
+                        '',
+                        $order->address->cpf
+                    ),
                     "address" => $order->address->street,
                     "number" => $order->address->number,
                     "district" => $order->address->neighborhood,
                     "city" => $order->address->city,
                     "state_abbr" => strtoupper($order->address->state),
-                    "postal_code" => preg_replace('/\D/', '', $order->address->cep)
+                    "postal_code" => preg_replace(
+                        '/\D/',
+                        '',
+                        $order->address->cep
+                    )
                 ],
 
                 "products" => $order->items->map(function ($item) {
@@ -173,7 +207,8 @@ class ShipmentController extends Controller
 
                 return back()->with(
                     'error',
-                    $cart['message'] ?? 'Erro ao adicionar ao carrinho.'
+                    $cart['message']
+                        ?? 'Erro ao adicionar ao carrinho.'
                 );
             }
 
@@ -212,73 +247,54 @@ class ShipmentController extends Controller
 
             /*
             |----------------------------------------------------------------------
-            | 5. CONSULTAR PEDIDO
+            | 5. CONSULTAR TRACKING
             |----------------------------------------------------------------------
             */
-            $orderData = $service->consultarPedido($cart['id']);
+            $trackingResponse = $service->consultarPedido(
+                $cart['id']
+            );
 
-            \Log::info('Consulta pedido', [
-                'response' => $orderData
+            \Log::info('Consulta tracking', [
+                'response' => $trackingResponse
             ]);
 
             /*
-            |--------------------------------------------------------------------------
-            | 6. EXTRAIR DADOS DA API
-            |--------------------------------------------------------------------------
+            |----------------------------------------------------------------------
+            | 6. EXTRAIR DADOS
+            |----------------------------------------------------------------------
             */
+            $trackingData = current($trackingResponse);
 
-            $trackingCode = null;
-            $labelUrl = null;
+            $trackingCode =
+                $trackingData['tracking'] ?? null;
 
             /*
-            |--------------------------------------------------------------------------
-            | TRACKING
-            |--------------------------------------------------------------------------
+            |----------------------------------------------------------------------
+            | LABEL URL
+            |----------------------------------------------------------------------
             */
-            if (isset($orderData['tracking'])) {
-                $trackingCode = $orderData['tracking'];
-            }
-
-            if (isset($orderData['tracking_code'])) {
-                $trackingCode = $orderData['tracking_code'];
-            }
+            $labelUrl =
+                "https://sandbox.melhorenvio.com.br/painel/etiquetas/"
+                . $cart['id'];
 
             /*
-            |--------------------------------------------------------------------------
-            | LABEL
-            |--------------------------------------------------------------------------
-            */
-            if (isset($orderData['labels'][0]['url'])) {
-                $labelUrl = $orderData['labels'][0]['url'];
-            }
-
-            if (isset($orderData['label'])) {
-                $labelUrl = $orderData['label'];
-            }
-
-            /*
-            |--------------------------------------------------------------------------
-            | DEBUG
-            |--------------------------------------------------------------------------
-            */
-            \Log::info('Dados extraidos etiqueta', [
-                'tracking' => $trackingCode,
-                'label' => $labelUrl,
-                'api_response' => $orderData
-            ]);
-
-            /*
-            |--------------------------------------------------------------------------
-            | 7. ATUALIZAR BANCO
-            |--------------------------------------------------------------------------
+            |----------------------------------------------------------------------
+            | ATUALIZAR BANCO
+            |----------------------------------------------------------------------
             */
             $shipment->update([
+
                 'shipment_id' => $cart['id'],
+
                 'tracking_code' => $trackingCode,
+
                 'label_url' => $labelUrl,
+
                 'status' => 'shipped',
+
                 'shipped_at' => now(),
-                'last_update' => json_encode($orderData)
+
+                'last_update' => json_encode($trackingData)
             ]);
 
             return back()->with(
@@ -299,7 +315,8 @@ class ShipmentController extends Controller
 
             return back()->with(
                 'error',
-                'Erro ao gerar etiqueta: ' . $e->getMessage()
+                'Erro ao gerar etiqueta: '
+                . $e->getMessage()
             );
         }
     }
@@ -313,7 +330,13 @@ class ShipmentController extends Controller
     {
         $shipment = Shipment::findOrFail($id);
 
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDAR SHIPMENT ID
+        |--------------------------------------------------------------------------
+        */
         if (!$shipment->shipment_id) {
+
             return back()->with(
                 'error',
                 'Envio não existe na Melhor Envio.'
@@ -322,15 +345,28 @@ class ShipmentController extends Controller
 
         try {
 
-            $orderData = $service->consultarPedido(
+            /*
+            |--------------------------------------------------------------------------
+            | CONSULTAR TRACKING
+            |--------------------------------------------------------------------------
+            */
+            $response = $service->consultarPedido(
                 $shipment->shipment_id
             );
 
             \Log::info('Resposta API Melhor Envio', [
-                'data' => $orderData
+                'data' => $response
             ]);
 
-            if (!$orderData || isset($orderData['message'])) {
+            /*
+            |--------------------------------------------------------------------------
+            | VALIDAR RESPOSTA
+            |--------------------------------------------------------------------------
+            */
+            if (
+                !$response ||
+                isset($response['message'])
+            ) {
 
                 return back()->with(
                     'error',
@@ -338,23 +374,85 @@ class ShipmentController extends Controller
                 );
             }
 
-            $apiStatus = $orderData['status'] ?? null;
+            /*
+            |--------------------------------------------------------------------------
+            | PEGAR PRIMEIRO ITEM DO ARRAY
+            |--------------------------------------------------------------------------
+            */
+            $trackingData = current($response);
 
-            $status = $this->mapStatus($apiStatus)
+            if (!$trackingData) {
+
+                return back()->with(
+                    'error',
+                    'Tracking não encontrado.'
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | STATUS API
+            |--------------------------------------------------------------------------
+            */
+            $apiStatus =
+                $trackingData['status'] ?? null;
+
+            $status =
+                $this->mapStatus($apiStatus)
                 ?? $shipment->status;
 
+            /*
+            |--------------------------------------------------------------------------
+            | TRACKING
+            |--------------------------------------------------------------------------
+            */
+            $trackingCode = !empty($trackingData['tracking'])
+                ? $trackingData['tracking']
+                : $shipment->tracking_code;
+
+            /*
+            |--------------------------------------------------------------------------
+            | LABEL URL
+            |--------------------------------------------------------------------------
+            */
+            $labelUrl = $shipment->label_url;
+
+            if (!empty($trackingData['generated_at'])) {
+
+                $labelUrl =
+                    "https://sandbox.melhorenvio.com.br/painel/etiquetas/"
+                    . $shipment->shipment_id;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | LOG DEBUG
+            |--------------------------------------------------------------------------
+            */
+            \Log::info('Dados processados envio', [
+
+                'shipment_id' => $shipment->shipment_id,
+                'api_status' => $apiStatus,
+                'mapped_status' => $status,
+                'tracking_code' => $trackingCode,
+                'label_url' => $labelUrl
+
+            ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | ATUALIZAR BANCO
+            |--------------------------------------------------------------------------
+            */
             $shipment->update([
 
                 'status' => $status,
 
-                'tracking_code' =>
-                    $orderData['tracking']
-                    ?? $shipment->tracking_code,
+                'tracking_code' => $trackingCode,
 
-                'label_url' =>
-                    $orderData['label']
-                    ?? ($orderData['labels'][0]['url']
-                    ?? $shipment->label_url),
+                'label_url' => !empty($labelUrl)
+                    ? $labelUrl
+                    : $shipment->label_url,
 
                 'shipped_at' =>
                     $apiStatus === 'posted'
@@ -366,12 +464,18 @@ class ShipmentController extends Controller
                         ? now()
                         : $shipment->delivered_at,
 
-                'last_update' => json_encode($orderData)
+                'last_update' => json_encode($trackingData)
+
             ]);
 
+            /*
+            |--------------------------------------------------------------------------
+            | SUCESSO
+            |--------------------------------------------------------------------------
+            */
             return back()->with(
                 'success',
-                'Status atualizado!'
+                'Status atualizado com sucesso!'
             );
 
         } catch (\Exception $e) {
@@ -380,13 +484,14 @@ class ShipmentController extends Controller
 
                 'message' => $e->getMessage(),
                 'line' => $e->getLine(),
-                'file' => $e->getFile()
+                'file' => $e->getFile(),
+                'trace' => $e->getTraceAsString()
 
             ]);
 
             return back()->with(
                 'error',
-                'Erro ao atualizar status.'
+                'Erro ao atualizar status: ' . $e->getMessage()
             );
         }
     }
@@ -405,7 +510,10 @@ class ShipmentController extends Controller
         $data = $request->input('data');
 
         if (!$data || !isset($data['id'])) {
-            return response()->json(['ok' => true]);
+
+            return response()->json([
+                'ok' => true
+            ]);
         }
 
         $shipment = Shipment::where(
@@ -414,7 +522,10 @@ class ShipmentController extends Controller
         )->first();
 
         if (!$shipment) {
-            return response()->json(['ok' => true]);
+
+            return response()->json([
+                'ok' => true
+            ]);
         }
 
         $apiStatus = $data['status'] ?? null;
