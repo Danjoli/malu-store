@@ -44,27 +44,118 @@
                 </svg>
                 <div>
                     <strong>Status Entrega:</strong><br>
+
                     @if($order->shipment)
+
+                        {{-- PENDENTE --}}
                         @if($order->shipment->status == 'pending')
-                            <span class="text-gray-600">Pendente</span>
-                        @elseif($order->shipment->status == 'processing')
-                            <span class="text-purple-600 font-semibold">Preparando</span>
+
+                            <span class="text-gray-600">
+                                Aguardando pagamento
+                            </span>
+
+                        {{-- ETIQUETA GERADA --}}
+                        @elseif($order->shipment->status == 'waiting_post')
+
+                            <span class="text-yellow-600 font-semibold">
+                                Etiqueta gerada — aguardando postagem
+                            </span>
+
+                            @if($order->shipment->tracking_code)
+                                <div class="text-sm text-gray-600 mt-1">
+                                    Código de rastreio:
+                                    <strong>
+                                        {{ $order->shipment->tracking_code }}
+                                    </strong>
+                                </div>
+                            @endif
+
+                        {{-- POSTADO --}}
                         @elseif($order->shipment->status == 'shipped')
-                            <span class="text-purple-600 font-semibold">Enviado</span>
+
+                            <span class="text-blue-600 font-semibold">
+                                Pedido postado
+                            </span>
+
+                            @if($order->shipment->tracking_code)
+                                <div class="text-sm text-gray-600 mt-1">
+                                    Código de rastreio:
+                                    <strong>
+                                        {{ $order->shipment->tracking_code }}
+                                    </strong>
+                                </div>
+                            @endif
+
+                        {{-- EM TRÂNSITO --}}
+                        @elseif($order->shipment->status == 'in_transit')
+
+                            <span class="text-indigo-600 font-semibold">
+                                Pedido em trânsito
+                            </span>
+
+                            @if($order->shipment->tracking_code)
+                                <div class="text-sm text-gray-600 mt-1">
+                                    Código de rastreio:
+                                    <strong>
+                                        {{ $order->shipment->tracking_code }}
+                                    </strong>
+                                </div>
+                            @endif
+
+                        {{-- ENTREGUE --}}
                         @elseif($order->shipment->status == 'delivered')
-                            <span class="text-green-600 font-semibold">Entregue</span>
+
+                            <span class="text-green-600 font-semibold">
+                                Pedido entregue
+                            </span>
+
+                        {{-- FALHA --}}
+                        @elseif($order->shipment->status == 'failed')
+
+                            <span class="text-red-600 font-semibold">
+                                Falha na entrega
+                            </span>
+
+                        {{-- PROBLEMA --}}
+                        @elseif($order->shipment->status == 'problem')
+
+                            <span class="text-orange-600 font-semibold">
+                                Problema no envio
+                            </span>
+
+                        {{-- CANCELADO --}}
                         @elseif($order->shipment->status == 'cancelled')
-                            <span class="text-red-600 font-semibold">Cancelado</span>
+
+                            <span class="text-red-600 font-semibold">
+                                Envio cancelado
+                            </span>
+
                         @else
-                            {{ ucfirst($order->shipment->status) }}
+
+                            <span class="text-gray-700">
+                                {{ ucfirst(str_replace('_', ' ', $order->shipment->status)) }}
+                            </span>
+
                         @endif
+
                     @else
+
                         @if($order->status == 'paid')
-                            <span class="text-purple-600 font-semibold">Preparando</span>
+
+                            <span class="text-yellow-600 font-semibold">
+                                Pagamento aprovado
+                            </span>
+
                         @else
-                            <span class="text-gray-600">Pendente</span>
+
+                            <span class="text-gray-600">
+                                Aguardando pagamento
+                            </span>
+
                         @endif
+
                     @endif
+
                 </div>
             </div>
 

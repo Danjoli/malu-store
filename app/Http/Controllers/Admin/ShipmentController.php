@@ -296,9 +296,11 @@ class ShipmentController extends Controller
 
                 'label_url' => $labelUrl,
 
-                'status' => 'shipped',
+                // AGUARDANDO POSTAGEM
+                'status' => 'waiting_post',
 
-                'shipped_at' => now(),
+                // AINDA NÃO FOI POSTADO
+                'shipped_at' => null,
 
                 'last_update' => json_encode($trackingData)
             ]);
@@ -600,31 +602,22 @@ class ShipmentController extends Controller
 
             'created' => 'pending',
 
-            // etiqueta comprada/liberada
-            'released' => 'shipped',
+            'released' => 'waiting_post',
 
-            // etiqueta gerada
-            'generated' => 'shipped',
+            'generated' => 'waiting_post',
 
-            // objeto postado
             'posted' => 'shipped',
 
-            // em trânsito
-            'in_transit' => 'shipped',
+            'in_transit' => 'in_transit',
 
-            // entregue
             'delivered' => 'delivered',
 
-            // falha entrega
             'undelivered' => 'failed',
 
-            // problema
             'suspended' => 'problem',
 
-            // aguardando ação
             'paused' => 'waiting_action',
 
-            // cancelado
             'cancelled' => 'cancelled',
 
         ][$apiStatus] ?? null;
