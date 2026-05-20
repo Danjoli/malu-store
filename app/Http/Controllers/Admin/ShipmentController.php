@@ -135,16 +135,16 @@ class ShipmentController extends Controller
                 "service" => (int) $shipment->service_id,
 
                 "from" => [
-                    "name" => "Sua Loja",
-                    "phone" => "11999999999",
-                    "email" => "contato@sualoja.com",
+                    "name" => "Malu Store",
+                    "phone" => "11954598885",
+                    "email" => "elienealvesdelima5@gmail.com",
                     "document" => "02899542400",
-                    "address" => "Rua Origem",
-                    "number" => "100",
-                    "district" => "Centro",
+                    "address" => "Avenida Boturussu",
+                    "number" => "147",
+                    "district" => "Parque Boturussu",
                     "city" => "São Paulo",
                     "state_abbr" => "SP",
-                    "postal_code" => "01010000"
+                    "postal_code" => "03802010"
                 ],
 
                 "to" => [
@@ -273,9 +273,15 @@ class ShipmentController extends Controller
             | LABEL URL
             |----------------------------------------------------------------------
             */
-            $labelUrl =
-                "https://sandbox.melhorenvio.com.br/painel/etiquetas/"
-                . $cart['id'];
+            $print = $service->imprimirEtiqueta([
+                $cart['id']
+            ]);
+
+            \Log::info('Impressão etiqueta', [
+                'response' => $print
+            ]);
+
+            $labelUrl = $print['url'] ?? null;
 
             /*
             |----------------------------------------------------------------------
@@ -417,11 +423,24 @@ class ShipmentController extends Controller
             */
             $labelUrl = $shipment->label_url;
 
+            /*
+            |--------------------------------------------------------------------------
+            | BUSCAR PDF REAL DA ETIQUETA
+            |--------------------------------------------------------------------------
+            */
             if (!empty($trackingData['generated_at'])) {
 
-                $labelUrl =
-                    "https://sandbox.melhorenvio.com.br/painel/etiquetas/"
-                    . $shipment->shipment_id;
+                $print = $service->imprimirEtiqueta([
+                    $shipment->shipment_id
+                ]);
+
+                \Log::info('PDF etiqueta', [
+                    'response' => $print
+                ]);
+
+                if (!empty($print['url'])) {
+                    $labelUrl = $print['url'];
+                }
             }
 
             /*
@@ -580,14 +599,32 @@ class ShipmentController extends Controller
         return [
 
             'created' => 'pending',
-            'released' => 'paid',
+
+            // etiqueta comprada/liberada
+            'released' => 'shipped',
+
+            // etiqueta gerada
             'generated' => 'shipped',
+
+            // objeto postado
             'posted' => 'shipped',
+
+            // em trânsito
             'in_transit' => 'shipped',
+
+            // entregue
             'delivered' => 'delivered',
+
+            // falha entrega
             'undelivered' => 'failed',
+
+            // problema
             'suspended' => 'problem',
+
+            // aguardando ação
             'paused' => 'waiting_action',
+
+            // cancelado
             'cancelled' => 'cancelled',
 
         ][$apiStatus] ?? null;

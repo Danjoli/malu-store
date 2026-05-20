@@ -75,43 +75,75 @@
                         {{-- Ações --}}
                         <td class="p-3 text-right space-x-2">
 
-                            {{-- Gerar Etiqueta --}}
-                            @if(!$shipment->tracking_code && $shipment->order->status == 'paid')
+                            {{-- GERAR ETIQUETA --}}
+                            @if(
+                                !$shipment->shipment_id &&
+                                $shipment->order->status === 'paid'
+                            )
                                 <form action="{{ route('admin.shipments.gerar', $shipment->id) }}"
-                                      method="POST" class="inline">
+                                    method="POST"
+                                    class="inline">
+
                                     @csrf
-                                    <button class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm">
+
+                                    <button
+                                        class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm">
+
                                         Gerar Etiqueta
                                     </button>
                                 </form>
                             @endif
 
-                            {{-- Imprimir Etiqueta --}}
+
+                            {{-- IMPRIMIR ETIQUETA --}}
                             @if($shipment->label_url)
-                                <a href="{{ $shipment->label_url }}" target="_blank"
-                                   class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm">
-                                    Imprimir TESTE
+                                <a href="{{ $shipment->label_url }}"
+                                target="_blank"
+                                class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm">
+
+                                    Imprimir Etiqueta
                                 </a>
                             @endif
 
-                            {{-- Editar --}}
-                            @if($shipment->status !== 'delivered')
+
+                            {{-- EDITAR --}}
+                            @if(
+                                !in_array($shipment->status, [
+                                    'delivered',
+                                    'cancelled'
+                                ])
+                            )
                                 <a href="{{ route('admin.shipments.edit', $shipment) }}"
-                                   class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm">
+                                class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 text-sm">
+
                                     Editar
                                 </a>
                             @else
-                                <span class="bg-gray-300 text-gray-600 px-3 py-1 rounded text-sm cursor-not-allowed">
+                                <span
+                                    class="bg-gray-300 text-gray-600 px-3 py-1 rounded text-sm cursor-not-allowed">
+
                                     Bloqueado
                                 </span>
                             @endif
 
-                            {{-- Atualizar Status Manual --}}
-                            @if($shipment->shipment_id)
+
+                            {{-- ATUALIZAR STATUS --}}
+                            @if(
+                                $shipment->shipment_id &&
+                                !in_array($shipment->status, [
+                                    'delivered',
+                                    'cancelled'
+                                ])
+                            )
                                 <form action="{{ route('admin.shipments.atualizarStatus', $shipment->id) }}"
-                                    method="POST" class="inline">
+                                    method="POST"
+                                    class="inline">
+
                                     @csrf
-                                    <button class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">
+
+                                    <button
+                                        class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">
+
                                         Atualizar Status
                                     </button>
                                 </form>
