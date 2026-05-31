@@ -1,2 +1,27 @@
 User-agent: *
-Disallow:
+
+# Área administrativa (não indexar)
+Disallow: /admin
+Disallow: /admin/
+
+# Autenticação (não indexar)
+Disallow: /login
+Disallow: /register
+Disallow: /logout
+
+# Carrinho e checkout (não faz sentido no Google)
+Disallow: /carrinho
+Disallow: /cart
+Disallow: /checkout
+Disallow: /payment
+Disallow: /perfil
+
+# Webhooks e APIs (segurança)
+Disallow: /webhook
+Disallow: /api
+
+# Permitir tudo o resto
+Allow: /
+
+# Sitemap (IMPORTANTE)
+Sitemap: https://loja.malu-store.com/sitemap.xml

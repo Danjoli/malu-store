@@ -14,7 +14,7 @@
 
                 @if($product->images->count())
                     <img id="mainImage"
-                         src="{{ asset('products/' . $product->images->first()->image) }}"
+                         src="{{ asset('storage/products/' . $product->images->first()->image) }}"
                          class="w-full h-[450px] object-cover rounded-lg">
                 @endif
 

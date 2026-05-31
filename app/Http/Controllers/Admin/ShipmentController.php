@@ -606,7 +606,7 @@ class ShipmentController extends Controller
 
             'generated' => 'waiting_post',
 
-            'posted' => 'shipped',
+            'posted' => 'in_transit',
 
             'in_transit' => 'in_transit',
 

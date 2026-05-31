@@ -66,7 +66,7 @@
                                 @elseif($shipment->status == 'waiting_post')
                                     bg-yellow-200 text-yellow-800
 
-                                @elseif($shipment->status == 'shipped')
+                                @elseif($shipment->status == 'in_transit')
                                     bg-blue-200 text-blue-800
 
                                 @elseif($shipment->status == 'in_transit')

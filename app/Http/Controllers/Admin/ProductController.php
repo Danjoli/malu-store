@@ -65,11 +65,13 @@ class ProductController extends Controller
 
         // IMAGENS
         if ($request->hasFile('images')) {
-            $publicPath = $_SERVER['DOCUMENT_ROOT'].'/products';
 
             foreach ($request->file('images') as $image) {
+
                 $nomeArquivo = time().'_'.$image->getClientOriginalName();
-                $image->move($publicPath, $nomeArquivo);
+
+                // SALVA NO STORAGE (CORRETO)
+                $image->storeAs('products', $nomeArquivo, 'public');
 
                 ProductImage::create([
                     'product_id' => $product->id,
@@ -133,20 +135,26 @@ class ProductController extends Controller
 
         // ATUALIZAR IMAGENS
         if ($request->hasFile('images')) {
-            $product->load('images');
-            $publicPath = $_SERVER['DOCUMENT_ROOT'].'/products';
 
-            // apagar antigas
-            foreach ($product->images as $image) {
-                $path = $publicPath.'/'.$image->image;
-                if(file_exists($path)) unlink($path);
-                $image->delete();
+            $product->load('images');
+
+            // apagar antigas do storage
+            foreach ($product->images as $img) {
+                $oldPath = storage_path('app/public/products/'.$img->image);
+
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
+
+                $img->delete();
             }
 
             // salvar novas
             foreach ($request->file('images') as $image) {
+
                 $nomeArquivo = time().'_'.$image->getClientOriginalName();
-                $image->move($publicPath, $nomeArquivo);
+
+                $image->storeAs('products', $nomeArquivo, 'public');
 
                 ProductImage::create([
                     'product_id' => $product->id,
@@ -180,12 +188,16 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         $product->load('images');
-        $publicPath = $_SERVER['DOCUMENT_ROOT'].'/products';
 
-        // apagar imagens do public
-        foreach ($product->images as $image) {
-            $path = $publicPath.'/'.$image->image;
-            if(file_exists($path)) unlink($path);
+        foreach ($product->images as $img) {
+
+            $path = storage_path('app/public/products/'.$img->image);
+
+            if (file_exists($path)) {
+                unlink($path);
+            }
+
+            $img->delete();
         }
 
         $product->delete();

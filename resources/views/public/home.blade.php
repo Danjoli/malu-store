@@ -18,7 +18,7 @@
                 {{-- IMAGEM --}}
                 <div class="h-56 bg-gray-100 flex items-center justify-center">
                     @if($product->images->count())
-                        <img src="{{ asset('products/' . $product->images->first()->image) }}"
+                        <img src="{{ asset('storage/products/' . $product->images->first()->image) }}"
                          class="h-full w-full object-cover">
                     @else
                         <span class="text-gray-400 text-sm">Sem imagem</span>

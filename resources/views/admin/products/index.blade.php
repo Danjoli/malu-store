@@ -34,7 +34,7 @@
                     {{-- IMAGEM --}}
                     <td class="p-3">
                         @if($product->images && $product->images->count())
-                            <img src="{{ asset('products/' . $product->images->first()->image) }}"
+                            <img src="{{ asset('storage/products/' . $product->images->first()->image) }}"
                                  class="w-14 h-14 object-cover rounded border shadow">
                         @else
                             <div class="w-14 h-14 flex items-center justify-center bg-gray-100 text-gray-400 rounded border text-xs">
