@@ -309,7 +309,7 @@ Route::prefix('admin')
     Route::middleware('admin.role:suporte,admin,superadmin')->group(function () {
 
         Route::resource('orders', OrdersController::class)->only(['index','show']);
-        Route::resource('shipments', ShipmentController::class)->only(['index','show']);
+        Route::resource('shipments', ShipmentController::class)->only(['index','edit']);
 
     });
 
