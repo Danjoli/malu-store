@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.admin.app')
 
 @section('title', 'Detalhes da Categoria')
 
@@ -54,7 +54,7 @@
                 </a>
             </div>
         </div>
-        
+
     </div>
 </div>
 @endsection

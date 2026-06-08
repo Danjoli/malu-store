@@ -45,7 +45,7 @@ Route::post('/webhook/melhor-envio', [ShipmentController::class, 'webhook'])
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/', [ShopController::class, 'index'])->name('home');
 
 Route::get('/policy', function () {
     return view('public.pages.policy');

@@ -49,7 +49,7 @@ class ShopController extends Controller
 
         $products = $query->get();
 
-        return view('public.home', compact('products'));
+        return view('public.home.index', compact('products'));
     }
 
     public function show($id)
