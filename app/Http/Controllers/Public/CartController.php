@@ -87,7 +87,7 @@ class CartController extends Controller
             'quantity' => $request->quantity
         ]);
 
-        return redirect()->route('cart.index')
+        return redirect()->route('public.cart.index')
             ->with('success', 'Quantidade atualizada com sucesso.');
     }
 
@@ -105,7 +105,7 @@ class CartController extends Controller
 
         $item->delete();
 
-        return redirect()->route('cart.index')
+        return redirect()->route('public.cart.index')
             ->with('success', 'Item removido do carrinho.');
     }
 

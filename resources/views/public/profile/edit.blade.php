@@ -15,10 +15,10 @@
         <!-- CONTA -->
         <div class="bg-white p-6 rounded-xl shadow">
 
-            <x-public::profile.account-form :user="$user" />
+            <x-public.profile.account-form :user="$user" />
 
             <div class="mt-10">
-                <x-public::profile.password-form />
+                <x-public.profile.password-form />
             </div>
 
         </div>
@@ -27,10 +27,10 @@
         <!-- ENDEREÇOS -->
         <div class="bg-white p-6 rounded-xl shadow">
 
-            <x-public::profile.address-list :addresses="$addresses" />
+            <x-public.profile.address-list :addresses="$addresses" />
 
             <div class="mt-6">
-                <x-public::profile.address-form />
+                <x-public.profile.address-form />
             </div>
 
         </div>

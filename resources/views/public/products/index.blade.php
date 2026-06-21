@@ -14,13 +14,13 @@
 
                 @if($product->images->count())
                     <img id="mainImage"
-                         src="{{ asset('storage/products/' . $product->images->first()->image) }}"
+                         src="{{ asset('/storage/products/' . $product->images->first()->image) }}"
                          class="w-full h-[450px] object-cover rounded-lg">
                 @endif
 
                 <div class="flex gap-3 mt-4">
                     @foreach($product->images as $img)
-                        <img src="{{ asset('products/' . $img->image) }}"
+                        <img src="{{ asset('/storage/products/' . $img->image) }}"
                              class="w-20 h-20 object-cover rounded cursor-pointer border"
                              onclick="document.getElementById('mainImage').src=this.src">
                     @endforeach

@@ -58,6 +58,6 @@ class ShopController extends Controller
             ->where('active', 1)
             ->findOrFail($id);
 
-        return view('public.product.show', compact('product'));
+        return view('public.products.index', compact('product'));
     }
 }

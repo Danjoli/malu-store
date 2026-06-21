@@ -49,7 +49,7 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        return view('admin.dashboard', compact(
+        return view('admin.dashboard.index', compact(
             'totalProducts',
             'totalOrders',
             'totalClients',

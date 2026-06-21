@@ -11,7 +11,7 @@
                 Loja
             </a>
 
-            <a href="{{ route('cart.index') }}" class="text-gray-700 hover:text-blue-600 transition">
+            <a href="{{ route('public.cart.index') }}" class="text-gray-700 hover:text-blue-600 transition">
                 Carrinho
             </a>
 

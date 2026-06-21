@@ -12,7 +12,7 @@ class AdminRole
         $admin = auth('admin')->user();
 
         if (!$admin) {
-            abort(403);
+            return redirect()->route('admin.login');
         }
 
         if (!in_array($admin->role, $roles)) {

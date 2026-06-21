@@ -121,6 +121,6 @@ class ProfileController extends Controller
             ])
             ->findOrFail($id);
 
-        return view('public.profile.order-show', compact('order'));
+        return view('public.profile.order', compact('order'));
     }
 }

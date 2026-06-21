@@ -65,16 +65,16 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (AuthenticationException $e, Request $request) {
 
-            if ($request->is('admin/*')) {
+            if ($request->is('admin') || $request->is('admin/*')) {
                 return redirect()->route('admin.login');
             }
 
             return redirect()->route('login');
         });
 
-        $exceptions->render(function (Throwable $e, Request $request) {
-            return response()->view('errors.500', [], 500);
-        });
+        // $exceptions->render(function (Throwable $e, Request $request) {
+        //     return response()->view('errors.500', [], 500);
+        // });
 
     })
     ->create();

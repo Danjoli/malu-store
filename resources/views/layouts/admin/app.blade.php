@@ -11,7 +11,7 @@
 
     <main class="flex-1 p-10 overflow-y-auto h-screen">
 
-        @include('includes.alerts')
+        @include('components.ui.alerts')
 
         @yield('content')
 
