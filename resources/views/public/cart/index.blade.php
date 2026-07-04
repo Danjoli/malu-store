@@ -12,7 +12,7 @@
         <div class="bg-white p-10 rounded-2xl shadow text-center">
             <p class="text-gray-500 text-lg">Seu carrinho está vazio.</p>
 
-            <a href="{{ route('shop.index') }}"
+            <a href="{{ route('home') }}"
                class="inline-block mt-6 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
                 Continuar Comprando
             </a>

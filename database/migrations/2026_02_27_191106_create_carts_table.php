@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('carts', function (Blueprint $table) {
@@ -19,19 +16,21 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
 
-            $table->enum('status', ['active','converted','abandoned'])
-                ->default('active')
-                ->index();
+            $table->enum('status', [
+                'active',
+                'converted',
+                'abandoned'
+            ])->default('active');
 
-            $table->timestamp('expires_at')->nullable();
+            $table->timestamp('expires_at')
+                ->nullable();
 
             $table->timestamps();
+
+            $table->index('status');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('carts');

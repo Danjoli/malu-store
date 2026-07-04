@@ -9,5 +9,7 @@
 
     @include('layouts.payments.partials.scripts')
 
+    @stack('payment-scripts')
+
 </body>
 </html>

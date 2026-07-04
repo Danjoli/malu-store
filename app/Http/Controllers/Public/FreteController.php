@@ -1,46 +1,54 @@
 <?php
 
-namespace App\Http\Controllers\public;
+namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Services\MelhorEnvioService;
+use App\Http\Requests\Public\Frete\FreteRequest;
+use App\Services\Public\MelhorEnvio\MelhorEnvioService;
 
 class FreteController extends Controller
 {
-    public function calcular(Request $request, MelhorEnvioService $service)
+    public function calcular(FreteRequest $request, MelhorEnvioService $service)
     {
-        $request->validate([
-            'cep' => 'required|string'
-        ]);
+        try {
 
-        $dados = [
-            "from" => [
-                "postal_code" => "01010-000" // seu CEP origem
-            ],
-            "to" => [
-                "postal_code" => $request->cep
-            ],
-            "products" => [
-                [
-                    "id" => "1",
-                    "width" => 15,
-                    "height" => 10,
-                    "length" => 20,
-                    "weight" => 1,
-                    "insurance_value" => 100,
-                    "quantity" => 1
+            $dados = [
+                "from" => [
+                    "postal_code" => config('shipping.origin_zip')
+                ],
+                "to" => [
+                    "postal_code" => $request->validated()['cep']
+                ],
+                "products" => [
+                    [
+                        "id" => "1",
+                        "width" => 15,
+                        "height" => 10,
+                        "length" => 20,
+                        "weight" => 1,
+                        "insurance_value" => 100,
+                        "quantity" => 1
+                    ]
                 ]
-            ]
-        ];
+            ];
 
-        $resultado = $service->calcularFrete($dados);
+            $resultado = $service->calcularFrete($dados);
 
-        // Filtra só opções válidas
-        $fretes = collect($resultado)->filter(function ($item) {
-            return isset($item['price']) && $item['price'] > 0;
-        })->values();
+            $fretes = collect($resultado)
+                ->filter(fn ($item) => isset($item['price']) && $item['price'] > 0)
+                ->values();
 
-        return response()->json($fretes);
+            return response()->json($fretes);
+
+        } catch (\Throwable $e) {
+
+            return response()->json([
+                'erro' => true,
+                'mensagem' => $e->getMessage(),
+                'arquivo' => $e->getFile(),
+                'linha' => $e->getLine(),
+            ], 500);
+
+        }
     }
 }

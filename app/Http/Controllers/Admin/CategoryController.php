@@ -4,14 +4,20 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use Illuminate\Http\Request;
+use App\Services\Admins\Category\CategoryService;
+use App\Http\Requests\Admins\Category\StoreCategoryRequest;
+use App\Http\Requests\Admins\Category\UpdateCategoryRequest;
 
 class CategoryController extends Controller
 {
-    // LISTAR
+    public function __construct(
+        protected CategoryService $service
+    ) {}
+
     public function index()
     {
         $categories = Category::all();
+
         return view('admin.categories.index', compact('categories'));
     }
 
@@ -20,52 +26,40 @@ class CategoryController extends Controller
         return view('admin.categories.show', compact('category'));
     }
 
-    // FORM CRIAR
     public function create()
     {
         return view('admin.categories.create');
     }
 
-    // SALVAR
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255',
-        ]);
+        $this->service->create($request->validated());
 
-        Category::create($data);
-
-        return redirect()->route('admin.categories.index')
-                         ->with('success', 'Categoria criada com sucesso!');
+        return redirect()
+            ->route('admin.categories.index')
+            ->with('success', 'Categoria criada com sucesso!');
     }
 
-    // FORM EDITAR
     public function edit(Category $category)
     {
         return view('admin.categories.edit', compact('category'));
     }
 
-    // ATUALIZAR
-    public function update(Request $request, Category $category)
+    public function update(UpdateCategoryRequest $request, Category $category)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'slug' => 'required|string|max:255',
-        ]);
+        $this->service->update($category, $request->validated());
 
-        $category->update($data);
-
-        return redirect()->route('admin.categories.index')
-                         ->with('success', 'Categoria atualizada!');
+        return redirect()
+            ->route('admin.categories.index')
+            ->with('success', 'Categoria atualizada!');
     }
 
-    // DELETAR
     public function destroy(Category $category)
     {
-        $category->delete();
+        $this->service->delete($category);
 
-        return redirect()->route('admin.categories.index')
-                         ->with('success', 'Categoria removida!');
+        return redirect()
+            ->route('admin.categories.index')
+            ->with('success', 'Categoria removida!');
     }
 }

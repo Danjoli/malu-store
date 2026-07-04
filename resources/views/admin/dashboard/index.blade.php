@@ -90,7 +90,11 @@
     </table>
 </div>
 
-{{-- CHART JS --}}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+window.DASHBOARD = {
+    months: @json($months),
+    sales: @json($sales)
+};
+</script>
 
 @endsection

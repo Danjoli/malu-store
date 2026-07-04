@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('addresses', function (Blueprint $table) {
@@ -18,31 +15,43 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
 
-            $table->string('label')->nullable();
-            // Ex: "Casa", "Trabalho"
+            $table->string('label')
+                ->nullable();
 
             $table->string('recipient_name');
-            $table->string('phone')->nullable();
+
+            $table->string('phone')
+                ->nullable();
+
+            $table->string('cpf', 14)
+                ->nullable();
 
             $table->string('street');
+
             $table->string('number');
-            $table->string('complement')->nullable();
-            $table->string('neighborhood')->nullable();
+
+            $table->string('complement')
+                ->nullable();
+
+            $table->string('neighborhood')
+                ->nullable();
 
             $table->string('city');
+
             $table->string('state', 2);
+
             $table->string('cep');
 
             $table->boolean('is_default')
                 ->default(false);
 
             $table->timestamps();
+
+            $table->index('user_id');
+            $table->index('is_default');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('addresses');

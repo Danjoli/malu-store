@@ -15,3 +15,9 @@
     ])
 </form>
 @endsection
+
+<script>
+window.PRODUCT = {
+    variantIndex: @json($variantIndex)
+};
+</script>

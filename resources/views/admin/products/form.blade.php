@@ -55,7 +55,9 @@
     <div>
         <div class="flex justify-between items-center">
             <label class="font-bold text-lg">Variações (Cor, Tamanho, Estoque)</label>
-            <button type="button" onclick="addVariant()"
+            <button
+                type="button"
+                id="btn-add-variant"
                 class="bg-green-600 text-white px-3 py-1 rounded">
                 + Adicionar Variação
             </button>

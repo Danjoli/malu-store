@@ -19,7 +19,7 @@
                 Informações de Entrega
             </h2>
 
-            <form action="{{ route('checkout.process') }}" method="POST">
+            <form id="checkout-form" action="{{ route('checkout.process') }}" method="POST">
                 @csrf
 
                 <input type="hidden" name="address_id" value="{{ $address->id ?? '' }}">
@@ -32,7 +32,7 @@
                         class="w-full border rounded-lg px-4 py-2">
                 </div>
 
-                <!-- BOTÃO -->
+                <!-- BOTÃO FRETE -->
                 <div class="mb-4">
                     <button type="button" id="btn-calcular-frete"
                         class="bg-blue-600 text-white px-4 py-2 rounded-lg">
@@ -51,7 +51,7 @@
                 <input type="hidden" name="carrier" id="carrier">
                 <input type="hidden" name="service" id="service">
 
-                <!-- RESTO -->
+                <!-- DADOS -->
                 <div class="mb-4">
                     <label class="block mb-1">Nome do Destinatário</label>
                     <input type="text" name="recipient_name"
@@ -118,10 +118,10 @@
                 Resumo do Pedido
             </h2>
 
-            @foreach ($cart->items as $item)
+            @foreach (($cart?->items ?? []) as $item)
                 <div class="flex justify-between mb-4">
                     <span>{{ $item->name_snapshot }} (x{{ $item->quantity }})</span>
-                    <span>R$ {{ number_format($item->total, 2, ',', '.') }}</span>
+                    <span>R$ {{ number_format(($item->price * $item->quantity), 2, ',', '.') }}</span>
                 </div>
             @endforeach
 
@@ -135,7 +135,7 @@
             <div class="flex justify-between font-bold text-lg mb-6">
                 <span>Total</span>
                 <span id="valor-total">
-                    R$ {{ number_format($total, 2, ',', '.') }}
+                    R$ {{ number_format($total ?? 0, 2, ',', '.') }}
                 </span>
             </div>
 
@@ -152,4 +152,9 @@
 </div>
 
 @endsection
+
+<script>
+    window.SUBTOTAL = @json($subtotal);
+    window.CSRF_TOKEN = @json(csrf_token());
+</script>
 

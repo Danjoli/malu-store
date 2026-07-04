@@ -1,20 +1,17 @@
 <?php
 
+use App\Http\Controllers\Public\WebhookController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Controllers
-|--------------------------------------------------------------------------
-*/
-
-use App\Http\Controllers\Admin\ShipmentController;
 
 /*
 |--------------------------------------------------------------------------
-| WEBHOOK (FORA DO AUTH - ESSENCIAL)
+| WEBHOOKS
 |--------------------------------------------------------------------------
 */
 
-Route::post('/webhook/melhor-envio', [ShipmentController::class, 'webhook'])
-    ->name('webhook.melhor-envio');
+Route::post('/webhooks/mercado-pago', [WebhookController::class, 'mercadoPago'])
+    ->name('api.webhooks.mercado-pago');
+
+Route::post('/webhooks/melhor-envio', [WebhookController::class, 'melhorEnvio'])
+    ->name('api.webhooks.melhor-envio');

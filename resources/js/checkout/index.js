@@ -1,113 +1,162 @@
-// FORMATAR R$
-const formatar = (v) => {
-    return v.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-    });
-};
+document.addEventListener('DOMContentLoaded', () => {
 
-// CPF máscara
-const cpfInput = document.getElementById('cpf');
-cpfInput.addEventListener('input', function() {
-    let v = this.value.replace(/\D/g,'');
-    v = v.replace(/(\d{3})(\d)/,'$1.$2');
-    v = v.replace(/(\d{3})(\d)/,'$1.$2');
-    v = v.replace(/(\d{3})(\d{1,2})$/,'$1-$2');
-    this.value = v;
-});
+    const form = document.getElementById('checkout-form');
 
-const totalBase = {{ $subtotal }};
-
-// CALCULAR FRETE
-document.getElementById('btn-calcular-frete').addEventListener('click', async () => {
-
-    const cep = document.querySelector('input[name="cep"]').value;
-
-    if (!cep || cep.length < 8) {
-        alert('Digite um CEP válido');
+    // Se não for a página de checkout, não executa o restante do script.
+    if (!form) {
         return;
     }
 
+    const formatar = (v) => {
+        return v.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        });
+    };
+
+    const cpfInput = document.getElementById('cpf');
+
+    if (cpfInput) {
+        cpfInput.addEventListener('input', function () {
+            let v = this.value.replace(/\D/g, '');
+
+            v = v.replace(/(\d{3})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})(\d)/, '$1.$2');
+            v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+
+            this.value = v;
+        });
+    }
+
+    const totalBase = window.SUBTOTAL ?? 0;
+
     const btn = document.getElementById('btn-calcular-frete');
-    btn.innerText = 'Calculando...';
-    btn.disabled = true;
-
-    const response = await fetch('/frete/calcular', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({ cep })
-    });
-
-    const data = await response.json();
-
-    btn.innerText = 'Calcular Frete';
-    btn.disabled = false;
-
     const container = document.getElementById('fretes-container');
     const lista = document.getElementById('lista-fretes');
 
-    lista.innerHTML = '';
+    if (btn) {
+        btn.addEventListener('click', async () => {
 
-    data.forEach(frete => {
+            const cep = document
+                .querySelector('input[name="cep"]')
+                ?.value.replace(/\D/g, '');
 
-        if (!frete.price) return;
+            if (!cep || cep.length !== 8) {
+                alert('Digite um CEP válido');
+                return;
+            }
 
-        const div = document.createElement('div');
-        div.classList.add('border', 'p-3', 'rounded-lg', 'cursor-pointer');
+            btn.innerText = 'Calculando...';
+            btn.disabled = true;
 
-        div.innerHTML = `
-            <label class="flex justify-between items-center">
-                <div>
-                    <input type="radio" name="frete_opcao"
-                        value="${frete.price}"
-                        data-carrier="${frete.name}"
-                        data-service="${frete.id}">
-                    <strong>${frete.name}</strong><br>
-                    <small>${frete.delivery_time} dias</small>
-                </div>
-                <span>${formatar(parseFloat(frete.price))}</span>
-            </label>
-        `;
+            try {
 
-        lista.appendChild(div);
-    });
+                const { data } = await axios.post('/frete/calcular', {
+                    cep
+                }, {
+                    headers: {
+                        'X-CSRF-TOKEN': window.CSRF_TOKEN
+                    }
+                });
 
-    container.classList.remove('hidden');
-});
+                lista.innerHTML = '';
 
-// ESCOLHER FRETE
-document.addEventListener('change', function(e) {
-    if (e.target.name === 'frete_opcao') {
+                if (!Array.isArray(data)) {
+                    alert('Erro ao calcular frete');
+                    return;
+                }
+
+                data.forEach(frete => {
+
+                    if (!frete.price) return;
+
+                    const div = document.createElement('div');
+
+                    div.classList.add(
+                        'frete-card',
+                        'border',
+                        'p-3',
+                        'rounded-lg',
+                        'cursor-pointer'
+                    );
+
+                    div.innerHTML = `
+                        <label class="flex justify-between items-center">
+                            <div>
+                                <input
+                                    type="radio"
+                                    name="frete_opcao"
+                                    value="${frete.price}"
+                                    data-carrier="${frete.name}"
+                                    data-service="${frete.id}"
+                                >
+
+                                <strong>${frete.name}</strong><br>
+
+                                <small>${frete.delivery_time} dias</small>
+                            </div>
+
+                            <span>${formatar(parseFloat(frete.price))}</span>
+                        </label>
+                    `;
+
+                    lista.appendChild(div);
+
+                });
+
+                container.classList.remove('hidden');
+
+            } catch (error) {
+
+                console.error(error.response?.data || error);
+
+                alert('Erro ao calcular frete');
+
+            } finally {
+
+                btn.innerText = 'Calcular Frete';
+                btn.disabled = false;
+
+            }
+
+        });
+    }
+
+    document.addEventListener('change', function (e) {
+
+        if (e.target.name !== 'frete_opcao') {
+            return;
+        }
 
         const valor = parseFloat(e.target.value);
-        const carrier = e.target.dataset.carrier;
-        const service = e.target.dataset.service;
 
         document.getElementById('shipping_cost').value = valor;
-        document.getElementById('carrier').value = carrier;
-        document.getElementById('service').value = service;
+        document.getElementById('carrier').value = e.target.dataset.carrier;
+        document.getElementById('service').value = e.target.dataset.service;
 
         document.getElementById('valor-frete').innerText = formatar(valor);
+        document.getElementById('valor-total').innerText = formatar(totalBase + valor);
 
-        const total = totalBase + valor;
-        document.getElementById('valor-total').innerText = formatar(total);
-
-        // destaque
-        document.querySelectorAll('#lista-fretes > div').forEach(el => {
-            el.classList.remove('border-green-500');
+        document.querySelectorAll('.frete-card').forEach(card => {
+            card.classList.remove('border-green-500');
         });
 
-        e.target.closest('div').classList.add('border-green-500');
-    }
-});
+        e.target.closest('.frete-card').classList.add('border-green-500');
 
-// VALIDAR SUBMIT
-document.querySelector('form').addEventListener('submit', function(e) {
-    if (!document.getElementById('shipping_cost').value) {
-        e.preventDefault();
-        alert('Selecione um frete antes de finalizar.');
-    }
+    });
+
+    form.addEventListener('submit', function (e) {
+
+        const shipping = document.getElementById('shipping_cost').value;
+
+        if (!shipping) {
+
+            e.preventDefault();
+
+            alert('Selecione um frete antes de finalizar.');
+
+        }
+
+    });
+
 });

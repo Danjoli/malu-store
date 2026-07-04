@@ -12,11 +12,14 @@ class AdminRole
         $admin = auth('admin')->user();
 
         if (!$admin) {
-            return redirect()->route('admin.login');
+            return redirect()
+                ->route('admin.login');
         }
 
         if (!in_array($admin->role, $roles)) {
-            abort(403, 'Sem permissão');
+            return redirect()
+                ->route('admin.dashboard')
+                ->with('error', 'Sem permissão para acessar essa área.');
         }
 
         return $next($request);

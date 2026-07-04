@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Public\MelhorEnvio;
 
 use Illuminate\Support\Facades\Http;
 
@@ -26,6 +26,12 @@ class MelhorEnvioService {
             $response = $http->get($url, $data);
         } else {
             $response = $http->post($url, $data);
+        }
+
+        if (!$response->successful()) {
+            throw new \Exception(
+                "Erro Melhor Envio ({$response->status()}): " . $response->body()
+            );
         }
 
         return $response->json();

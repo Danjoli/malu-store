@@ -3,121 +3,123 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+
 use App\Models\Address;
 use App\Models\Order;
 
+use App\Services\Profile\ProfileService;
+
+use App\Http\Requests\Public\Profile\StoreAddressRequest;
+use App\Http\Requests\Public\Profile\UpdatePasswordRequest;
+use App\Http\Requests\Public\Profile\UpdateProfileRequest;
+
 class ProfileController extends Controller
 {
+    public function __construct(
+        protected ProfileService $profileService
+    ) {}
+
+    /*
+    |--------------------------------------------------------------------------
+    | Perfil
+    |--------------------------------------------------------------------------
+    */
     public function edit()
     {
         $user = Auth::user();
-        $addresses = $user->addresses()->get();
 
-        return view('public.profile.edit', compact('user','addresses'));
+        return view('public.profile.edit', [
+            'user' => $user,
+            'addresses' => $user->addresses
+        ]);
     }
 
-    public function update(Request $request)
+    /*
+    |--------------------------------------------------------------------------
+    | Atualizar dados do usuário
+    |--------------------------------------------------------------------------
+    */
+    public function update(UpdateProfileRequest $request)
     {
-        $data = $request->validate([
-            'name' => ['required','string','max:255'],
-            'email' => ['required','email'],
-            'phone' => ['nullable','string','max:20']
-        ]);
+        $this->profileService->updateUser(
+            $request->user(),
+            $request->validated()
+        );
 
-        $request->user()->update($data);
-
-        return back()->with('success','Conta atualizada com sucesso.');
+        return back()->with('success', 'Conta atualizada com sucesso.');
     }
 
-    public function updatePassword(Request $request)
+    /*
+    |--------------------------------------------------------------------------
+    | Atualizar senha
+    |--------------------------------------------------------------------------
+    */
+    public function updatePassword(UpdatePasswordRequest $request)
     {
-        // Validação básica
-        $request->validate([
-            'current_password' => ['required', 'string'],
-            'password' => ['required', 'string', 'min:6', 'confirmed'],
-        ], [
-            'current_password.required' => 'Informe sua senha atual.',
-            'password.required' => 'Informe a nova senha.',
-            'password.min' => 'A nova senha deve ter pelo menos 6 caracteres.',
-            'password.confirmed' => 'A confirmação da senha não confere.',
-        ]);
-
         $user = $request->user();
 
-        try {
-            // Verifica se a senha atual confere
-            if (!Hash::check($request->current_password, $user->password)) {
-                return back()->withErrors(['current_password' => 'Senha atual incorreta.']);
-            }
-
-            // Evita que a nova senha seja igual à antiga
-            if (Hash::check($request->password, $user->password)) {
-                return back()->withErrors(['password' => 'A nova senha não pode ser igual à senha atual.']);
-            }
-
-            // Atualiza a senha
-            $user->update([
-                'password' => Hash::make($request->password),
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors([
+                'current_password' => 'Senha atual incorreta.'
             ]);
-
-            return back()->with('success', 'Senha atualizada com sucesso.');
-
-        } catch (\Exception $e) {
-            // Captura qualquer erro inesperado
-            return back()->withErrors(['error' => 'Ocorreu um erro ao atualizar a senha. Tente novamente.']);
         }
+
+        $this->profileService->updatePassword(
+            $user,
+            $request->password
+        );
+
+        return back()->with('success', 'Senha atualizada com sucesso.');
     }
 
-    public function storeAddress(Request $request)
+    /*
+    |--------------------------------------------------------------------------
+    | Endereços
+    |--------------------------------------------------------------------------
+    */
+    public function storeAddress(StoreAddressRequest $request)
     {
-        $data = $request->validate([
-            'label'=>'required',
-            'recipient_name'=>'required',
-            'phone'=>'required',
-            'street'=>'required',
-            'number'=>'required',
-            'neighborhood'=>'required',
-            'city'=>'required',
-            'state'=>'required',
-            'cep'=>'required'
-        ]);
+        $request->user()
+            ->addresses()
+            ->create($request->validated());
 
-        $request->user()->addresses()->create($data);
-
-        return back()->with('success','Endereço adicionado.');
+        return back()->with('success', 'Endereço adicionado.');
     }
 
     public function deleteAddress($id)
     {
-        $address = Address::where('user_id',auth()->id())
-            ->findOrFail($id);
+        Address::where('user_id', auth()->id())
+            ->where('id', $id)
+            ->firstOrFail()
+            ->delete();
 
-        $address->delete();
-
-        return back()->with('success','Endereço removido.');
+        return back()->with('success', 'Endereço removido.');
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Pedidos
+    |--------------------------------------------------------------------------
+    */
     public function orders()
     {
-        $orders = Order::where('user_id', Auth::id())
+        $orders = Order::where('user_id', auth()->id())
             ->latest()
             ->get();
 
         return view('public.profile.orders', compact('orders'));
     }
 
-
     public function orderShow($id)
     {
-        $order = Order::where('user_id', Auth::id())
+        $order = Order::where('user_id', auth()->id())
             ->with([
-                'items',                   // Carrega os itens do pedido
-                'items.variant.product',   // Carrega a variante e o produto associado
-                'shipment',                // Carrega o status de envio
-                'address'                  // Carrega o endereço do pedido
+                'items',
+                'items.variant.product',
+                'shipment',
+                'address'
             ])
             ->findOrFail($id);
 

@@ -8,36 +8,25 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-use App\Http\Controllers\Public\ShopController;
 use App\Http\Controllers\Public\AuthController;
 use App\Http\Controllers\Public\CartController;
 use App\Http\Controllers\Public\CheckoutController;
 use App\Http\Controllers\Public\ProfileController;
 use App\Http\Controllers\Public\AddressController;
 use App\Http\Controllers\Public\PaymentController;
-use App\Http\Controllers\Public\WebhookController;
 
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\OrdersController;
 use App\Http\Controllers\Admin\ShipmentController;
+
 use App\Http\Controllers\Public\FreteController;
-
-/*
-|--------------------------------------------------------------------------
-| WEBHOOK (FORA DO AUTH - ESSENCIAL)
-|--------------------------------------------------------------------------
-*/
-
-Route::post('/webhook/mercadopago', [WebhookController::class, 'mercadopago'])
-    ->name('webhook.mercadopago');
-
-Route::post('/webhook/melhor-envio', [ShipmentController::class, 'webhook'])
-    ->name('webhook.melhor-envio');
+use App\Http\Controllers\Public\HomeController;
+use App\Http\Controllers\Public\PublicProductController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,7 +34,8 @@ Route::post('/webhook/melhor-envio', [ShipmentController::class, 'webhook'])
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [ShopController::class, 'index'])->name('home');
+Route::get('/', [HomeController::class, 'index'])
+    ->name('home');
 
 Route::get('/policy', function () {
     return view('public.pages.policy');
@@ -59,7 +49,7 @@ Route::get('/privacy', function () {
     return view('public.pages.privacy');
 })->name('privacy');
 
-Route::get('/product/{id}', [ShopController::class, 'show'])
+Route::get('/product/{id}', [PublicProductController::class, 'show'])
     ->name('product.show');
 
 
@@ -170,11 +160,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout/process', [CheckoutController::class,'processOrder'])
         ->name('checkout.process');
 
-    Route::get('/payment/{order}', [CheckoutController::class,'payment'])
-        ->name('payment');
-
-    Route::post('/payment/{order}/confirm', [CheckoutController::class,'confirmPayment'])
-        ->name('payment.confirm');
+    Route::get('/payment/{order}', [PaymentController::class, 'createPix'])->name('payment');
 
     /*
     |--------------------------------------------------------------------------
@@ -272,7 +258,7 @@ Route::prefix('admin')
         Route::resource('admins', AdminController::class);
         Route::resource('clients', ClientController::class);
         Route::resource('categories', CategoryController::class);
-        Route::resource('products', ProductController::class);
+        Route::resource('products', AdminProductController::class);
         Route::resource('orders', OrdersController::class);
         Route::resource('shipments', ShipmentController::class);
 
@@ -294,7 +280,7 @@ Route::prefix('admin')
 
         Route::resource('clients', ClientController::class)->only(['index','show']);
         Route::resource('categories', CategoryController::class)->only(['index','show','update','destroy']);
-        Route::resource('products', ProductController::class)->only(['index','show','update','destroy']);
+        Route::resource('products', AdminProductController::class)->only(['index','show','update','destroy']);
         Route::resource('orders', OrdersController::class)->only(['index','show','update']);
         Route::resource('shipments', ShipmentController::class)->only(['index','show','update']);
 

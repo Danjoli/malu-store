@@ -1,64 +1,61 @@
-function copiarPix() {
-    let textarea = document.getElementById('pixCode');
+document.addEventListener("DOMContentLoaded", () => {
 
-    textarea.select();
-    textarea.setSelectionRange(0, 99999);
+    const orderId = window.PIX_ORDER_ID;
 
-    document.execCommand("copy");
+    const expiresAt = new Date(window.PIX_EXPIRES_AT).getTime();
 
-    alert("Código PIX copiado!");
-}
+    const countdownEl = document.getElementById('countdown');
 
-const orderId = {{ $order->id }};
+    // COPIAR PIX
+    window.copiarPix = function () {
+        const textarea = document.getElementById('pixCode');
 
-// DATA DE EXPIRAÇÃO (vinda do backend)
-const expiresAt = new Date("{{ $order->pix_expires_at }}").getTime();
+        textarea.select();
+        textarea.setSelectionRange(0, 99999);
 
-// CONTADOR
-const countdownEl = document.getElementById('countdown');
+        navigator.clipboard.writeText(textarea.value);
 
-const updateCountdown = () => {
-    const now = new Date().getTime();
-    const distance = expiresAt - now;
+        alert("Código PIX copiado!");
+    };
 
-    if (distance <= 0) {
-        countdownEl.innerText = "00:00";
+    // CONTADOR
+    const updateCountdown = () => {
+        const now = new Date().getTime();
+        const distance = expiresAt - now;
 
-        // REDIRECIONA AUTOMATICAMENTE
-        window.location.href = `/payment-error/${orderId}?reason=expired`;
-        return;
-    }
+        if (distance <= 0) {
+            countdownEl.innerText = "00:00";
+            window.location.href = `/payment-error/${orderId}?reason=expired`;
+            return;
+        }
 
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-    countdownEl.innerText =
-        String(minutes).padStart(2, '0') + ':' +
-        String(seconds).padStart(2, '0');
-};
+        countdownEl.innerText =
+            String(minutes).padStart(2, '0') + ':' +
+            String(seconds).padStart(2, '0');
+    };
 
-// Atualiza contador a cada 1s
-setInterval(updateCountdown, 1000);
+    setInterval(updateCountdown, 1000);
 
+    // CHECK PAYMENT
+    const checkPayment = () => {
+        fetch(`/payment/status/${orderId}`)
+            .then(res => res.json())
+            .then(data => {
 
-// VERIFICA PAGAMENTO
-const checkPayment = () => {
-    fetch(`/payment/status/${orderId}`)
-        .then(res => res.json())
-        .then(data => {
+                if (data.status === 'paid') {
+                    window.location.href = `/payment-success/${orderId}`;
+                }
 
-            console.log('Status:', data.status);
+                if (['cancelled','failed','expired','rejected','insufficient_funds']
+                    .includes(data.status)) {
 
-            if (data.status === 'paid') {
-                window.location.href = `/payment-success/${orderId}`;
-            }
+                    window.location.href = `/payment-error/${orderId}?reason=${data.status}`;
+                }
+            });
+    };
 
-            if (['cancelled','failed','expired','rejected','insufficient_funds'].includes(data.status)) {
-                window.location.href = `/payment-error/${orderId}?reason=${data.status}`;
-            }
-
-        });
-};
-
-// Checa a cada 3 segundos
-setInterval(checkPayment, 3000);
+    setInterval(checkPayment, 3000);
+});

@@ -19,15 +19,14 @@
         @if(!empty($boleto_url))
 
             <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-lg mb-6">
+
                 <p class="text-gray-700 mb-4">
-                    Seu boleto foi gerado com sucesso! 💳
+                    Seu boleto foi gerado com sucesso!
                 </p>
 
-                <a
-                    href="{{ $boleto_url }}"
-                    target="_blank"
-                    class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition"
-                >
+                <a href="{{ $boleto_url }}"
+                   target="_blank"
+                   class="inline-block bg-yellow-500 text-white px-6 py-3 rounded-lg">
                     Visualizar Boleto
                 </a>
             </div>
@@ -46,32 +45,30 @@
                 </p>
 
                 <a href="{{ route('payment', $order->id) }}"
-                   class="inline-block mt-4 bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg">
+                   class="inline-block mt-4 bg-red-600 text-white px-5 py-2 rounded-lg">
                     Tentar novamente
                 </a>
             </div>
 
         @endif
 
-        <div class="text-left text-gray-700 space-y-3 mb-6">
-            <p>• Você pode pagar o boleto em qualquer banco, aplicativo bancário ou lotérica.</p>
-            <p>• A confirmação do pagamento pode levar até <strong>3 dias úteis</strong>.</p>
-            <p>• Após a confirmação, seu pedido será processado automaticamente.</p>
-            <p>• Guarde o número do boleto ou o PDF para futuras consultas.</p>
-        </div>
-
         <a href="{{ route('shop.index') }}"
-           class="inline-block mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition">
+           class="inline-block mt-4 bg-blue-600 text-white px-6 py-3 rounded-lg">
             Continuar Comprando
         </a>
 
-        <p class="text-gray-500 text-sm mt-6">
-            Em caso de dúvidas, entre em contato com nosso suporte.
-        </p>
-
     </div>
-
 </div>
 
 @endsection
 
+@push('payment-scripts')
+<script>
+    window.BOLETO_ORDER_ID = @json($order->id);
+    window.BOLETO_STATUS_URL = @json(route('payment.status', $order->id));
+    window.BOLETO_SUCCESS_URL = @json(route('payment.success', $order->id));
+    window.BOLETO_ERROR_URL = @json(route('payment.error', ['order' => $order->id, 'reason' => 'expired']));
+</script>
+
+@vite('resources/js/payments/boleto.js')
+@endpush

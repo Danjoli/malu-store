@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Public;
+namespace App\Services\Public\Shop;
 
-use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
-class ShopController extends Controller
+class ProductFilterService
 {
-    public function index(Request $request)
+    public function filter(Request $request)
     {
         $query = Product::with(['images', 'variants'])
             ->where('active', 1)
@@ -47,17 +46,6 @@ class ShopController extends Controller
             });
         }
 
-        $products = $query->get();
-
-        return view('public.home.index', compact('products'));
-    }
-
-    public function show($id)
-    {
-        $product = Product::with(['images', 'variants'])
-            ->where('active', 1)
-            ->findOrFail($id);
-
-        return view('public.products.index', compact('product'));
+        return $query->get();
     }
 }
