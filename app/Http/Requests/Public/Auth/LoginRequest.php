@@ -14,16 +14,27 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required',
-            'password' => 'required',
+            'email' => ['required', 'string'],
+            'password' => ['required', 'string'],
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'email' => 'e-mail ou telefone',
+            'password' => 'senha',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'email.required' => 'Informe seu email ou telefone',
-            'password.required' => 'Informe sua senha',
+            'required' => 'O campo :attribute é obrigatório.',
+            'string' => 'O campo :attribute deve ser um texto válido.',
+
+            'email.required' => 'Informe seu e-mail ou telefone.',
+            'password.required' => 'Informe sua senha.',
         ];
     }
 }

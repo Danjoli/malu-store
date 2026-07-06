@@ -109,40 +109,40 @@
                         class="w-full border rounded-lg px-4 py-2">
                 </div>
 
-        </div>
+            </div>
 
-        <!-- RESUMO -->
-        <div class="bg-white p-6 rounded-xl shadow">
+            <!-- RESUMO -->
+            <div class="bg-white p-6 rounded-xl shadow">
 
-            <h2 class="text-xl font-semibold mb-4">
-                Resumo do Pedido
-            </h2>
+                <h2 class="text-xl font-semibold mb-4">
+                    Resumo do Pedido
+                </h2>
 
-            @foreach (($cart?->items ?? []) as $item)
-                <div class="flex justify-between mb-4">
-                    <span>{{ $item->name_snapshot }} (x{{ $item->quantity }})</span>
-                    <span>R$ {{ number_format(($item->price * $item->quantity), 2, ',', '.') }}</span>
+                @foreach (($cart?->items ?? []) as $item)
+                    <div class="flex justify-between mb-4">
+                        <span>{{ $item->name_snapshot }} (x{{ $item->quantity }})</span>
+                        <span>R$ {{ number_format(($item->price * $item->quantity), 2, ',', '.') }}</span>
+                    </div>
+                @endforeach
+
+                <div class="flex justify-between mb-2 mt-4">
+                    <span>Frete</span>
+                    <span id="valor-frete">R$ 0,00</span>
                 </div>
-            @endforeach
 
-            <div class="flex justify-between mb-2 mt-4">
-                <span>Frete</span>
-                <span id="valor-frete">R$ 0,00</span>
-            </div>
+                <hr class="my-4">
 
-            <hr class="my-4">
+                <div class="flex justify-between font-bold text-lg mb-6">
+                    <span>Total</span>
+                    <span id="valor-total">
+                        R$ {{ number_format($total ?? 0, 2, ',', '.') }}
+                    </span>
+                </div>
 
-            <div class="flex justify-between font-bold text-lg mb-6">
-                <span>Total</span>
-                <span id="valor-total">
-                    R$ {{ number_format($total ?? 0, 2, ',', '.') }}
-                </span>
-            </div>
-
-            <button type="submit"
-                class="w-full bg-green-600 text-white py-3 rounded-lg">
-                Finalizar Pedido
-            </button>
+                <button type="submit"
+                    class="w-full bg-green-600 text-white py-3 rounded-lg">
+                    Finalizar Pedido
+                </button>
 
             </form>
         </div>
@@ -153,8 +153,10 @@
 
 @endsection
 
+@push('scripts')
 <script>
     window.SUBTOTAL = @json($subtotal);
     window.CSRF_TOKEN = @json(csrf_token());
 </script>
+@endpush
 

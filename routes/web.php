@@ -51,8 +51,7 @@ Route::get('/privacy', function () {
 
 Route::get('/product/{id}', [PublicProductController::class, 'show'])
     ->name('product.show');
-
-
+    
 /*
 |--------------------------------------------------------------------------
 | AUTENTICAÇÃO CLIENTE

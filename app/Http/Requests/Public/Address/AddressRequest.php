@@ -4,7 +4,7 @@ namespace App\Http\Requests\Public\Address;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AddressRequest  extends FormRequest
+class AddressRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -22,10 +22,10 @@ class AddressRequest  extends FormRequest
             'complement' => 'nullable|string|max:100',
             'neighborhood' => 'required|string|max:100',
             'city' => 'required|string|max:100',
-            'state' => 'required|string|max:2',
+            'state' => 'required|string|size:2',
             'cep' => 'required|string|max:20',
             'cpf' => 'required|string|max:14',
-            'is_default' => 'nullable',
+            'is_default' => 'boolean',
         ];
     }
 
@@ -43,6 +43,27 @@ class AddressRequest  extends FormRequest
             'state' => 'Estado',
             'cep' => 'CEP',
             'cpf' => 'CPF',
+            'is_default' => 'Endereço padrão',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'required' => 'O campo :attribute é obrigatório.',
+            'string' => 'O campo :attribute deve ser um texto válido.',
+            'max' => 'O campo :attribute deve ter no máximo :max caracteres.',
+            'size' => 'O campo :attribute deve ter exatamente :size caracteres.',
+
+            'recipient_name.required' => 'Informe o nome do destinatário.',
+            'phone.required' => 'Informe um telefone para contato.',
+            'street.required' => 'Informe o nome da rua.',
+            'number.required' => 'Informe o número do endereço.',
+            'neighborhood.required' => 'Informe o bairro.',
+            'city.required' => 'Informe a cidade.',
+            'state.required' => 'Informe o estado.',
+            'cep.required' => 'Informe o CEP.',
+            'cpf.required' => 'Informe o CPF.',
         ];
     }
 }

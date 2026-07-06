@@ -6,45 +6,38 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class LoginRequest extends FormRequest
 {
-    /**
-     * Determina se o usuário pode fazer esta requisição.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Regras de validação.
-     */
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email'],
-            'password' => ['required'],
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'password' => ['required', 'string'],
         ];
     }
 
-    /**
-     * Mensagens de erro personalizadas.
-     */
-    public function messages(): array
-    {
-        return [
-            'email.required' => 'Informe o e-mail.',
-            'email.email' => 'Informe um e-mail válido.',
-            'password.required' => 'Informe a senha.',
-        ];
-    }
-
-    /**
-     * Nomes amigáveis dos campos.
-     */
     public function attributes(): array
     {
         return [
             'email' => 'e-mail',
             'password' => 'senha',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'required' => 'O campo :attribute é obrigatório.',
+            'string' => 'O campo :attribute deve ser um texto válido.',
+            'email' => 'Informe um e-mail válido.',
+            'max' => 'O campo :attribute deve ter no máximo :max caracteres.',
+
+            'email.required' => 'Informe o e-mail.',
+            'email.email' => 'Informe um e-mail válido.',
+            'password.required' => 'Informe a senha.',
         ];
     }
 }
