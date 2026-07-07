@@ -16,7 +16,7 @@
             Escolha a forma de pagamento
         </h2>
 
-        <form action="{{ route('payment.confirm', $order->id) }}" method="POST">
+        <form action="{{ route('payment.process', $order->id) }}" method="POST">
 
             @csrf
 

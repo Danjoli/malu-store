@@ -14,6 +14,47 @@ class PaymentController extends Controller
     ) {}
 
     /*
+    |--------------------------------------------------------------------------
+    | ESCOLHA DO MÉTODO DE PAGAMENTO
+    |--------------------------------------------------------------------------
+    */
+
+    public function method($orderId)
+    {
+        return $this->paymentService->method($orderId);
+    }
+
+     public function process(Request $request, $orderId)
+    {
+        $request->validate([
+            'payment_method' => [
+                'required',
+                'in:pix,card,boleto'
+            ]
+        ]);
+
+
+        return match ($request->payment_method) {
+
+            'pix' => redirect()->route(
+                'payment.pix',
+                $orderId
+            ),
+
+            'card' => redirect()->route(
+                'payment.card',
+                $orderId
+            ),
+
+            'boleto' => redirect()->route(
+                'payment.boleto',
+                $orderId
+            ),
+
+        };
+    }
+
+    /*
     |-------------------------
     | PIX
     |-------------------------

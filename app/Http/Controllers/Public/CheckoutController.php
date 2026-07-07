@@ -19,7 +19,7 @@ class CheckoutController extends Controller
             $request->validated()
         );
 
-        return redirect()->route('payment', $order->id);
+        return redirect()->route('payment.method', $order->id);
     }
 
     public function index(CheckoutViewService $service)

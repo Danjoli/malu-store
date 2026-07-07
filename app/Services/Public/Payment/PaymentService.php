@@ -16,6 +16,15 @@ class PaymentService
         MercadoPagoConfig::setAccessToken(config('services.mercadopago.token'));
     }
 
+    public function method(int $orderId)
+    {
+        $order = Order::with('user')->findOrFail($orderId);
+
+        return view('public.payments.index', [
+            'order' => $order
+        ]);
+    }
+
     /*
     |-------------------------
     | PIX
@@ -72,7 +81,8 @@ class PaymentService
     */
     public function boleto(int $orderId)
     {
-        $order = Order::with(['user', 'address', 'user.addresses'])->findOrFail($orderId);
+        $order = Order::with(['user', 'address', 'user.addresses'])
+            ->findOrFail($orderId);
 
         $this->checkExpiration($order);
 
@@ -88,38 +98,109 @@ class PaymentService
             return back()->with('error', 'CPF inválido para boleto.');
         }
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | NOME DO PAGADOR
+        |--------------------------------------------------------------------------
+        */
+
+        $nameParts = explode(' ', trim($order->user->name));
+
+        $firstName = $nameParts[0];
+
+        $lastName = count($nameParts) > 1
+            ? implode(' ', array_slice($nameParts, 1))
+            : 'Cliente';
+
+
         $client = new PaymentClient();
 
         $expiresAt = now()->addWeekdays(3);
 
-        $payment = $client->create([
-            "transaction_amount" => (float) $order->total,
-            "description" => "Pedido #" . $order->id,
-            "payment_method_id" => "bolbradesco",
-            "notification_url" => route('api.webhooks.mercado-pago'),
-            "external_reference" => (string) $order->id,
-            "date_of_expiration" => $expiresAt->format('Y-m-d\TH:i:s.vP'),
-            "payer" => [
-                "email" => $order->user->email,
-                "first_name" => $order->user->name,
-                "identification" => [
-                    "type" => "CPF",
-                    "number" => $cpf
+
+        try {
+
+            $payment = $client->create([
+
+                "transaction_amount" => (float) $order->total,
+
+                "description" => "Pedido #" . $order->id,
+
+                "payment_method_id" => "bolbradesco",
+
+                "notification_url" => route('api.webhooks.mercado-pago'),
+
+                "external_reference" => (string) $order->id,
+
+                "date_of_expiration" => $expiresAt
+                    ->format('Y-m-d\TH:i:s.vP'),
+
+                "payer" => [
+
+                    "email" => $order->user->email,
+
+                    "first_name" => $firstName,
+
+                    "last_name" => $lastName,
+
+                    "identification" => [
+                        "type" => "CPF",
+                        "number" => $cpf
+                    ],
+
+                    "address" => [
+                        "zip_code" => preg_replace('/\D/', '', $address->cep),
+
+                        "street_name" => $address->street,
+
+                        "street_number" => $address->number,
+
+                        "neighborhood" => $address->neighborhood,
+
+                        "city" => $address->city,
+
+                        "federal_unit" => $address->state
+                    ]
                 ]
-            ]
-        ]);
+
+            ]);
+
+
+        } catch (MPApiException $e) {
+
+            dd([
+                'status' => $e->getApiResponse()->getStatusCode(),
+
+                'response' => $e->getApiResponse()->getContent()
+            ]);
+        }
+
 
         $order->update([
+
             'gateway_payment_id' => $payment->id,
+
             'status' => 'pending',
+
             'gateway_status' => 'pending',
+
             'expires_at' => $expiresAt,
-            'boleto_url' => $payment->transaction_details->external_resource_url
+
+            'boleto_url' => $payment
+                ->transaction_details
+                ->external_resource_url
         ]);
 
+
         return view('public.payments.methods.boleto', [
+
             'order' => $order,
-            'boleto_url' => $payment->transaction_details->external_resource_url,
+
+            'boleto_url' => $payment
+                ->transaction_details
+                ->external_resource_url,
+
             'expires_at' => $expiresAt
         ]);
     }

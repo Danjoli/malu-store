@@ -51,7 +51,7 @@ Route::get('/privacy', function () {
 
 Route::get('/product/{id}', [PublicProductController::class, 'show'])
     ->name('product.show');
-    
+
 /*
 |--------------------------------------------------------------------------
 | AUTENTICAÇÃO CLIENTE
@@ -159,8 +159,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout/process', [CheckoutController::class,'processOrder'])
         ->name('checkout.process');
 
-    Route::get('/payment/{order}', [PaymentController::class, 'createPix'])->name('payment');
-
     /*
     |--------------------------------------------------------------------------
     | FRETE (MELHOR ENVIO)
@@ -172,7 +170,19 @@ Route::middleware('auth')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | PAGAMENTOS
+    | PAGAMENTOS - ESCOLHA DO MÉTODO
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/payment/{order}', [PaymentController::class, 'method'])
+        ->name('payment.method');
+
+    Route::post('/payment/{order}/process', [PaymentController::class, 'process'])
+        ->name('payment.process');
+
+    /*
+    |--------------------------------------------------------------------------
+    | MÉTODOS DE PAGAMENTO
     |--------------------------------------------------------------------------
     */
 
