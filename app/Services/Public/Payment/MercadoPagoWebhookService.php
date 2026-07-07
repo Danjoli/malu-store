@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Payment;
+namespace App\Services\Public\Payment;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

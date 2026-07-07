@@ -51,7 +51,7 @@ class PaymentService
                 'gateway_status' => 'pending'
             ]);
 
-            return view('public.payment.pix', [
+            return view('public.payments.methods.pix', [
                 'order' => $order,
                 'expires_at' => $expiresAt,
                 'qr_code' => $payment->point_of_interaction->transaction_data->qr_code,
@@ -117,7 +117,7 @@ class PaymentService
             'boleto_url' => $payment->transaction_details->external_resource_url
         ]);
 
-        return view('public.payment.boleto', [
+        return view('public.payments.methods.boleto', [
             'order' => $order,
             'boleto_url' => $payment->transaction_details->external_resource_url,
             'expires_at' => $expiresAt
@@ -133,7 +133,7 @@ class PaymentService
     {
         $order = Order::with('user')->findOrFail($orderId);
 
-        return view('public.payment.card', compact('order'));
+        return view('public.payments.methods.card', compact('order'));
     }
 
     /*
@@ -223,6 +223,35 @@ class PaymentService
         $this->checkExpiration($order);
 
         return ['status' => $order->status];
+    }
+
+    /*
+    |-------------------------
+    | RESULTADO - SUCESSO
+    |-------------------------
+    */
+    public function success(int $orderId)
+    {
+        $order = Order::with('user')->findOrFail($orderId);
+
+        return view('public.payments.result.success', [
+            'order' => $order
+        ]);
+    }
+
+    /*
+    |-------------------------
+    | RESULTADO - ERRO
+    |-------------------------
+    */
+    public function error(int $orderId, ?string $reason = null)
+    {
+        $order = Order::with('user')->findOrFail($orderId);
+
+        return view('public.payments.result.error', [
+            'order'  => $order,
+            'reason' => $reason
+        ]);
     }
 
     /*

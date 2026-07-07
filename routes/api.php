@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Public\WebhookController;
+use App\Http\Controllers\Webhooks\WebhookController;
 use Illuminate\Support\Facades\Route;
 
 

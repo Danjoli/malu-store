@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Shipment;
+namespace App\Services\Admins\Shipment;
 
 use App\Models\Shipment;
 use Illuminate\Support\Facades\Log;

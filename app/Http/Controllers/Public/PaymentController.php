@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Public\Payment\ProcessCardPaymentRequest;
 use App\Services\Public\Payment\PaymentService;
+use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
@@ -69,13 +70,16 @@ class PaymentController extends Controller
     | RESULTADOS
     |-------------------------
     */
-    // public function success($orderId)
-    // {
-    //     return $this->paymentService->success($orderId);
-    // }
+    public function success($orderId)
+    {
+        return $this->paymentService->success($orderId);
+    }
 
-    // public function error($orderId, $reason)
-    // {
-    //     return $this->paymentService->error($orderId, $reason);
-    // }
+    public function error(Request $request, $orderId)
+    {
+        return $this->paymentService->error(
+            $orderId,
+            $request->query('reason')
+        );
+    }
 }
