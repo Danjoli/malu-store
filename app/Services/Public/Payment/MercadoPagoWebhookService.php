@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 use MercadoPago\Client\Payment\PaymentClient;
+use MercadoPago\Exceptions\MPApiException;
 use MercadoPago\MercadoPagoConfig;
 
 use App\Models\Order;
@@ -18,22 +19,47 @@ class MercadoPagoWebhookService
     {
         Log::info('Webhook recebido', $request->all());
 
+        Log::info('Webhook detalhes', [
+            'type' => $request->input('type'),
+            'action' => $request->input('action'),
+            'data' => $request->input('data'),
+            'id' => $request->input('id'),
+        ]);
+
         MercadoPagoConfig::setAccessToken(config('services.mercadopago.token'));
 
-        if ($request->type !== 'payment') {
+        if ($request->input('type') !== 'payment') {
             return;
         }
 
         $paymentId = $request->input('data.id');
 
         if (!$paymentId) {
+            Log::warning('Webhook sem payment_id', $request->all());
             return;
         }
 
         $client = new PaymentClient();
-        $payment = $client->get($paymentId);
+
+        try {
+
+            $payment = $client->get($paymentId);
+
+        } catch (MPApiException $e) {
+
+            Log::error('Erro ao consultar pagamento no Mercado Pago', [
+                'payment_id' => $paymentId,
+                'status' => $e->getApiResponse()->getStatusCode(),
+                'response' => $e->getApiResponse()->getContent(),
+            ]);
+
+            return;
+        }
 
         if (!$payment) {
+            Log::warning('Pagamento não encontrado', [
+                'payment_id' => $paymentId
+            ]);
             return;
         }
 
@@ -42,7 +68,10 @@ class MercadoPagoWebhookService
             ->first();
 
         if (!$order) {
-            Log::warning('Pedido não encontrado');
+            Log::warning('Pedido não encontrado', [
+                'external_reference' => $payment->external_reference,
+                'payment_id' => $paymentId,
+            ]);
             return;
         }
 
@@ -72,13 +101,19 @@ class MercadoPagoWebhookService
 
                     Cart::where('user_id', $order->user_id)
                         ->where('status', 'active')
-                        ->update(['status' => 'converted']);
+                        ->update([
+                            'status' => 'converted'
+                        ]);
 
                     foreach ($order->items as $item) {
 
-                        if (!$item->variant) continue;
+                        if (!$item->variant) {
+                            continue;
+                        }
 
-                        if ($item->variant->stock < $item->quantity) continue;
+                        if ($item->variant->stock < $item->quantity) {
+                            continue;
+                        }
 
                         $item->variant->decrement('stock', $item->quantity);
                     }
@@ -89,13 +124,19 @@ class MercadoPagoWebhookService
             case 'pending':
             case 'in_process':
 
-                $order->update(['status' => 'pending']);
+                $order->update([
+                    'status' => 'pending'
+                ]);
+
                 break;
 
             case 'rejected':
             case 'cancelled':
 
-                $order->update(['status' => 'cancelled']);
+                $order->update([
+                    'status' => 'cancelled'
+                ]);
+
                 break;
         }
     }

@@ -64,7 +64,10 @@
 {{-- GRAFICO DE VENDAS --}}
 <div class="bg-white p-6 rounded shadow mb-8">
     <h2 class="text-xl font-bold mb-4">Vendas Mensais</h2>
-    <canvas id="salesChart"></canvas>
+
+    <div class="h-96">
+        <canvas id="salesChart"></canvas>
+    </div>
 </div>
 
 {{-- PEDIDOS RECENTES --}}
