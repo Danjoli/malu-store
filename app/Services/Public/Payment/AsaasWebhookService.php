@@ -103,7 +103,7 @@ class AsaasWebhookService
     {
         $this->updateOrderStatus(
             $data,
-            'refunded',
+            'cancelled',
             'REFUNDED'
         );
     }

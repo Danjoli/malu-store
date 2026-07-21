@@ -29,17 +29,26 @@ class PaymentService
     {
         $order = Order::findOrFail($orderId);
 
+        // Cria o pagamento
         $payment = $this->asaasService->createPixPayment($order);
 
+        // Busca o QR Code do Pix
+        $pix = $this->asaasService->getPixQrCode($payment['id']);
+
+        // Atualiza o pedido
         $order->update([
             'gateway_payment_id' => $payment['id'] ?? null,
             'gateway_status' => $payment['status'] ?? 'PENDING',
             'status' => 'pending',
+            'expires_at' => now()->addMinutes(30),
         ]);
 
-        return view('payment.pix', [
+        // Exibe a tela do Pix
+        return view('public.payments.methods.pix', [
             'order' => $order,
             'payment' => $payment,
+            'qr_code_base64' => $pix['encodedImage'],
+            'qr_code' => $pix['payload'],
         ]);
     }
 
@@ -58,7 +67,7 @@ class PaymentService
             'status' => 'pending',
         ]);
 
-        return view('payment.boleto', [
+        return view('public.payments.methods.boleto', [
             'order' => $order,
             'payment' => $payment,
         ]);
@@ -71,7 +80,7 @@ class PaymentService
     {
         $order = Order::findOrFail($orderId);
 
-        return view('public.payments.card', compact('order'));
+        return view('public.payments.methods.card', compact('order'));
     }
 
     /**
@@ -113,7 +122,7 @@ class PaymentService
     {
         $order = Order::findOrFail($orderId);
 
-        return view('payment.success', compact('order'));
+        return view('public.payments.result.success', compact('order'));
     }
 
     /**
@@ -123,6 +132,19 @@ class PaymentService
     {
         $order = Order::findOrFail($orderId);
 
-        return view('payment.error', compact('order'));
+        return view('public.payments.result.error', compact('order'));
+    }
+
+    /**
+     * Retorna status atual do pedido.
+     */
+    public function status(int $orderId)
+    {
+        $order = Order::findOrFail($orderId);
+
+        return response()->json([
+            'status' => $order->status,
+            'gateway_status' => $order->gateway_status,
+        ]);
     }
 }

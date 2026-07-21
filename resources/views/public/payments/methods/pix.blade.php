@@ -41,8 +41,9 @@
         >{{ $qr_code }}</textarea>
 
         <button
-            onclick="copiarPix()"
-            class="mt-3 w-full bg-green-500 text-white py-2 rounded-lg"
+            id="copyPixButton"
+            type="button"
+            class="mt-3 w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition"
         >
             Copiar código PIX
         </button>
@@ -55,10 +56,17 @@
 
 @push('payment-scripts')
 <script>
+
+     /*
+    |--------------------------------------------------------------------------
+    | Dados usados pelo pix.js
+    |--------------------------------------------------------------------------
+    */
+
     window.PIX_ORDER_ID = @json($order->id);
-    window.PIX_EXPIRES_AT = @json(
-        $order->expires_at?->toIso8601String()
+    window.PIX_EXPIRES_AT = @json($order->expires_at?->toIso8601String()
     );
+
 </script>
 
 @vite('resources/js/payments/pix.js')

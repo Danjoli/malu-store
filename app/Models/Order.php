@@ -18,10 +18,14 @@ class Order extends Model
         'status',
         'payment_method',
         'paid_at',
-        
         'gateway_payment_id',
         'expires_at',
         'gateway_status',
+    ];
+
+     protected $casts = [
+        'expires_at' => 'datetime',
+        'paid_at' => 'datetime',
     ];
 
     /*

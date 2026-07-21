@@ -66,6 +66,14 @@ class PaymentController extends Controller
     }
 
     /**
+     * Consulta status do pagamento.
+     */
+    public function status(int $orderId)
+    {
+        return $this->paymentService->status($orderId);
+    }
+
+    /**
      * Exibe a página de sucesso.
      */
     public function success(int $orderId)
