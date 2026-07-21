@@ -2,426 +2,127 @@
 
 namespace App\Services\Public\Payment;
 
-use App\Models\{Order, Cart};
-use Illuminate\Support\Facades\DB;
+use App\Models\Order;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use MercadoPago\Client\Payment\PaymentClient;
-use MercadoPago\Exceptions\MPApiException;
-use MercadoPago\MercadoPagoConfig;
 
 class PaymentService
 {
-    public function __construct()
-    {
-        MercadoPagoConfig::setAccessToken(config('services.mercadopago.token'));
-    }
+    public function __construct(
+        protected AsaasService $asaasService
+    ) {}
 
+    /**
+     * Exibe a página de escolha do método de pagamento.
+     */
     public function method(int $orderId)
-    {
-        $order = Order::with('user')->findOrFail($orderId);
-
-        return view('public.payments.index', [
-            'order' => $order
-        ]);
-    }
-
-    /*
-    |-------------------------
-    | PIX
-    |-------------------------
-    */
-    public function pix(int $orderId)
-    {
-        $order = Order::with('user')->findOrFail($orderId);
-
-        $this->checkExpiration($order);
-
-        try {
-
-            $client = new PaymentClient();
-
-            $payment = $client->create([
-                "transaction_amount" => (float) $order->total,
-                "description" => "Pedido #" . $order->id,
-                "payment_method_id" => "pix",
-                "notification_url" => route('api.webhooks.mercado-pago'),
-                "external_reference" => (string) $order->id,
-                "payer" => [
-                    "email" => $order->user->email
-                ]
-            ]);
-
-            $expiresAt = now()->addMinutes(30);
-
-            $order->update([
-                'gateway_payment_id' => $payment->id,
-                'expires_at' => $expiresAt,
-                'status' => 'pending',
-                'gateway_status' => 'pending'
-            ]);
-
-            return view('public.payments.methods.pix', [
-                'order' => $order,
-                'expires_at' => $expiresAt,
-                'qr_code' => $payment->point_of_interaction->transaction_data->qr_code,
-                'qr_code_base64' => $payment->point_of_interaction->transaction_data->qr_code_base64
-            ]);
-        } catch (MPApiException $e) {
-
-            dd([
-                'mercadopago_error' => $e->getApiResponse()->getContent()
-            ]);
-        }
-    }
-
-    /*
-    |-------------------------
-    | BOLETO
-    |-------------------------
-    */
-    public function boleto(int $orderId)
-    {
-        $order = Order::with(['user', 'address', 'user.addresses'])
-            ->findOrFail($orderId);
-
-        $this->checkExpiration($order);
-
-        $address = $order->address ?? $order->user->addresses->first();
-
-        if (!$address) {
-            return back()->with('error', 'Endereço não encontrado.');
-        }
-
-        $cpf = preg_replace('/\D/', '', $address->cpf ?? '');
-
-        if (strlen($cpf) !== 11) {
-            return back()->with('error', 'CPF inválido para boleto.');
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | NOME DO PAGADOR
-        |--------------------------------------------------------------------------
-        */
-
-        $nameParts = explode(' ', trim($order->user->name));
-
-        $firstName = $nameParts[0];
-
-        $lastName = count($nameParts) > 1
-            ? implode(' ', array_slice($nameParts, 1))
-            : 'Cliente';
-
-        $client = new PaymentClient();
-
-        $expiresAt = now()->addWeekdays(3);
-
-        try {
-
-            $payment = $client->create([
-
-                "transaction_amount" => (float) $order->total,
-
-                "description" => "Pedido #" . $order->id,
-
-                "payment_method_id" => "bolbradesco",
-
-                "notification_url" => route('api.webhooks.mercado-pago'),
-
-                "external_reference" => (string) $order->id,
-
-                "date_of_expiration" => $expiresAt->format('Y-m-d\TH:i:s.vP'),
-
-                "payer" => [
-
-                    "email" => $order->user->email,
-
-                    "first_name" => $firstName,
-
-                    "last_name" => $lastName,
-
-                    "identification" => [
-                        "type" => "CPF",
-                        "number" => $cpf
-                    ],
-
-                    "address" => [
-                        "zip_code" => preg_replace('/\D/', '', $address->cep),
-                        "street_name" => $address->street,
-                        "street_number" => $address->number,
-                        "neighborhood" => $address->neighborhood,
-                        "city" => $address->city,
-                        "federal_unit" => $address->state,
-                    ],
-                ],
-            ]);
-
-        } catch (MPApiException $e) {
-
-            dd([
-                'status' => $e->getApiResponse()->getStatusCode(),
-                'response' => $e->getApiResponse()->getContent(),
-            ]);
-        }
-
-        $order->update([
-            'gateway_payment_id' => $payment->id,
-            'status' => 'pending',
-            'gateway_status' => 'pending',
-            'expires_at' => $expiresAt,
-            'boleto_url' => $payment->transaction_details->external_resource_url,
-        ]);
-
-        return view('public.payments.methods.boleto', [
-            'order' => $order,
-            'boleto_url' => $payment->transaction_details->external_resource_url,
-            'expires_at' => $expiresAt,
-        ]);
-    }
-
-    /*
-    |-------------------------
-    | CARTÃO VIEW
-    |-------------------------
-    */
-    public function cardView(int $orderId)
-    {
-        $order = Order::with('user')->findOrFail($orderId);
-
-        return view('public.payments.methods.card', compact('order'));
-    }
-
-    /*
-    |-------------------------
-    | CARTÃO PROCESSAR
-    |-------------------------
-    */
-    public function processCard(int $orderId, array $data)
-    {
-        $order = Order::with([
-            'user',
-            'items',
-            'address'
-        ])->findOrFail($orderId);
-
-        if ($order->status === 'paid') {
-            return [
-                'success' => true,
-                'status' => 'paid'
-            ];
-        }
-
-        DB::beginTransaction();
-
-        try {
-
-            $cpf = preg_replace('/\D/', '', $data['cpf']);
-
-            if (strlen($cpf) !== 11) {
-                return [
-                    'success' => false,
-                    'error' => 'CPF inválido'
-                ];
-            }
-
-            $nameParts = explode(' ', trim($order->user->name));
-
-            $firstName = $nameParts[0];
-
-            $lastName = count($nameParts) > 1
-                ? implode(' ', array_slice($nameParts, 1))
-                : 'Cliente';
-
-            $items = [];
-
-            foreach ($order->items as $item) {
-
-                $items[] = [
-                    "id" => (string) $item->product_variant_id,
-                    "title" => $item->name_snapshot,
-                    "description" => $item->name_snapshot,
-                    "quantity" => (int) $item->quantity,
-                    "unit_price" => (float) $item->price,
-                    "category_id" => "clothing"
-                ];
-            }
-
-            $paymentData = [
-
-                "transaction_amount" => (float) $order->total,
-
-                "description" => "Pedido Malu Store #".$order->id,
-
-                "token" => $data['token'],
-
-                "installments" => (int) $data['installments'],
-
-                "payment_method_id" => $data['payment_method_id'],
-
-                "issuer_id" => (int) $data['issuer_id'],
-
-                "statement_descriptor" => "MALU STORE",
-
-                "notification_url" => route('api.webhooks.mercado-pago'),
-
-                "external_reference" => (string) $order->id,
-
-                "payer" => [
-                    "email" => $data['email'] ?? $order->user->email,
-                    "identification" => [
-                        "type" => "CPF",
-                        "number" => $cpf
-                    ]
-                ],
-
-                "additional_info" => [
-
-                    "payer" => [
-                        "first_name" => $firstName,
-                        "last_name" => $lastName
-                    ],
-
-                    "items" => $items,
-
-                    "shipments" => [
-                        "receiver_address" => [
-                            "zip_code" => preg_replace('/\D/', '', $order->address->cep),
-                            "street_name" => $order->address->street,
-                            "street_number" => $order->address->number,
-                        ]
-                    ]
-                ]
-
-            ];
-
-            /*
-            |--------------------------------------------------------------------------
-            | issuer_id só envia se existir
-            |--------------------------------------------------------------------------
-            */
-
-
-            if (
-                !empty($data['issuer_id'])
-            ) {
-
-                $paymentData['issuer_id'] =
-                    (int)$data['issuer_id'];
-            }
-
-            $client = new PaymentClient();
-
-            $payment = $client->create(
-                $paymentData
-            );
-
-            $status = match ($payment->status) {
-                'approved' => 'paid',
-                'rejected' => 'failed',
-                default => 'pending'
-            };
-
-            $order->update([
-                'gateway_payment_id' => $payment->id,
-                'status' => $status,
-                'gateway_status' => $payment->status,
-                'gateway_status_detail' => $payment->status_detail ?? null,
-                'payment_method' => $payment->payment_method_id,
-                'paid_at' => $status === 'paid' ? now() : null,
-            ]);
-
-            if ($status === 'paid') {
-
-                Cart::where('user_id', $order->user_id)
-                    ->update([
-                        'status' => 'converted'
-                    ]);
-            }
-
-            DB::commit();
-
-            return [
-                'success' => $status !== 'failed',
-                'status'=>$status,
-                'detail'=>$payment->status_detail ?? null
-            ];
-
-        } catch (MPApiException $e) {
-
-            DB::rollBack();
-
-            return [
-                'success' => false,
-                'error' => 'Pagamento recusado pelo Mercado Pago',
-                'details' => $e->getApiResponse()->getContent()
-            ];
-
-        } catch (\Throwable $e) {
-
-            DB::rollBack();
-
-            return [
-                'success' => false,
-                'error' => $e->getMessage()
-            ];
-        }
-    }
-
-    /*
-    |-------------------------
-    | STATUS
-    |-------------------------
-    */
-    public function status(int $orderId): array
     {
         $order = Order::findOrFail($orderId);
 
-        $this->checkExpiration($order);
-
-        return ['status' => $order->status];
+        return view('public.payments.index', compact('order'));
     }
 
-    /*
-    |-------------------------
-    | RESULTADO - SUCESSO
-    |-------------------------
-    */
+    /**
+     * Cria uma cobrança Pix.
+     */
+    public function pix(int $orderId)
+    {
+        $order = Order::findOrFail($orderId);
+
+        $payment = $this->asaasService->createPixPayment($order);
+
+        $order->update([
+            'gateway_payment_id' => $payment['id'] ?? null,
+            'gateway_status' => $payment['status'] ?? 'PENDING',
+            'status' => 'pending',
+        ]);
+
+        return view('payment.pix', [
+            'order' => $order,
+            'payment' => $payment,
+        ]);
+    }
+
+    /**
+     * Cria uma cobrança via boleto.
+     */
+    public function boleto(int $orderId)
+    {
+        $order = Order::findOrFail($orderId);
+
+        $payment = $this->asaasService->createBoletoPayment($order);
+
+        $order->update([
+            'gateway_payment_id' => $payment['id'] ?? null,
+            'gateway_status' => $payment['status'] ?? 'PENDING',
+            'status' => 'pending',
+        ]);
+
+        return view('payment.boleto', [
+            'order' => $order,
+            'payment' => $payment,
+        ]);
+    }
+
+    /**
+     * Exibe a página de pagamento via cartão.
+     */
+    public function cardView(int $orderId)
+    {
+        $order = Order::findOrFail($orderId);
+
+        return view('public.payments.card', compact('order'));
+    }
+
+    /**
+     * Processa pagamento via cartão.
+     */
+    public function card(Request $request, int $orderId)
+    {
+        $order = Order::findOrFail($orderId);
+
+        $request->validate([
+            'card_number' => ['required'],
+            'holder_name' => ['required'],
+            'expiration_month' => ['required'],
+            'expiration_year' => ['required'],
+            'ccv' => ['required'],
+        ]);
+
+        $payment = $this->asaasService->createCardPayment(
+            $order,
+            $request->all()
+        );
+
+        $order->update([
+            'gateway_payment_id' => $payment['id'] ?? null,
+            'gateway_status' => $payment['status'] ?? 'PENDING',
+            'status' => 'pending',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'payment' => $payment,
+        ]);
+    }
+
+    /**
+     * Página de sucesso.
+     */
     public function success(int $orderId)
     {
-        $order = Order::with('user')->findOrFail($orderId);
+        $order = Order::findOrFail($orderId);
 
-        return view('public.payments.result.success', [
-            'order' => $order
-        ]);
+        return view('payment.success', compact('order'));
     }
 
-    /*
-    |-------------------------
-    | RESULTADO - ERRO
-    |-------------------------
-    */
-    public function error(int $orderId, ?string $reason = null)
+    /**
+     * Página de erro.
+     */
+    public function error(int $orderId)
     {
-        $order = Order::with('user')->findOrFail($orderId);
+        $order = Order::findOrFail($orderId);
 
-        return view('public.payments.result.error', [
-            'order'  => $order,
-            'reason' => $reason
-        ]);
-    }
-
-    /*
-    |-------------------------
-    | HELPERS
-    |-------------------------
-    */
-    private function checkExpiration($order): void
-    {
-        if ($order->expires_at && now()->greaterThan($order->expires_at)) {
-            $order->update([
-                'status' => 'expired',
-                'gateway_status' => 'expired'
-            ]);
-        }
+        return view('payment.error', compact('order'));
     }
 }

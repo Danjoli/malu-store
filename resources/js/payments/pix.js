@@ -1,61 +1,189 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
+    const countdownElement = document.getElementById('countdown');
+    const pixCodeElement = document.getElementById('pixCode');
+    const copyButton = document.getElementById('copyPixButton');
 
-    const orderId = window.PIX_ORDER_ID;
+    /*
+    |--------------------------------------------------------------------------
+    | Configurações vindas do Blade
+    |--------------------------------------------------------------------------
+    */
 
-    const expiresAt = new Date(window.PIX_EXPIRES_AT).getTime();
+    const expiresAt = window.PIX_EXPIRES_AT;
+    const paymentStatusUrl = window.PIX_STATUS_URL;
+    const paymentErrorUrl = window.PIX_ERROR_URL;
+    const paymentSuccessUrl = window.PIX_SUCCESS_URL;
 
-    const countdownEl = document.getElementById('countdown');
+    /*
+    |--------------------------------------------------------------------------
+    | Copiar PIX Copia e Cola
+    |--------------------------------------------------------------------------
+    */
 
-    // COPIAR PIX
-    window.copiarPix = function () {
-        const textarea = document.getElementById('pixCode');
+    if (copyButton && pixCodeElement) {
+        copyButton.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(
+                    pixCodeElement.value
+                );
 
-        textarea.select();
-        textarea.setSelectionRange(0, 99999);
+                copyButton.textContent = 'PIX copiado!';
 
-        navigator.clipboard.writeText(textarea.value);
+                setTimeout(() => {
+                    copyButton.textContent = 'Copiar código PIX';
+                }, 2000);
 
-        alert("Código PIX copiado!");
-    };
+            } catch (error) {
+                console.error(
+                    'Erro ao copiar código PIX:',
+                    error
+                );
 
-    // CONTADOR
-    const updateCountdown = () => {
-        const now = new Date().getTime();
-        const distance = expiresAt - now;
+                alert(
+                    'Não foi possível copiar o código PIX.'
+                );
+            }
+        });
+    }
 
-        if (distance <= 0) {
-            countdownEl.innerText = "00:00";
-            window.location.href = `/payment-error/${orderId}?reason=expired`;
-            return;
-        }
+    /*
+    |--------------------------------------------------------------------------
+    | Contador de expiração
+    |--------------------------------------------------------------------------
+    */
 
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    if (countdownElement && expiresAt) {
+        const expirationTime = new Date(expiresAt).getTime();
 
-        countdownEl.innerText =
-            String(minutes).padStart(2, '0') + ':' +
-            String(seconds).padStart(2, '0');
-    };
+        const countdown = setInterval(() => {
+            const now = new Date().getTime();
 
-    setInterval(updateCountdown, 1000);
+            const distance = expirationTime - now;
 
-    // CHECK PAYMENT
-    const checkPayment = () => {
-        fetch(`/payment/status/${orderId}`)
-            .then(res => res.json())
-            .then(data => {
+            if (distance <= 0) {
+                clearInterval(countdown);
 
-                if (data.status === 'paid') {
-                    window.location.href = `/payment-success/${orderId}`;
+                countdownElement.textContent = '00:00';
+
+                if (paymentErrorUrl) {
+                    window.location.href = paymentErrorUrl;
                 }
 
-                if (['cancelled','failed','expired','rejected','insufficient_funds']
-                    .includes(data.status)) {
+                return;
+            }
 
-                    window.location.href = `/payment-error/${orderId}?reason=${data.status}`;
+            const minutes = Math.floor(
+                (distance % (1000 * 60 * 60)) /
+                (1000 * 60)
+            );
+
+            const seconds = Math.floor(
+                (distance % (1000 * 60)) /
+                1000
+            );
+
+            countdownElement.textContent =
+                `${String(minutes).padStart(2, '0')}:` +
+                `${String(seconds).padStart(2, '0')}`;
+        }, 1000);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Verificar status do pagamento
+    |--------------------------------------------------------------------------
+    */
+
+    if (paymentStatusUrl) {
+        const checkPaymentStatus = async () => {
+            try {
+                const response = await fetch(
+                    paymentStatusUrl,
+                    {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                        },
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(
+                        `HTTP ${response.status}`
+                    );
                 }
-            });
-    };
 
-    setInterval(checkPayment, 3000);
+                const data = await response.json();
+
+                /*
+                |--------------------------------------------------------------------------
+                | Pagamento aprovado
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    data.status === 'paid' ||
+                    data.status === 'confirmed' ||
+                    data.status === 'received'
+                ) {
+                    if (paymentSuccessUrl) {
+                        window.location.href =
+                            paymentSuccessUrl;
+                    }
+
+                    return;
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | Pagamento expirado
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    data.status === 'expired' ||
+                    data.status === 'overdue'
+                ) {
+                    if (paymentErrorUrl) {
+                        window.location.href =
+                            paymentErrorUrl;
+                    }
+
+                    return;
+                }
+
+            } catch (error) {
+                console.error(
+                    'Erro ao verificar pagamento:',
+                    error
+                );
+            }
+        };
+
+        /*
+        | Verifica imediatamente
+        */
+
+        checkPaymentStatus();
+
+        /*
+        | Verifica a cada 5 segundos
+        */
+
+        const paymentInterval = setInterval(
+            checkPaymentStatus,
+            5000
+        );
+
+        /*
+        | Limpa o intervalo quando sair da página
+        */
+
+        window.addEventListener(
+            'beforeunload',
+            () => {
+                clearInterval(paymentInterval);
+            }
+        );
+    }
 });

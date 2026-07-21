@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::post('/webhooks/mercado-pago', [WebhookController::class, 'mercadoPago'])
-    ->name('api.webhooks.mercado-pago');
+Route::post('/webhooks/asaas', [WebhookController::class, 'asaas'])
+    ->name('api.webhooks.asaas');
 
 Route::post('/webhooks/melhor-envio', [WebhookController::class, 'melhorEnvio'])
     ->name('api.webhooks.melhor-envio');

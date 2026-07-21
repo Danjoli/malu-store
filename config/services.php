@@ -35,10 +35,11 @@ return [
         ],
     ],
 
-    'mercadopago' => [
-        'token' => env('MP_ACCESS_TOKEN'),
+    'asaas' => [
+        'api_key' => env('ASAAS_API_KEY'),
+        'base_url' => env('ASAAS_BASE_URL'),
     ],
-
+    
     'melhor_envio' => [
         'token' => env('MELHOR_ENVIO_TOKEN'),
         'url' => env('MELHOR_ENVIO_URL'),
