@@ -40,6 +40,7 @@ class PaymentService
             'gateway_payment_id' => $payment['id'] ?? null,
             'gateway_status' => $payment['status'] ?? 'PENDING',
             'status' => 'pending',
+            'payment_method' => 'pix',
             'expires_at' => now()->addMinutes(30),
         ]);
 
@@ -65,11 +66,26 @@ class PaymentService
             'gateway_payment_id' => $payment['id'] ?? null,
             'gateway_status' => $payment['status'] ?? 'PENDING',
             'status' => 'pending',
+            'payment_method' => 'boleto',
+            'expires_at' => isset($payment['dueDate'])
+                ? $payment['dueDate'] . ' 23:59:59'
+                : null,
         ]);
 
         return view('public.payments.methods.boleto', [
             'order' => $order,
             'payment' => $payment,
+
+            // Link direto para o PDF do boleto
+            'boleto_url' => $payment['bankSlipUrl']
+                ?? null,
+
+            // Link da fatura do Asaas, como alternativa
+            'invoice_url' => $payment['invoiceUrl']
+                ?? null,
+
+            'expires_at' => $payment['dueDate']
+                ?? null,
         ]);
     }
 
@@ -93,6 +109,7 @@ class PaymentService
         $request->validate([
             'card_number' => ['required'],
             'holder_name' => ['required'],
+            'cpf' => ['required'],
             'expiration_month' => ['required'],
             'expiration_year' => ['required'],
             'ccv' => ['required'],
@@ -103,10 +120,18 @@ class PaymentService
             $request->all()
         );
 
+        $paymentStatus = $payment['status'] ?? 'PENDING';
+
         $order->update([
             'gateway_payment_id' => $payment['id'] ?? null,
-            'gateway_status' => $payment['status'] ?? 'PENDING',
-            'status' => 'pending',
+            'gateway_status' => $paymentStatus,
+            'status' => $paymentStatus === 'CONFIRMED'
+                ? 'paid'
+                : 'pending',
+            'payment_method' => 'card',
+            'paid_at' => $paymentStatus === 'CONFIRMED'
+                ? now()
+                : null,
         ]);
 
         return response()->json([

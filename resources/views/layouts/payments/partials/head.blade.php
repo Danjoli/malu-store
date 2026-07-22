@@ -5,9 +5,6 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    <!-- Mercado Pago SDK -->
-    <script src="https://sdk.mercadopago.com/js/v2" defer></script>
-
     @stack('styles')
 
     <title>@yield('title')</title>

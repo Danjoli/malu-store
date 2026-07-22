@@ -1,18 +1,8 @@
-console.log('PIX JS carregado');
-
 document.addEventListener('DOMContentLoaded', () => {
-
-    console.log('DOM carregado');
 
     const countdownElement = document.getElementById('countdown');
     const pixCodeElement = document.getElementById('pixCode');
     const copyButton = document.getElementById('copyPixButton');
-
-    console.log({
-        pixCodeElement,
-        copyButton
-    });
-
 
     /*
     |--------------------------------------------------------------------------
@@ -20,25 +10,90 @@ document.addEventListener('DOMContentLoaded', () => {
     |--------------------------------------------------------------------------
     */
 
-    if (pixCodeElement && copyButton) {
+    if (copyButton && pixCodeElement) {
 
-        copyButton.addEventListener('click', function () {
+        copyButton.addEventListener('click', async () => {
 
-            pixCodeElement.select();
-            pixCodeElement.setSelectionRange(0, 99999);
+            const pixCode = pixCodeElement.value.trim();
 
+            if (!pixCode) {
+                alert('Código PIX não encontrado.');
+                return;
+            }
 
             try {
 
-                document.execCommand('copy');
+                /*
+                |--------------------------------------------------------------------------
+                | Método moderno
+                |--------------------------------------------------------------------------
+                */
 
-                copyButton.innerHTML = 'PIX copiado!';
+                if (
+                    navigator.clipboard &&
+                    window.isSecureContext
+                ) {
 
+                    await navigator.clipboard.writeText(pixCode);
+
+                } else {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | Fallback para navegadores que não suportam Clipboard API
+                    |--------------------------------------------------------------------------
+                    */
+
+                    pixCodeElement.focus();
+                    pixCodeElement.select();
+                    pixCodeElement.setSelectionRange(
+                        0,
+                        pixCode.length
+                    );
+
+                    const copied =
+                        document.execCommand('copy');
+
+                    if (!copied) {
+                        throw new Error(
+                            'Não foi possível copiar o código PIX.'
+                        );
+                    }
+
+                }
+
+                /*
+                |--------------------------------------------------------------------------
+                | Feedback visual
+                |--------------------------------------------------------------------------
+                */
+
+                const originalText =
+                    copyButton.textContent;
+
+                copyButton.textContent =
+                    'PIX copiado!';
+
+                copyButton.classList.remove(
+                    'bg-green-500'
+                );
+
+                copyButton.classList.add(
+                    'bg-green-700'
+                );
 
                 setTimeout(() => {
 
-                    copyButton.innerHTML =
-                        'Copiar código PIX';
+                    copyButton.textContent =
+                        originalText;
+
+                    copyButton.classList.remove(
+                        'bg-green-700'
+                    );
+
+                    copyButton.classList.add(
+                        'bg-green-500'
+                    );
 
                 }, 2000);
 
@@ -46,12 +101,27 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
 
                 console.error(
-                    'Erro ao copiar:',
+                    'Erro ao copiar código PIX:',
                     error
                 );
 
+                /*
+                |--------------------------------------------------------------------------
+                | Última tentativa: seleciona o código
+                |--------------------------------------------------------------------------
+                */
+
+                pixCodeElement.focus();
+                pixCodeElement.select();
+                pixCodeElement.setSelectionRange(
+                    0,
+                    pixCodeElement.value.length
+                );
+
                 alert(
-                    'Erro ao copiar o PIX'
+                    'Não foi possível copiar automaticamente. ' +
+                    'O código PIX foi selecionado. ' +
+                    'Pressione Ctrl+C para copiar.'
                 );
 
             }

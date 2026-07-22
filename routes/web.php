@@ -186,16 +186,16 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/payment/pix/{order}', [PaymentController::class, 'createPix'])
+    // Exibe/processa a tela do Pix
+    Route::get('/payment/pix/{order}', [PaymentController::class, 'pix'])
         ->name('payment.pix');
 
-    Route::get('/payment/boleto/{order}', [PaymentController::class, 'createBoleto'])
+    // Exibe/processa a tela do boleto
+    Route::get('/payment/boleto/{order}', [PaymentController::class, 'boleto'])
         ->name('payment.boleto');
 
-    Route::get('/payment/card/{order}', [PaymentController::class, 'createCard'])
-        ->name('payment.card');
-
-    Route::post('/payment/card/{order}', [PaymentController::class, 'processCard'])
+    // Processa o formulário do cartão
+    Route::post('/payment/card/{order}', [PaymentController::class, 'card'])
         ->name('payment.card.process');
 
     /*

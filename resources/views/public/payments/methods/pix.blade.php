@@ -41,7 +41,7 @@
         >{{ $qr_code }}</textarea>
 
         <button
-            id="copyPixButton"
+            onclick="copiarPix()"
             type="button"
             class="mt-3 w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition"
         >

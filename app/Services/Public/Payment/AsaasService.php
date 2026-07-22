@@ -126,7 +126,7 @@ class AsaasService
                 'customer' => $customer['id'],
                 'billingType' => 'BOLETO',
                 'value' => $order->total,
-                'dueDate' => now()->format('Y-m-d'),
+                'dueDate' => now()->addDays(3)->format('Y-m-d'),
                 'description' => 'Pedido #' . $order->id,
                 'externalReference' => (string) $order->id,
             ]
@@ -152,6 +152,21 @@ class AsaasService
 
         $customer = $this->createCustomer($order);
 
+        $user = $order->user;
+        $address = $order->address;
+
+        if (!$user) {
+            throw new RuntimeException(
+                'Usuário não encontrado para o pedido.'
+            );
+        }
+
+        if (!$address) {
+            throw new RuntimeException(
+                'Endereço não encontrado para o pedido.'
+            );
+        }
+
         $response = $this->http()->post(
             $this->baseUrl . '/payments',
             [
@@ -162,13 +177,53 @@ class AsaasService
                 'description' => 'Pedido #' . $order->id,
                 'externalReference' => (string) $order->id,
 
+                /*
+                |--------------------------------------------------------------------------
+                | Dados do cartão
+                |--------------------------------------------------------------------------
+                */
                 'creditCard' => [
                     'holderName' => $cardData['holder_name'],
-                    'number' => $cardData['card_number'],
+                    'number' => preg_replace(
+                        '/\D/',
+                        '',
+                        $cardData['card_number']
+                    ),
                     'expiryMonth' => $cardData['expiration_month'],
                     'expiryYear' => $cardData['expiration_year'],
                     'ccv' => $cardData['ccv'],
                 ],
+
+                /*
+                |--------------------------------------------------------------------------
+                | Dados do titular do cartão
+                |--------------------------------------------------------------------------
+                */
+                'creditCardHolderInfo' => [
+                    'name' => $cardData['holder_name'],
+                    'email' => $user->email,
+                    'cpfCnpj' => preg_replace(
+                        '/\D/',
+                        '',
+                        $cardData['cpf']
+                    ),
+                    'postalCode' => preg_replace(
+                        '/\D/',
+                        '',
+                        $address->cep
+                    ),
+                    'addressNumber' => $address->number,
+                    'addressComplement' => $address->complement ?? null,
+                    'phone' => $address->phone ?? null,
+                    'mobilePhone' => $address->phone ?? null,
+                ],
+
+                /*
+                |--------------------------------------------------------------------------
+                | IP real do cliente
+                |--------------------------------------------------------------------------
+                */
+                'remoteIp' => request()->ip(),
             ]
         );
 

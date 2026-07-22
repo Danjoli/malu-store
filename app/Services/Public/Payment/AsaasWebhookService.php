@@ -29,6 +29,7 @@ class AsaasWebhookService
             'PAYMENT_OVERDUE' => $this->paymentOverdue($data),
             'PAYMENT_DELETED' => $this->paymentDeleted($data),
             'PAYMENT_REFUNDED' => $this->paymentRefunded($data),
+
             default => Log::info(
                 'Evento Asaas não tratado.',
                 ['event' => $event]
@@ -121,6 +122,23 @@ class AsaasWebhookService
         $paymentId = $payment['id'] ?? null;
         $externalReference = $payment['externalReference'] ?? null;
 
+        /*
+        |--------------------------------------------------------------------------
+        | Método de pagamento
+        |--------------------------------------------------------------------------
+        */
+
+        $billingType = $payment['billingType'] ?? null;
+
+        $paymentMethod = match ($billingType) {
+            'PIX' => 'pix',
+            'BOLETO' => 'boleto',
+            'CREDIT_CARD' => 'card',
+            default => $billingType
+                ? strtolower($billingType)
+                : null,
+        };
+
         if (!$paymentId && !$externalReference) {
             Log::warning(
                 'Webhook Asaas sem payment ID ou externalReference.',
@@ -167,18 +185,56 @@ class AsaasWebhookService
             return;
         }
 
-        $order->update([
+        /*
+        |--------------------------------------------------------------------------
+        | Dados para atualização
+        |--------------------------------------------------------------------------
+        */
+
+        $updateData = [
             'status' => $orderStatus,
+
             'gateway_status' => $gatewayStatus,
+
             'gateway_payment_id' => $paymentId
                 ?? $order->gateway_payment_id,
-        ]);
 
-        Log::info('Pedido atualizado via webhook Asaas.', [
-            'order_id' => $order->id,
-            'payment_id' => $paymentId,
-            'status' => $orderStatus,
-            'gateway_status' => $gatewayStatus,
-        ]);
+            'payment_method' => $paymentMethod
+                ?? $order->payment_method,
+        ];
+
+        /*
+        |--------------------------------------------------------------------------
+        | Se o pagamento foi confirmado/recebido,
+        | salva a data do pagamento
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $orderStatus === 'paid'
+            && !$order->paid_at
+        ) {
+            $updateData['paid_at'] = now();
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Atualiza o pedido
+        |--------------------------------------------------------------------------
+        */
+
+        $order->update($updateData);
+
+        Log::info(
+            'Pedido atualizado via webhook Asaas.',
+            [
+                'order_id' => $order->id,
+                'payment_id' => $paymentId,
+                'payment_method' => $paymentMethod,
+                'status' => $orderStatus,
+                'gateway_status' => $gatewayStatus,
+                'paid_at' => $updateData['paid_at'] ?? null,
+            ]
+        );
     }
 }
