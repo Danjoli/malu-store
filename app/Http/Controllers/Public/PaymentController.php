@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Public\Payments\ProcessCardPaymentRequest;
 use App\Services\Public\Payment\PaymentService;
 use Illuminate\Http\Request;
 
@@ -60,7 +61,7 @@ class PaymentController extends Controller
     /**
      * Processa um pagamento via cartão.
      */
-    public function card(Request $request, int $orderId)
+    public function card(ProcessCardPaymentRequest $request, int $orderId)
     {
         return $this->paymentService->card($request, $orderId);
     }

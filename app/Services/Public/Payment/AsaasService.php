@@ -66,11 +66,40 @@ class AsaasService
     }
 
     /**
+     * Retorna um cliente existente ou cria um novo no Asaas.
+     */
+    protected function getOrCreateCustomer(Order $order): array
+    {
+        $user = $order->user;
+
+        if (!$user) {
+            throw new RuntimeException('Usuário não encontrado.');
+        }
+
+        // Já possui cliente cadastrado no Asaas
+        if (!empty($user->asaas_customer_id)) {
+            return [
+                'id' => $user->asaas_customer_id,
+            ];
+        }
+
+        // Cria o cliente
+        $customer = $this->createCustomer($order);
+
+        // Salva o ID no banco
+        $user->update([
+            'asaas_customer_id' => $customer['id'],
+        ]);
+
+        return $customer;
+    }
+
+    /**
      * Cria pagamento via Pix.
      */
     public function createPixPayment(Order $order): array
     {
-        $customer = $this->createCustomer($order);
+        $customer = $this->getOrCreateCustomer($order);
 
         $response = $this->http()->post(
             $this->baseUrl . '/payments',
@@ -118,7 +147,7 @@ class AsaasService
      */
     public function createBoletoPayment(Order $order): array
     {
-        $customer = $this->createCustomer($order);
+        $customer = $this->getOrCreateCustomer($order);
 
         $response = $this->http()->post(
             $this->baseUrl . '/payments',
@@ -150,7 +179,7 @@ class AsaasService
         array $cardData
     ): array {
 
-        $customer = $this->createCustomer($order);
+        $customer = $this->getOrCreateCustomer($order);
 
         $user = $order->user;
         $address = $order->address;

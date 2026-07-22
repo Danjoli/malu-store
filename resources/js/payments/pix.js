@@ -1,8 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    const countdownElement = document.getElementById('countdown');
-    const pixCodeElement = document.getElementById('pixCode');
-    const copyButton = document.getElementById('copyPixButton');
+    const countdownElement =
+        document.getElementById('countdown');
+
+    const pixCodeElement =
+        document.getElementById('pixCode');
+
 
     /*
     |--------------------------------------------------------------------------
@@ -10,126 +13,103 @@ document.addEventListener('DOMContentLoaded', () => {
     |--------------------------------------------------------------------------
     */
 
-    if (copyButton && pixCodeElement) {
+    window.copiarPix = async function () {
 
-        copyButton.addEventListener('click', async () => {
+        if (!pixCodeElement) {
+            alert('Código PIX não encontrado.');
+            return;
+        }
 
-            const pixCode = pixCodeElement.value.trim();
+        const pixCode =
+            pixCodeElement.value.trim();
 
-            if (!pixCode) {
-                alert('Código PIX não encontrado.');
+        if (!pixCode) {
+            alert('Código PIX não encontrado.');
+            return;
+        }
+
+        try {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Clipboard API
+            |--------------------------------------------------------------------------
+            */
+
+            if (
+                navigator.clipboard &&
+                window.isSecureContext
+            ) {
+
+                await navigator.clipboard.writeText(
+                    pixCode
+                );
+
+                alert('Código PIX copiado!');
+
                 return;
             }
 
-            try {
 
-                /*
-                |--------------------------------------------------------------------------
-                | Método moderno
-                |--------------------------------------------------------------------------
-                */
+            /*
+            |--------------------------------------------------------------------------
+            | Fallback para navegadores sem Clipboard API
+            |--------------------------------------------------------------------------
+            */
 
-                if (
-                    navigator.clipboard &&
-                    window.isSecureContext
-                ) {
+            pixCodeElement.focus();
 
-                    await navigator.clipboard.writeText(pixCode);
+            pixCodeElement.select();
 
-                } else {
+            pixCodeElement.setSelectionRange(
+                0,
+                pixCode.length
+            );
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | Fallback para navegadores que não suportam Clipboard API
-                    |--------------------------------------------------------------------------
-                    */
+            const copied =
+                document.execCommand('copy');
 
-                    pixCodeElement.focus();
-                    pixCodeElement.select();
-                    pixCodeElement.setSelectionRange(
-                        0,
-                        pixCode.length
-                    );
-
-                    const copied =
-                        document.execCommand('copy');
-
-                    if (!copied) {
-                        throw new Error(
-                            'Não foi possível copiar o código PIX.'
-                        );
-                    }
-
-                }
-
-                /*
-                |--------------------------------------------------------------------------
-                | Feedback visual
-                |--------------------------------------------------------------------------
-                */
-
-                const originalText =
-                    copyButton.textContent;
-
-                copyButton.textContent =
-                    'PIX copiado!';
-
-                copyButton.classList.remove(
-                    'bg-green-500'
+            if (!copied) {
+                throw new Error(
+                    'Não foi possível copiar o código PIX.'
                 );
-
-                copyButton.classList.add(
-                    'bg-green-700'
-                );
-
-                setTimeout(() => {
-
-                    copyButton.textContent =
-                        originalText;
-
-                    copyButton.classList.remove(
-                        'bg-green-700'
-                    );
-
-                    copyButton.classList.add(
-                        'bg-green-500'
-                    );
-
-                }, 2000);
-
-
-            } catch (error) {
-
-                console.error(
-                    'Erro ao copiar código PIX:',
-                    error
-                );
-
-                /*
-                |--------------------------------------------------------------------------
-                | Última tentativa: seleciona o código
-                |--------------------------------------------------------------------------
-                */
-
-                pixCodeElement.focus();
-                pixCodeElement.select();
-                pixCodeElement.setSelectionRange(
-                    0,
-                    pixCodeElement.value.length
-                );
-
-                alert(
-                    'Não foi possível copiar automaticamente. ' +
-                    'O código PIX foi selecionado. ' +
-                    'Pressione Ctrl+C para copiar.'
-                );
-
             }
 
-        });
+            alert('Código PIX copiado!');
 
-    }
 
+        } catch (error) {
+
+            console.error(
+                'Erro ao copiar código PIX:',
+                error
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Última tentativa
+            |--------------------------------------------------------------------------
+            */
+
+            pixCodeElement.focus();
+
+            pixCodeElement.select();
+
+            pixCodeElement.setSelectionRange(
+                0,
+                pixCodeElement.value.length
+            );
+
+            alert(
+                'Não foi possível copiar automaticamente. ' +
+                'O código PIX foi selecionado. ' +
+                'Pressione Ctrl+C para copiar.'
+            );
+
+        }
+
+    };
 
 
     /*
@@ -138,77 +118,61 @@ document.addEventListener('DOMContentLoaded', () => {
     |--------------------------------------------------------------------------
     */
 
-    const expiresAt = window.PIX_EXPIRES_AT;
+    const expiresAt =
+        window.PIX_EXPIRES_AT;
 
 
-    if (countdownElement && expiresAt) {
-
+    if (
+        countdownElement &&
+        expiresAt
+    ) {
 
         const expirationTime =
             Date.parse(expiresAt);
 
 
-
         if (!isNaN(expirationTime)) {
 
-
             const updateCountdown = () => {
-
 
                 const distance =
                     expirationTime - Date.now();
 
 
-
                 if (distance <= 0) {
-
 
                     countdownElement.textContent =
                         '00:00';
-
-
 
                     clearInterval(
                         countdownInterval
                     );
 
-
-                    /*
-                    Aqui você pode futuramente
-                    redirecionar para pagamento expirado
-                    */
-
-
                     return;
-
                 }
 
 
+                const minutes =
+                    Math.floor(
+                        distance / 60000
+                    );
 
-                const minutes = Math.floor(
-                    distance / 60000
-                );
 
-
-
-                const seconds = Math.floor(
-                    (distance % 60000) / 1000
-                );
-
+                const seconds =
+                    Math.floor(
+                        (distance % 60000) / 1000
+                    );
 
 
                 countdownElement.textContent =
                     `${String(minutes).padStart(2, '0')}:` +
                     `${String(seconds).padStart(2, '0')}`;
 
-
             };
-
 
 
             // Atualiza imediatamente
             updateCountdown();
-
 
 
             // Atualiza a cada segundo
@@ -217,7 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateCountdown,
                     1000
                 );
-
 
 
             window.addEventListener(

@@ -30,6 +30,8 @@ return new class extends Migration
                 'pending',
                 'pending_payment',
                 'paid',
+                'failed',
+                'expired',
                 'cancelled',
                 'shipped',
                 'delivered'

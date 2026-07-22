@@ -18,6 +18,10 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('phone')->unique()->nullable();;
+
+            // ID do cliente no Asaas
+            $table->string('asaas_customer_id')->nullable()->unique();
+
             $table->rememberToken();
             $table->timestamps();
         });

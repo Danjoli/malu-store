@@ -2,9 +2,8 @@
 
 namespace App\Services\Public\Payment;
 
+use App\Http\Requests\Public\Payments\ProcessCardPaymentRequest;
 use App\Models\Order;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class PaymentService
 {
@@ -102,18 +101,9 @@ class PaymentService
     /**
      * Processa pagamento via cartão.
      */
-    public function card(Request $request, int $orderId)
+    public function card(ProcessCardPaymentRequest $request, int $orderId)
     {
         $order = Order::findOrFail($orderId);
-
-        $request->validate([
-            'card_number' => ['required'],
-            'holder_name' => ['required'],
-            'cpf' => ['required'],
-            'expiration_month' => ['required'],
-            'expiration_year' => ['required'],
-            'ccv' => ['required'],
-        ]);
 
         $payment = $this->asaasService->createCardPayment(
             $order,

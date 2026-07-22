@@ -38,12 +38,12 @@ return [
     'asaas' => [
         'api_key' => env('ASAAS_API_KEY'),
         'base_url' => env('ASAAS_BASE_URL'),
+        'webhook_token' => env('ASAAS_WEBHOOK_TOKEN'),
     ],
 
     'melhor_envio' => [
         'token' => env('MELHOR_ENVIO_TOKEN'),
         'url' => env('MELHOR_ENVIO_URL'),
-        'webhook_token' => env('ASAAS_WEBHOOK_TOKEN'),
     ],
 
 ];
