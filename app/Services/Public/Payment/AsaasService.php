@@ -81,23 +81,29 @@ class AsaasService
             throw new RuntimeException('Usuário não encontrado.');
         }
 
-
+        // Usuário já possui um cliente cadastrado no Asaas
         if (!empty($user->asaas_customer_id)) {
             return [
                 'id' => $user->asaas_customer_id,
             ];
         }
 
-
+        // Cria cliente no Asaas
         $customer = $this->createCustomer($order);
 
+        if (empty($customer['id'])) {
+            throw new RuntimeException(
+                'O Asaas não retornou o ID do cliente.'
+            );
+        }
 
-        $user->update([
-            'asaas_customer_id' => $customer['id'],
-        ]);
+        // Salva o ID do cliente do Asaas no usuário
+        $user->asaas_customer_id = $customer['id'];
+        $user->save();
 
-
-        return $customer;
+        return [
+            'id' => $customer['id'],
+        ];
     }
 
 

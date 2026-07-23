@@ -116,10 +116,10 @@ class ProfileController extends Controller
     {
         $order = Order::where('user_id', Auth::id())
             ->with([
+                'user.addresses',
                 'items',
                 'items.variant.product',
                 'shipment',
-                'address'
             ])
             ->findOrFail($id);
 

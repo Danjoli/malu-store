@@ -174,18 +174,66 @@
 
         <!-- Endereço de Entrega -->
         <div class="p-4 rounded-lg bg-gray-50 flex items-start space-x-3">
+
             <svg class="w-6 h-6 text-green-500 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 11c1.657 0 3-1.343 3-3S13.657 5 12 5 9 6.343 9 8s1.343 3 3 3z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 11c-4.418 0-8 4-8 8h16c0-4-3.582-8-8-8z"/>
             </svg>
+
+            @php
+                $address = $order->user->addresses->first();
+            @endphp
+
             <div>
+
                 <strong>Endereço de Entrega:</strong><br>
-                {{ $order->address->street ?? '-' }}, {{ $order->address->number ?? '-' }}<br>
-                {{ $order->address->neighborhood ?? '-' }} - {{ $order->address->city ?? '-' }}/{{ $order->address->state ?? '-' }}<br>
-                CEP: {{ $order->address->cep ?? '-' }}
+
+                @if($address)
+
+                    <span>
+                        Destinatário:
+                        {{ $address->recipient_name ?? '-' }}
+                    </span>
+                    <br>
+
+                    <span>
+                        Telefone:
+                        {{ $address->phone ?? '-' }}
+                    </span>
+
+                    <br><br>
+
+                    {{ $address->street ?? '-' }},
+                    {{ $address->number ?? '-' }}
+
+                    <br>
+
+                    @if($address->complement)
+                        {{ $address->complement }}
+                        <br>
+                    @endif
+
+                    {{ $address->neighborhood ?? '-' }}
+                    -
+                    {{ $address->city ?? '-' }}/{{ $address->state ?? '-' }}
+
+                    <br>
+
+                    CEP:
+                    {{ $address->cep ?? '-' }}
+
+                @else
+
+                    <span class="text-gray-500">
+                        Nenhum endereço cadastrado.
+                    </span>
+
+                @endif
+
             </div>
+
         </div>
 
     </div>
