@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Profile;
+namespace App\Services\Public\Profile;
 
 use Illuminate\Support\Facades\Hash;
 

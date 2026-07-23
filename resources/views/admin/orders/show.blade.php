@@ -79,7 +79,7 @@
             <div class="flex items-center gap-4">
 
                 <img
-                    src="{{ asset('products/' . $item->image_snapshot) }}"
+                    src="{{ asset('storage/products/' . $product->images->first()->image) }}"
                     class="w-14 h-14 object-cover rounded"
                 >
 

@@ -31,8 +31,15 @@
                     case 'expired':
                         $message = "Este pagamento expirou. Por favor, gere um novo.";
                         break;
+                    case 'card_declined':
+                        $message = "A transação não foi autorizada pela operadora do cartão. Verifique os dados do cartão ou tente outro cartão.";
+                        break;
                     case 'failed':
                         $message = "O pagamento falhou por um erro inesperado. Tente novamente.";
+                        break;
+
+                    default:
+                        $message = 'Ocorreu um problema ao processar seu pagamento. Por favor, tente novamente';
                         break;
                 }
             }

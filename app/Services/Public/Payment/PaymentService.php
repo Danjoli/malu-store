@@ -105,29 +105,51 @@ class PaymentService
     {
         $order = Order::findOrFail($orderId);
 
-        $payment = $this->asaasService->createCardPayment(
-            $order,
-            $request->all()
-        );
+        try {
 
-        $paymentStatus = $payment['status'] ?? 'PENDING';
+            // Cria pagamento no Asaas
 
-        $order->update([
-            'gateway_payment_id' => $payment['id'] ?? null,
-            'gateway_status' => $paymentStatus,
-            'status' => $paymentStatus === 'CONFIRMED'
-                ? 'paid'
-                : 'pending',
-            'payment_method' => 'card',
-            'paid_at' => $paymentStatus === 'CONFIRMED'
-                ? now()
-                : null,
-        ]);
+            $payment = $this->asaasService->createCardPayment(
+                $order,
+                $request->all()
+            );
 
-        return response()->json([
-            'success' => true,
-            'payment' => $payment,
-        ]);
+            $paymentStatus = $payment['status'] ?? 'PENDING';
+
+            // Atualiza pedido
+
+            $order->update([
+                'gateway_payment_id' => $payment['id'] ?? null,
+                'gateway_status' => $paymentStatus,
+                'status' => $paymentStatus === 'CONFIRMED'
+                    ? 'paid'
+                    : 'pending',
+                'payment_method' => 'card',
+                'paid_at' => $paymentStatus === 'CONFIRMED'
+                    ? now()
+                    : null,
+            ]);
+
+            // Retorna sucesso
+
+            return response()->json([
+                'success' => true,
+                'payment' => $payment,
+            ]);
+    }   catch (\RuntimeException $e) {
+
+            $message = $e->getMessage();
+
+            // Transação não autorizada
+            if (str_contains($message, 'invalid_action')) {
+                return response()->json([
+                    'success' => false,
+                    'payment_failed' => true,
+                    'error_type' => 'authorization',
+                    'message' => 'Transação não autorizada. Verifique os dados do cartão e tente novamente.',
+                ], 422);
+            }
+        }
     }
 
     /**

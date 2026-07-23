@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Address;
 use App\Models\Order;
 
-use App\Services\Profile\ProfileService;
+use App\Services\Public\Profile\ProfileService;
 
 use App\Http\Requests\Public\Profile\StoreAddressRequest;
 use App\Http\Requests\Public\Profile\UpdatePasswordRequest;
@@ -90,7 +90,7 @@ class ProfileController extends Controller
 
     public function deleteAddress($id)
     {
-        Address::where('user_id', auth()->id())
+        Address::where('user_id', Auth::id())
             ->where('id', $id)
             ->firstOrFail()
             ->delete();
@@ -105,7 +105,7 @@ class ProfileController extends Controller
     */
     public function orders()
     {
-        $orders = Order::where('user_id', auth()->id())
+        $orders = Order::where('user_id', Auth::id())
             ->latest()
             ->get();
 
@@ -114,7 +114,7 @@ class ProfileController extends Controller
 
     public function orderShow($id)
     {
-        $order = Order::where('user_id', auth()->id())
+        $order = Order::where('user_id', Auth::id())
             ->with([
                 'items',
                 'items.variant.product',

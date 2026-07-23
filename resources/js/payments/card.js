@@ -53,6 +53,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!response.ok) {
 
+                if ( data.payment_failed === true || data.error_type === 'authorization' ) {
+                    window.location.href = window.CARD_ERROR_URL;
+                    return;
+                }
+
                 // Erros de validação do ProcessCardPaymentRequest
                 if (data.errors) {
 
@@ -77,8 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await Swal.fire({
                     icon: 'error',
                     title: 'Erro',
-                    text: data.message ||
-                        'Não foi possível processar o pagamento.',
+                    text: 'Não foi possível processar o pagamento. Verifique os dados do cartão e tente novamente.',
                     confirmButtonColor: '#dc2626'
                 });
 
