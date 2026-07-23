@@ -11,7 +11,18 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
-        'address_id',
+
+        'recipient_name',
+        'phone',
+        'cpf',
+        'street',
+        'number',
+        'complement',
+        'neighborhood',
+        'city',
+        'state',
+        'cep',
+
         'subtotal',
         'shipping',
         'total',
@@ -38,12 +49,6 @@ class Order extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    // Pedido pertence a um endereço
-    public function address()
-    {
-        return $this->belongsTo(Address::class);
     }
 
     // Pedido possui vários itens

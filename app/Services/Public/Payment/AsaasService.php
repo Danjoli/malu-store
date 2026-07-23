@@ -29,20 +29,20 @@ class AsaasService
         ]);
     }
 
+
     /**
      * Cria um cliente no Asaas.
      */
     protected function createCustomer(Order $order): array
     {
         $user = $order->user;
-        $address = $order->address;
 
         if (!$user) {
             throw new RuntimeException('Usuário não encontrado.');
         }
 
-        if (!$address) {
-            throw new RuntimeException('Endereço não encontrado.');
+        if (!$order->cpf) {
+            throw new RuntimeException('CPF não encontrado no pedido.');
         }
 
         $response = $this->http()->post(
@@ -50,7 +50,11 @@ class AsaasService
             [
                 'name' => $user->name,
                 'email' => $user->email,
-                'cpfCnpj' => $address->cpf,
+                'cpfCnpj' => preg_replace(
+                    '/\D/',
+                    '',
+                    $order->cpf
+                ),
                 'externalReference' => (string) $order->id,
             ]
         );
@@ -65,6 +69,7 @@ class AsaasService
         return $response->json();
     }
 
+
     /**
      * Retorna um cliente existente ou cria um novo no Asaas.
      */
@@ -76,23 +81,25 @@ class AsaasService
             throw new RuntimeException('Usuário não encontrado.');
         }
 
-        // Já possui cliente cadastrado no Asaas
+
         if (!empty($user->asaas_customer_id)) {
             return [
                 'id' => $user->asaas_customer_id,
             ];
         }
 
-        // Cria o cliente
+
         $customer = $this->createCustomer($order);
 
-        // Salva o ID no banco
+
         $user->update([
             'asaas_customer_id' => $customer['id'],
         ]);
 
+
         return $customer;
     }
+
 
     /**
      * Cria pagamento via Pix.
@@ -100,6 +107,7 @@ class AsaasService
     public function createPixPayment(Order $order): array
     {
         $customer = $this->getOrCreateCustomer($order);
+
 
         $response = $this->http()->post(
             $this->baseUrl . '/payments',
@@ -113,6 +121,7 @@ class AsaasService
             ]
         );
 
+
         if ($response->failed()) {
             throw new RuntimeException(
                 'Erro ao criar cobrança Pix no Asaas: ' .
@@ -120,17 +129,20 @@ class AsaasService
             );
         }
 
+
         return $response->json();
     }
 
+
     /**
-     * Coleta o QR Code do Pix.
+     * QR Code Pix.
      */
     public function getPixQrCode(string $paymentId): array
     {
         $response = $this->http()->get(
             $this->baseUrl . "/payments/{$paymentId}/pixQrCode"
         );
+
 
         if ($response->failed()) {
             throw new RuntimeException(
@@ -139,8 +151,10 @@ class AsaasService
             );
         }
 
+
         return $response->json();
     }
+
 
     /**
      * Cria pagamento via boleto.
@@ -148,6 +162,7 @@ class AsaasService
     public function createBoletoPayment(Order $order): array
     {
         $customer = $this->getOrCreateCustomer($order);
+
 
         $response = $this->http()->post(
             $this->baseUrl . '/payments',
@@ -161,6 +176,7 @@ class AsaasService
             ]
         );
 
+
         if ($response->failed()) {
             throw new RuntimeException(
                 'Erro ao criar boleto no Asaas: ' .
@@ -168,8 +184,10 @@ class AsaasService
             );
         }
 
+
         return $response->json();
     }
+
 
     /**
      * Cria pagamento via cartão.
@@ -182,7 +200,7 @@ class AsaasService
         $customer = $this->getOrCreateCustomer($order);
 
         $user = $order->user;
-        $address = $order->address;
+
 
         if (!$user) {
             throw new RuntimeException(
@@ -190,116 +208,137 @@ class AsaasService
             );
         }
 
-        if (!$address) {
+
+        if (!$order->cep) {
             throw new RuntimeException(
-                'Endereço não encontrado para o pedido.'
+                'Endereço não encontrado no pedido.'
             );
         }
+
 
         $response = $this->http()->post(
             $this->baseUrl . '/payments',
             [
+
                 'customer' => $customer['id'],
+
                 'billingType' => 'CREDIT_CARD',
+
                 'value' => $order->total,
+
                 'dueDate' => now()->format('Y-m-d'),
+
                 'description' => 'Pedido #' . $order->id,
+
                 'externalReference' => (string) $order->id,
 
-                /*
-                |--------------------------------------------------------------------------
-                | Dados do cartão
-                |--------------------------------------------------------------------------
-                */
+
                 'creditCard' => [
+
                     'holderName' => $cardData['holder_name'],
+
                     'number' => preg_replace(
                         '/\D/',
                         '',
                         $cardData['card_number']
                     ),
+
                     'expiryMonth' => $cardData['expiration_month'],
+
                     'expiryYear' => $cardData['expiration_year'],
+
                     'ccv' => $cardData['ccv'],
+
                 ],
 
-                /*
-                |--------------------------------------------------------------------------
-                | Dados do titular do cartão
-                |--------------------------------------------------------------------------
-                */
+
                 'creditCardHolderInfo' => [
+
                     'name' => $cardData['holder_name'],
+
                     'email' => $user->email,
+
                     'cpfCnpj' => preg_replace(
                         '/\D/',
                         '',
-                        $cardData['cpf']
+                        $order->cpf
                     ),
+
                     'postalCode' => preg_replace(
                         '/\D/',
                         '',
-                        $address->cep
+                        $order->cep
                     ),
-                    'addressNumber' => $address->number,
-                    'addressComplement' => $address->complement ?? null,
-                    'phone' => $address->phone ?? null,
-                    'mobilePhone' => $address->phone ?? null,
+
+                    'addressNumber' => $order->number,
+
+                    'addressComplement' => $order->complement,
+
+                    'phone' => $order->phone,
+
+                    'mobilePhone' => $order->phone,
+
                 ],
 
-                /*
-                |--------------------------------------------------------------------------
-                | IP real do cliente
-                |--------------------------------------------------------------------------
-                */
+
                 'remoteIp' => request()->ip(),
+
             ]
         );
 
+
         if ($response->failed()) {
+
             throw new RuntimeException(
                 'Erro ao criar pagamento com cartão no Asaas: ' .
                 $response->body()
             );
+
         }
+
 
         return $response->json();
     }
 
-    /**
-     * Consulta uma cobrança.
-     */
+
     public function getPayment(string $paymentId): array
     {
         $response = $this->http()->get(
             $this->baseUrl . '/payments/' . $paymentId
         );
 
+
         if ($response->failed()) {
+
             throw new RuntimeException(
                 'Erro ao consultar pagamento no Asaas: ' .
                 $response->body()
             );
+
         }
+
 
         return $response->json();
     }
 
-    /**
-     * Cancela uma cobrança.
-     */
+
+
     public function cancelPayment(string $paymentId): array
     {
         $response = $this->http()->delete(
             $this->baseUrl . '/payments/' . $paymentId
         );
 
+
         if ($response->failed()) {
+
             throw new RuntimeException(
                 'Erro ao cancelar pagamento no Asaas: ' .
                 $response->body()
             );
+
         }
+
 
         return $response->json();
     }

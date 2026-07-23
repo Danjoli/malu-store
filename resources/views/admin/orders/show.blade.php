@@ -74,14 +74,32 @@
 
         @foreach($order->items as $item)
 
+        @php
+            $product = $item->variant?->product;
+            $image = $product?->images?->first();
+        @endphp
+
         <div class="flex justify-between border-b pb-3">
 
             <div class="flex items-center gap-4">
 
-                <img
-                    src="{{ asset('storage/products/' . $product->images->first()->image) }}"
-                    class="w-14 h-14 object-cover rounded"
-                >
+                @if($image)
+
+                    <img
+                        src="{{ asset('storage/products/' . $image->image) }}"
+                        alt="{{ $item->name_snapshot }}"
+                        class="w-14 h-14 object-cover rounded"
+                    >
+
+                @else
+
+                    <div class="w-14 h-14 bg-gray-200 rounded flex items-center justify-center">
+                        <span class="text-xs text-gray-500">
+                            Sem imagem
+                        </span>
+                    </div>
+
+                @endif
 
                 <div>
 
@@ -123,34 +141,50 @@
 
 
 <!-- ENDEREÇO -->
-@if($order->address)
-
 <div class="bg-white shadow rounded-lg p-6 mt-6">
 
     <h2 class="text-xl font-semibold mb-4">
         Endereço de Entrega
     </h2>
 
-    <p>{{ $order->address->street }}, {{ $order->address->number }}</p>
+    <p>
+        <strong>Destinatário:</strong>
+        {{ $order->recipient_name }}
+    </p>
 
-    @if($order->address->complement)
-        <p>{{ $order->address->complement }}</p>
+    @if($order->phone)
+        <p>
+            <strong>Telefone:</strong>
+            {{ $order->phone }}
+        </p>
     @endif
 
-    <p>{{ $order->address->neighborhood }}</p>
+    @if($order->cpf)
+        <p>
+            <strong>CPF:</strong>
+            {{ $order->cpf }}
+        </p>
+    @endif
 
     <p>
-        {{ $order->address->city }} - {{ $order->address->state }}
+        {{ $order->street }}, {{ $order->number }}
+    </p>
+
+    @if($order->complement)
+        <p>{{ $order->complement }}</p>
+    @endif
+
+    <p>{{ $order->neighborhood }}</p>
+
+    <p>
+        {{ $order->city }} - {{ $order->state }}
     </p>
 
     <p>
-        CEP: {{ $order->address->cep }}
+        CEP: {{ $order->cep }}
     </p>
 
 </div>
-
-@endif
-
 
 <!-- BOTÃO VOLTAR -->
 <div class="mt-6">
@@ -163,7 +197,6 @@
     </a>
 
 </div>
-
 
 </div>
 

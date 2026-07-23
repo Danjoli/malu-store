@@ -15,10 +15,20 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
 
-            $table->foreignId('address_id')
-                ->constrained()
-                ->restrictOnDelete();
+            // Snapshot do endereço de entrega
+            $table->string('recipient_name');
+            $table->string('phone')->nullable();
+            $table->string('cpf', 14)->nullable();
 
+            $table->string('street');
+            $table->string('number');
+            $table->string('complement')->nullable();
+            $table->string('neighborhood')->nullable();
+            $table->string('city');
+            $table->string('state', 2);
+            $table->string('cep');
+
+            // Valores do pedido
             $table->decimal('subtotal', 10, 2);
 
             $table->decimal('shipping', 10, 2)
@@ -26,6 +36,7 @@ return new class extends Migration
 
             $table->decimal('total', 10, 2);
 
+            // Status
             $table->enum('status', [
                 'pending',
                 'pending_payment',
@@ -37,20 +48,17 @@ return new class extends Migration
                 'delivered'
             ])->default('pending');
 
-            $table->string('payment_method')
-                ->nullable();
+            // Pagamento
+            $table->string('payment_method')->nullable();
+            $table->string('gateway_payment_id')->nullable();
+            $table->string('gateway_status')->nullable();
 
-            $table->string('gateway_payment_id')
-                ->nullable();
+            $table->timestamp('paid_at')->nullable();
+            $table->dateTime('expires_at')->nullable();
 
-            $table->string('gateway_status')
-                ->nullable();
-
-            $table->timestamp('paid_at')
-                ->nullable();
-
-            $table->dateTime('expires_at')
-                ->nullable();
+            $table->index('user_id');
+            $table->index('status');
+            $table->index('gateway_payment_id');
 
             $table->timestamps();
         });

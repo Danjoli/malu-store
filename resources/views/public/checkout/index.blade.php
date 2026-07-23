@@ -88,6 +88,14 @@
                 </div>
 
                 <div class="mb-4">
+                    <label class="block mb-1">Complemento</label>
+                    <input type="text"
+                        name="complement"
+                        value="{{ old('complement', $address->complement ?? '') }}"
+                        class="w-full border rounded-lg px-4 py-2">
+                </div>
+
+                <div class="mb-4">
                     <label class="block mb-1">Bairro</label>
                     <input type="text" name="neighborhood"
                         value="{{ old('neighborhood', $address->neighborhood ?? '') }}"
