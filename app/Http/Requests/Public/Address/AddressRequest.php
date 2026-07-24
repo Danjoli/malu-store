@@ -24,7 +24,6 @@ class AddressRequest extends FormRequest
             'city' => 'required|string|max:100',
             'state' => 'required|string|size:2',
             'cep' => 'required|string|max:20',
-            'cpf' => 'required|string|max:14',
             'is_default' => 'boolean',
         ];
     }
@@ -42,7 +41,6 @@ class AddressRequest extends FormRequest
             'city' => 'Cidade',
             'state' => 'Estado',
             'cep' => 'CEP',
-            'cpf' => 'CPF',
             'is_default' => 'Endereço padrão',
         ];
     }
@@ -63,7 +61,6 @@ class AddressRequest extends FormRequest
             'city.required' => 'Informe a cidade.',
             'state.required' => 'Informe o estado.',
             'cep.required' => 'Informe o CEP.',
-            'cpf.required' => 'Informe o CPF.',
         ];
     }
 }

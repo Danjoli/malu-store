@@ -6,12 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
-use App\Models\Address;
 use App\Models\Order;
 
 use App\Services\Public\Profile\ProfileService;
 
-use App\Http\Requests\Public\Profile\StoreAddressRequest;
 use App\Http\Requests\Public\Profile\UpdatePasswordRequest;
 use App\Http\Requests\Public\Profile\UpdateProfileRequest;
 
@@ -32,7 +30,7 @@ class ProfileController extends Controller
 
         return view('public.profile.edit', [
             'user' => $user,
-            'addresses' => $user->addresses
+            'addresses' => $user->addresses,
         ]);
     }
 
@@ -48,7 +46,10 @@ class ProfileController extends Controller
             $request->validated()
         );
 
-        return back()->with('success', 'Conta atualizada com sucesso.');
+        return back()->with(
+            'success',
+            'Conta atualizada com sucesso.'
+        );
     }
 
     /*
@@ -60,9 +61,12 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (!Hash::check(
+            $request->current_password,
+            $user->password
+        )) {
             return back()->withErrors([
-                'current_password' => 'Senha atual incorreta.'
+                'current_password' => 'Senha atual incorreta.',
             ]);
         }
 
@@ -71,31 +75,10 @@ class ProfileController extends Controller
             $request->password
         );
 
-        return back()->with('success', 'Senha atualizada com sucesso.');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Endereços
-    |--------------------------------------------------------------------------
-    */
-    public function storeAddress(StoreAddressRequest $request)
-    {
-        $request->user()
-            ->addresses()
-            ->create($request->validated());
-
-        return back()->with('success', 'Endereço adicionado.');
-    }
-
-    public function deleteAddress($id)
-    {
-        Address::where('user_id', Auth::id())
-            ->where('id', $id)
-            ->firstOrFail()
-            ->delete();
-
-        return back()->with('success', 'Endereço removido.');
+        return back()->with(
+            'success',
+            'Senha atualizada com sucesso.'
+        );
     }
 
     /*
@@ -109,7 +92,10 @@ class ProfileController extends Controller
             ->latest()
             ->get();
 
-        return view('public.profile.orders', compact('orders'));
+        return view(
+            'public.profile.orders',
+            compact('orders')
+        );
     }
 
     public function orderShow($id)
@@ -123,6 +109,9 @@ class ProfileController extends Controller
             ])
             ->findOrFail($id);
 
-        return view('public.profile.order', compact('order'));
+        return view(
+            'public.profile.order',
+            compact('order')
+        );
     }
 }

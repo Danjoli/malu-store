@@ -2,7 +2,7 @@
     Adicionar novo endereço
 </h3>
 
-<form method="POST" action="{{ route('profile.address.store') }}">
+<form method="POST" action="{{ route('addresses.store') }}">
 
     @csrf
 

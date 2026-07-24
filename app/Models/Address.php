@@ -11,7 +11,6 @@ class Address extends Model
         'label',
         'recipient_name',
         'phone',
-        'cpf',
         'street',
         'number',
         'complement',

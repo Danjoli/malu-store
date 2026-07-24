@@ -8,8 +8,18 @@
 
     <div class="border rounded-lg p-4 mb-4">
 
-        <div class="font-semibold text-gray-800">
-            {{ $address->label }}
+        <div class="flex items-center justify-between mb-2">
+
+            <div class="font-semibold text-gray-800">
+                {{ $address->label ?: 'Endereço' }}
+            </div>
+
+            @if ($address->is_default)
+                <span class="text-sm font-semibold text-green-600">
+                    Endereço principal
+                </span>
+            @endif
+
         </div>
 
         <p class="text-sm text-gray-600">
@@ -28,20 +38,43 @@
             CEP: {{ $address->cep }}
         </p>
 
-        <form
-            method="POST"
-            action="{{ route('profile.address.delete', $address->id) }}"
-            class="mt-3"
-        >
+        <div class="flex items-center gap-4 mt-4">
 
-            @csrf
-            @method('DELETE')
+            @if (!$address->is_default)
 
-            <button class="text-red-500 text-sm hover:underline">
-                Excluir endereço
-            </button>
+                <form
+                    method="POST"
+                    action="{{ route('profile.address.default', $address->id) }}"
+                >
+                    @csrf
 
-        </form>
+                    <button
+                        type="submit"
+                        class="text-blue-600 text-sm hover:underline"
+                    >
+                        Definir como principal
+                    </button>
+                </form>
+
+            @endif
+
+            <form
+                method="POST"
+                action="{{ route('profile.address.delete', $address->id) }}"
+            >
+                @csrf
+                @method('DELETE')
+
+                <button
+                    type="submit"
+                    class="text-red-500 text-sm hover:underline"
+                >
+                    Excluir endereço
+                </button>
+
+            </form>
+
+        </div>
 
     </div>
 

@@ -105,6 +105,25 @@
                 value="{{ old('service') }}"
             >
 
+            <!-- NOME DO ENDEREÇO -->
+            <div class="mb-4">
+                <label
+                    for="label"
+                    class="block mb-1"
+                >
+                    Nome do Endereço
+                </label>
+
+                <input
+                    type="text"
+                    id="label"
+                    name="label"
+                    value="{{ old('label', $address->label ?? '') }}"
+                    class="w-full border rounded-lg px-4 py-2"
+                    placeholder="Ex: Casa, Trabalho (opcional)"
+                >
+            </div>
+
             <!-- DESTINATÁRIO -->
             <div class="mb-4">
                 <label

@@ -23,9 +23,6 @@ return new class extends Migration
             $table->string('phone')
                 ->nullable();
 
-            $table->string('cpf', 14)
-                ->nullable();
-
             $table->string('street');
 
             $table->string('number');

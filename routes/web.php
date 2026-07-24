@@ -95,12 +95,6 @@ Route::middleware('auth')->group(function () {
     Route::put('/perfil/senha', [ProfileController::class,'updatePassword'])
         ->name('profile.password.update');
 
-    Route::post('/perfil/endereco', [ProfileController::class,'storeAddress'])
-        ->name('profile.address.store');
-
-    Route::delete('/perfil/endereco/{id}', [ProfileController::class,'deleteAddress'])
-        ->name('profile.address.delete');
-
     /*
     |--------------------------------------------------------------------------
     | PEDIDOS DO CLIENTE
@@ -146,6 +140,12 @@ Route::middleware('auth')->group(function () {
 
     Route::put('/addresses/{id}', [AddressController::class,'update'])
         ->name('addresses.update');
+
+    Route::post('/perfil/endereco/{id}/default', [AddressController::class, 'setDefault'])
+        ->name('profile.address.default');
+
+    Route::delete('/perfil/endereco/{id}', [AddressController::class, 'destroy'])
+        ->name('profile.address.delete');
 
     /*
     |--------------------------------------------------------------------------
