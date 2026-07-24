@@ -175,7 +175,7 @@
                     type="text"
                     id="cpf"
                     name="cpf"
-                    value="{{ old('cpf', $address->cpf ?? '') }}"
+                    value="{{ old('cpf') }}"
                     class="w-full border rounded-lg px-4 py-2"
                     required
                 >

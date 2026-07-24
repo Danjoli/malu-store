@@ -9,6 +9,12 @@ class Admin extends Authenticatable
 {
     use HasFactory;
 
+    public const ROLES = [
+        'suporte' => 'Suporte',
+        'admin' => 'Administrador',
+        'superadmin' => 'Super Administrador',
+    ];
+
     protected $table = 'admins';
 
     protected $fillable = [
