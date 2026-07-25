@@ -1,0 +1,35 @@
+{
+  "resources/css/app.css": {
+    "file": "assets/app-DvLVgbGU.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "name": "app",
+    "names": [
+      "app.css"
+    ]
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-9qyOFX3O.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true
+  },
+  "resources/js/payments/boleto.js": {
+    "file": "assets/boleto-VUsQK2bB.js",
+    "name": "boleto",
+    "src": "resources/js/payments/boleto.js",
+    "isEntry": true
+  },
+  "resources/js/payments/card.js": {
+    "file": "assets/card-Cl3KBz6S.js",
+    "name": "card",
+    "src": "resources/js/payments/card.js",
+    "isEntry": true
+  },
+  "resources/js/payments/pix.js": {
+    "file": "assets/pix-BrU2NO4R.js",
+    "name": "pix",
+    "src": "resources/js/payments/pix.js",
+    "isEntry": true
+  }
+}

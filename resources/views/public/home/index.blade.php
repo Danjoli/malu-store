@@ -6,7 +6,7 @@
     <div class="container mx-auto px-4 py-10">
 
         {{-- FILTROS --}}
-        @include('components.public.filters')
+        @include('components.public.filters.filters')
 
         <h1 class="text-4xl font-bold mb-8 text-center">Nossos Produtos</h1>
 

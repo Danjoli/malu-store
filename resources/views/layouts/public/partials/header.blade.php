@@ -15,7 +15,7 @@
                 Carrinho
             </a>
 
-            @include('components.public.profile-menu')
+            @include('components.public.profile.profile-menu')
 
         </nav>
 

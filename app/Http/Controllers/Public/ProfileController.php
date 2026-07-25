@@ -93,7 +93,7 @@ class ProfileController extends Controller
             ->get();
 
         return view(
-            'public.profile.orders',
+            'public.profile.orders.index',
             compact('orders')
         );
     }
@@ -110,7 +110,7 @@ class ProfileController extends Controller
             ->findOrFail($id);
 
         return view(
-            'public.profile.order',
+            'public.profile.orders.show',
             compact('order')
         );
     }

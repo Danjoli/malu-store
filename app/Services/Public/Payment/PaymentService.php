@@ -95,7 +95,7 @@ class PaymentService
     {
         $order = Order::findOrFail($orderId);
 
-        return view('public.payments.methods.card', compact('order'));
+        return view('public.payments.methods.card.index', compact('order'));
     }
 
     /**
