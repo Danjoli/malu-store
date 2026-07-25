@@ -25,6 +25,6 @@ class OrdersController extends Controller
             'items.variant.product.images',
         ]);
 
-        return view('admin.orders.show', compact('order'));
+        return view('admin.orders.show.index', compact('order'));
     }
 }

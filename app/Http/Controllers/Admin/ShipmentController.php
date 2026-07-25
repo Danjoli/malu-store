@@ -19,7 +19,7 @@ class ShipmentController extends Controller
             ->latest()
             ->get();
 
-        return view('admin.shipments.index', compact('shipments'));
+        return view('admin.shipments.index.index', compact('shipments'));
     }
 
     public function edit(Shipment $shipment)

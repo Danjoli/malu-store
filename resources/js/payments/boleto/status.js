@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+export function initBoletoStatus() {
 
     /*
     |--------------------------------------------------------------------------
@@ -76,6 +76,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /*
     |--------------------------------------------------------------------------
+    | Para o intervalo de consulta
+    |--------------------------------------------------------------------------
+    */
+
+    const stopStatusChecking = () => {
+
+        if (statusInterval) {
+
+            clearInterval(
+                statusInterval
+            );
+
+            statusInterval = null;
+
+        }
+
+    };
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Consulta status do pagamento
     |--------------------------------------------------------------------------
     */
@@ -89,7 +110,9 @@ document.addEventListener('DOMContentLoaded', () => {
         */
 
         if (checkingStatus) {
+
             return;
+
         }
 
 
@@ -168,15 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 |--------------------------------------------------------------------------
                 */
 
-                if (statusInterval) {
-
-                    clearInterval(
-                        statusInterval
-                    );
-
-                    statusInterval = null;
-
-                }
+                stopStatusChecking();
 
 
                 /*
@@ -237,15 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 |--------------------------------------------------------------------------
                 */
 
-                if (statusInterval) {
-
-                    clearInterval(
-                        statusInterval
-                    );
-
-                    statusInterval = null;
-
-                }
+                stopStatusChecking();
 
 
                 /*
@@ -329,19 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener(
         'beforeunload',
-        () => {
-
-            if (statusInterval) {
-
-                clearInterval(
-                    statusInterval
-                );
-
-                statusInterval = null;
-
-            }
-
-        }
+        stopStatusChecking
     );
 
-});
+}

@@ -65,6 +65,6 @@
 
 </script>
 
-@vite('resources/js/payments/pix.js')
+@vite('resources/js/payments/pix/index.js')
 
 @endpush

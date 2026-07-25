@@ -94,6 +94,6 @@
 
 </script>
 
-@vite('resources/js/payments/boleto.js')
+@vite('resources/js/payments/boleto/index.js')
 
 @endpush

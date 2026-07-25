@@ -8,9 +8,9 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
-                'resources/js/payments/pix.js',
-                'resources/js/payments/card.js',
-                'resources/js/payments/boleto.js',
+                'resources/js/payments/card/index.js',
+                'resources/js/payments/pix/index.js',
+                'resources/js/payments/boleto/index.js',
             ],
             refresh: true,
         }),

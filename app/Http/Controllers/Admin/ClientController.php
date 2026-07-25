@@ -20,7 +20,7 @@ class ClientController extends Controller
             'orders.items'
         ]);
 
-        return view('admin.clients.show', [
+        return view('admin.clients.show.index', [
             'user' => $client
         ]);
     }
