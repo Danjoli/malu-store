@@ -30,12 +30,15 @@
         @endif
 
         <input type="text" name="name" placeholder="Nome"
+            value="{{ old('name') }}"
             class="w-full border p-2 mb-4 rounded">
 
         <input type="email" name="email" placeholder="Email"
+            value="{{ old('email') }}"
             class="w-full border p-2 mb-4 rounded">
 
         <input type="text" name="phone" placeholder="Telefone (11999999999)"
+            value="{{ old('phone') }}"
             class="w-full border p-2 mb-3 rounded focus:outline-green-500">
 
         <input type="password" name="password" placeholder="Senha"

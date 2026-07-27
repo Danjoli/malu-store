@@ -1,5 +1,26 @@
 <div class="space-y-6">
 
+    {{-- IMAGENS --}}
+    <div>
+        <label class="block font-medium mb-2">Imagens do Produto</label>
+
+        <input
+            type="file"
+            name="images[]"
+            id="productImages"
+            multiple
+            accept="image/*"
+            class="w-full border rounded p-2"
+        >
+
+        {{-- PRÉVIA DAS IMAGENS --}}
+        <div
+            id="imagePreview"
+            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-4"
+        >
+        </div>
+    </div>
+
     {{-- NOME --}}
     <div>
         <label class="block font-medium">Nome do Produto</label>
@@ -43,12 +64,6 @@
                 @checked(old('active', $product->active ?? false))>
             Produto ativo
         </label>
-    </div>
-
-    {{-- IMAGENS --}}
-    <div>
-        <label class="block font-medium">Imagens do Produto</label>
-        <input type="file" name="images[]" multiple class="w-full border rounded p-2">
     </div>
 
     {{-- VARIAÇÕES --}}

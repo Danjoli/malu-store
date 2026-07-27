@@ -3,6 +3,7 @@ import './bootstrap';
 import './checkout/index';
 
 import './products/variants';
+import './products/product-image-preview';
 
 import './dashboard/index';
 

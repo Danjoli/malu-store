@@ -29,7 +29,7 @@ class UpdateAdminRequest extends FormRequest
 
             'password' => ['nullable', 'string', 'min:6'],
 
-            'role' => ['required', 'string', Rule::in(Admin::role())],
+            'role' => ['required', 'string', Rule::in(array_keys(Admin::ROLES))],
 
             'is_active' => ['nullable', 'boolean'],
         ];

@@ -30,6 +30,7 @@
         @endif
 
         <input type="email" name="email" placeholder="Email"
+            value="{{ old('email') }}"
             class="w-full border p-2 mb-4 rounded">
 
         <input type="password" name="password" placeholder="Senha"

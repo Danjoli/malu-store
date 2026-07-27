@@ -34,7 +34,7 @@
             Editar conta
         </a>
 
-        <a href="{{ route('profile.orders.index') }}"
+        <a href="{{ route('profile.orders') }}"
            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
             Ver pedidos
         </a>

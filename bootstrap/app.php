@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
-use Throwable;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -72,15 +71,6 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             return redirect()->route('login');
-        });
-
-        $exceptions->render(function (Throwable $e, Request $request) {
-
-            if (!config('app.debug')) {
-                return response()->view('errors.500', [], 500);
-            }
-
-            throw $e;
         });
 
     })
