@@ -1,7 +1,7 @@
 <!-- RESUMO -->
-<div class="bg-white p-6 rounded-xl shadow h-fit">
+<div class="h-fit rounded-md border border-[#eee6e4] bg-white p-6 md:p-7">
 
-    <h2 class="text-xl font-semibold mb-6">
+    <h2 class="store-title mb-6 text-2xl font-semibold">
         Resumo do Pedido
     </h2>
 
@@ -10,7 +10,7 @@
 
         @foreach (($cart?->items ?? []) as $item)
 
-            <div class="flex justify-between gap-4">
+            <div class="flex justify-between gap-4 text-sm text-stone-700">
 
                 <span>
                     {{ $item->name_snapshot }}
@@ -34,7 +34,7 @@
     </div>
 
     <!-- FRETE -->
-    <div class="flex justify-between mb-2 mt-6">
+    <div class="mb-2 mt-6 flex justify-between text-sm text-stone-700">
 
         <span>
             Frete
@@ -46,10 +46,10 @@
 
     </div>
 
-    <hr class="my-4">
+    <hr class="my-4 border-[#ded5d2]">
 
     <!-- TOTAL -->
-    <div class="flex justify-between font-bold text-lg mb-6">
+    <div class="mb-6 flex justify-between text-xl font-bold">
 
         <span>
             Total
@@ -70,7 +70,7 @@
     <!-- FINALIZAR PEDIDO  -->
     <button
         type="submit"
-        class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition"
+        class="store-button store-button-primary w-full py-4"
     >
         Finalizar Pedido
     </button>

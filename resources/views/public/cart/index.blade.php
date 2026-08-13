@@ -3,26 +3,26 @@
 @section('title', 'Carrinho')
 
 @section('content')
-<div class="container mx-auto px-6 py-10">
+<div class="store-container py-10 md:py-14">
 
-    <h1 class="text-3xl font-bold mb-8">Seu Carrinho</h1>
+    <h1 class="store-title mb-8 text-4xl md:text-5xl">Seu Carrinho</h1>
 
     @if(!$cart || $cart->items->isEmpty())
 
-        <div class="bg-white p-10 rounded-2xl shadow text-center">
-            <p class="text-gray-500 text-lg">Seu carrinho está vazio.</p>
+        <div class="rounded-md border border-[#eee6e4] bg-white p-10 text-center">
+            <p class="text-lg text-stone-500">Seu carrinho está vazio.</p>
 
             <a href="{{ route('home') }}"
-               class="inline-block mt-6 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+               class="store-button store-button-primary mt-6">
                 Continuar Comprando
             </a>
         </div>
 
     @else
 
-    <div class="bg-white rounded-2xl shadow overflow-hidden">
-        <table class="w-full text-left">
-            <thead class="bg-gray-100 text-sm text-gray-600 uppercase">
+    <div class="overflow-x-auto rounded-md border border-[#eee6e4] bg-white">
+        <table class="w-full min-w-[760px] text-left">
+            <thead class="border-b border-[#ded5d2] bg-[#fff8f7] text-xs font-bold uppercase tracking-wide text-stone-700">
                 <tr>
                     <th class="p-5">Produto</th>
                     <th class="p-5">Preço</th>
@@ -35,20 +35,20 @@
             <tbody>
 
                 @foreach($cart->items as $item)
-                <tr class="border-t hover:bg-gray-50 transition">
+                <tr class="border-t border-[#eee6e4] transition hover:bg-[#fffaf9]">
 
                     {{-- Produto --}}
-                    <td class="p-5 flex items-center gap-4">
+                    <td class="flex items-center gap-4 p-5">
                         <img src="{{ asset('storage/products/' . $item->image_snapshot) }}"
-                             class="w-20 h-20 object-cover rounded-xl shadow-sm">
+                             class="h-24 w-20 rounded-sm object-cover">
 
                         <div>
-                            <p class="font-semibold text-gray-800">
+                            <p class="text-base font-semibold text-stone-800">
                                 {{ $item->name_snapshot }}
                             </p>
 
                             @if($item->color_snapshot || $item->size_snapshot)
-                                <p class="text-sm text-gray-500 mt-1">
+                                <p class="mt-1 text-sm text-stone-500">
                                     @if($item->color_snapshot)
                                         Cor: {{ $item->color_snapshot }}
                                     @endif
@@ -62,7 +62,7 @@
                     </td>
 
                     {{-- Preço --}}
-                    <td class="p-5 font-medium text-gray-700">
+                    <td class="p-5 font-medium text-stone-700">
                         R$ {{ number_format($item->price, 2, ',', '.') }}
                     </td>
 
@@ -76,17 +76,17 @@
                                    name="quantity"
                                    value="{{ $item->quantity }}"
                                    min="1"
-                                   class="w-20 border rounded-lg px-2 py-1 text-center">
+                                   class="w-20 rounded-md border border-stone-500 px-2 py-2 text-center">
 
                             <button type="submit"
-                                    class="text-blue-600 hover:underline text-sm">
+                                    class="text-sm font-medium text-[#bd5564] hover:underline">
                                 Atualizar
                             </button>
                         </form>
                     </td>
 
                     {{-- Subtotal --}}
-                    <td class="p-5 font-semibold text-gray-800">
+                    <td class="p-5 text-lg font-bold text-stone-800">
                         R$ {{ number_format($item->total, 2, ',', '.') }}
                     </td>
 
@@ -97,7 +97,7 @@
                             @method('DELETE')
 
                             <button type="submit"
-                                    class="text-red-600 hover:underline text-sm">
+                                    class="text-sm font-medium text-red-500 hover:underline">
                                 Remover
                             </button>
                         </form>
@@ -112,22 +112,22 @@
 
     {{-- Resumo --}}
     <div class="mt-10 flex justify-end">
-        <div class="bg-white p-8 rounded-2xl shadow w-96">
+        <div class="w-full max-w-md rounded-md border border-[#eee6e4] bg-white p-7 shadow-[0_10px_30px_rgba(63,38,35,.06)]">
 
-            <div class="flex justify-between mb-3 text-gray-600">
+            <div class="mb-4 flex justify-between text-stone-600">
                 <span>Itens:</span>
                 <span>{{ $cart->total_items }}</span>
             </div>
 
-            <div class="flex justify-between mb-5 text-xl font-bold">
+            <div class="mb-6 flex justify-between text-2xl font-bold">
                 <span>Total:</span>
-                <span class="text-blue-600">
+                <span class="text-[#bd5564]">
                     R$ {{ number_format($cart->subtotal, 2, ',', '.') }}
                 </span>
             </div>
 
             <a href="{{ route('checkout') }}"
-               class="block w-full bg-blue-600 text-white text-center py-3 rounded-xl hover:bg-blue-700 transition font-semibold">
+               class="store-button store-button-primary w-full py-4">
                 Finalizar Compra
             </a>
 

@@ -9,7 +9,7 @@ class ProductFilterService
 {
     public function filter(Request $request)
     {
-        $query = Product::with(['images', 'variants'])
+        $query = Product::with(['category', 'images', 'variants'])
             ->where('active', 1)
             ->whereHas('variants', function ($q) {
                 $q->where('stock', '>', 0);
@@ -43,6 +43,12 @@ class ProductFilterService
             $query->whereHas('variants', function ($q) use ($request) {
                 $q->where('size', $request->size)
                   ->where('stock', '>', 0);
+            });
+        }
+
+        if ($request->category) {
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->where('slug', $request->category);
             });
         }
 

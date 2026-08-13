@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -6,6 +8,31 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --color-brand-50: #fff8f7;
+    --color-brand-100: #fbe9e7;
+    --color-brand-200: #f4cfca;
+    --color-brand-500: #d66f7c;
+    --color-brand-600: #bd5564;
+    --color-ink: #272323;
+}
+
+@layer base {
+    body { color: var(--color-ink); background: #fffdfc; }
+    ::selection { background: #f4cfca; color: #272323; }
+}
+
+@layer components {
+    .store-container { width: min(100% - 2rem, 76rem); margin-inline: auto; }
+    .store-title { font-family: var(--font-display); letter-spacing: -.035em; }
+    .store-kicker { font-size: .6875rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+    .store-button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: .25rem; padding: .75rem 1.1rem; font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; transition: .2s ease; }
+    .store-button-primary { background: var(--color-brand-500); color: white; }
+    .store-button-primary:hover { background: var(--color-brand-600); transform: translateY(-1px); }
+    .store-button-outline { border: 1px solid #e8d9d6; color: #514a49; background: white; }
+    .store-button-outline:hover { border-color: var(--color-brand-500); color: var(--color-brand-600); }
+    .store-input { width: 100%; border: 1px solid #eadfdd; border-radius: .25rem; background: white; padding: .75rem .875rem; font-size: .875rem; outline: none; transition: .2s; }
+    .store-input:focus { border-color: var(--color-brand-500); box-shadow: 0 0 0 3px rgb(214 111 124 / .12); }
 }

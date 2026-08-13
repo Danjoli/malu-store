@@ -3,60 +3,85 @@
 @section('title', 'Loja')
 
 @section('content')
-    <div class="container mx-auto px-4 py-10">
-
-        {{-- FILTROS --}}
-        @include('components.public.filters.filters')
-
-        <h1 class="text-4xl font-bold mb-8 text-center">Nossos Produtos</h1>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-
-            @forelse ($products as $product)
-            <div class="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden flex flex-col">
-
-                {{-- IMAGEM --}}
-                <div class="h-56 bg-gray-100 flex items-center justify-center">
-                    @if($product->images->count())
-                        <img src="{{ asset('storage/products/' . $product->images->first()->image) }}"
-                         class="h-full w-full object-cover">
-                    @else
-                        <span class="text-gray-400 text-sm">Sem imagem</span>
-                    @endif
-                </div>
-
-                {{-- CONTEÚDO --}}
-                <div class="p-4 flex flex-col flex-1">
-                    <h2 class="text-lg font-semibold mb-2">
-                        {{ $product->name }}
-                    </h2>
-
-                    {{-- ESTOQUE --}}
-                    @php
-                        $stock = $product->variants->sum('stock');
-                    @endphp
-
-                    @if($stock > 0)
-                        <span class="text-green-600 text-sm font-medium mb-2">✔ Em estoque</span>
-                    @else
-                        <span class="text-red-500 text-sm font-medium mb-2">✖ Esgotado</span>
-                    @endif
-
-                    {{-- PREÇO --}}
-                    <p class="text-2xl font-bold text-blue-600 mt-auto">R$ {{ number_format($product->price, 2, ',', '.') }}</p>
-
-                    <a href="{{ route('product.show' , $product->id) }}" class="mt-4 bg-blue-600 text-white text-center py-2 rounded hover:bg-blue-700 transition">
-                        Ver Produto
-                    </a>
+    <section class="border-b border-[#eee6e4] bg-[#f8eee9]">
+        <div class="relative min-h-[410px] overflow-hidden md:min-h-[450px]">
+            <img src="{{ asset('storage/products/hero-malu-store.png') }}" alt="Nova coleção Malu Store" class="absolute inset-0 h-full w-full object-cover object-[65%_center]">
+            <div class="absolute inset-0 bg-gradient-to-r from-[#f8eee9] via-[#f8eee9]/78 to-transparent"></div>
+            <div class="store-container relative z-10 flex min-h-[410px] items-center py-12 md:min-h-[450px]">
+                <div class="max-w-md">
+                <p class="store-kicker mb-5 text-[#bd5564]">Nova coleção</p>
+                <h1 class="store-title text-4xl leading-tight text-stone-900 md:text-5xl">Elegância para todos os momentos</h1>
+                <a href="#produtos" class="store-button store-button-primary mt-7">Comprar agora</a>
                 </div>
             </div>
+        </div>
+    </section>
+
+    @php
+        $categories = $products->pluck('category')->filter()->unique('id');
+    @endphp
+    @if($categories->isNotEmpty())
+        <section class="store-container py-12 md:py-14">
+            <div class="mb-8 text-center">
+                <p class="store-kicker mb-2 text-[#bd5564]">Encontre seu estilo</p>
+                <h2 class="store-title text-3xl">Categorias</h2>
+            </div>
+            <div class="grid grid-cols-3 gap-3 sm:grid-cols-6 sm:gap-4 md:gap-5">
+                @foreach($categories as $category)
+                    @php
+                        $categoryProduct = $products->firstWhere('category_id', $category->id);
+                        $categoryImage = $categoryProduct?->images->first();
+                    @endphp
+                    <a href="{{ route('home', ['category' => $category->slug]) }}" class="group text-center">
+                        <div class="mx-auto aspect-square w-full max-w-32 overflow-hidden rounded-full border-4 border-[#f8eee9] bg-[#f1e4de] shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:border-[#f4cfca] group-hover:shadow-lg">
+                            @if($categoryImage)
+                                <img src="{{ asset('storage/products/' . $categoryImage->image) }}" alt="{{ $category->name }}" class="h-full w-full object-cover transition duration-500 group-hover:scale-110">
+                            @else
+                                <div class="flex h-full items-center justify-center"><span class="store-title text-2xl text-stone-400">{{ mb_substr($category->name, 0, 1) }}</span></div>
+                            @endif
+                        </div>
+                        <p class="mt-3 text-xs font-bold uppercase tracking-wider text-stone-700 transition group-hover:text-[#bd5564]">{{ $category->name }}</p>
+                    </a>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
+    <div id="produtos" class="store-container py-14">
+        <div class="mb-8 flex items-center gap-4">
+            <span class="h-px flex-1 bg-[#eadfdd]"></span><div class="text-center"><h2 class="store-title text-3xl">Novidades</h2></div><span class="h-px flex-1 bg-[#eadfdd]"></span><a href="{{ route('home') }}" class="shrink-0 text-xs font-semibold text-stone-700 transition hover:text-[#bd5564]">Ver todas</a>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-6">
+
+            @forelse ($products as $product)
+            <x-store.product-card :product="$product" />
 
             @empty
-                <div class="col-span-full text-center text-gray-500 text-lg">
+                <div class="col-span-full rounded-md border border-dashed border-[#e8d9d6] py-16 text-center text-stone-500">
                     Nenhum produto disponível no momento.
                 </div>
             @endforelse
 
         </div>
     </div>
+
+    <section class="border-y border-[#eee6e4] bg-[#fff8f7]">
+        <div class="store-container grid gap-5 py-7 text-center sm:grid-cols-2 lg:grid-cols-4">
+            <div><p class="text-lg">▱</p><p class="mt-1 text-[10px] font-bold uppercase tracking-wider">Envio rápido</p><p class="text-[10px] text-stone-500">para todo o Brasil</p></div>
+            <div><p class="text-lg">♢</p><p class="mt-1 text-[10px] font-bold uppercase tracking-wider">Compra segura</p><p class="text-[10px] text-stone-500">seus dados protegidos</p></div>
+            <div><p class="text-lg">↺</p><p class="mt-1 text-[10px] font-bold uppercase tracking-wider">Troca fácil</p><p class="text-[10px] text-stone-500">até 7 dias</p></div>
+            <div><p class="text-lg">▤</p><p class="mt-1 text-[10px] font-bold uppercase tracking-wider">Parcele em até 6x</p><p class="text-[10px] text-stone-500">sem juros no cartão</p></div>
+        </div>
+    </section>
+
+    @php $galleryImages = $products->flatMap(fn ($product) => $product->images)->take(4); @endphp
+    @if($galleryImages->isNotEmpty())
+        <section class="store-container py-14">
+            <div class="grid overflow-hidden rounded-md border border-[#eee6e4] md:grid-cols-[.9fr_2.1fr]">
+                <div class="bg-[#fff1ef] p-8"><p class="store-kicker text-[#bd5564]">#malustore</p><h2 class="store-title mt-3 text-2xl">Nos marque e apareça por aqui!</h2><a href="#" class="store-button store-button-primary mt-6">Ver no Instagram</a></div>
+                <div class="grid grid-cols-4 gap-1.5 bg-white p-1.5">@foreach($galleryImages as $image)<img src="{{ asset('storage/products/' . $image->image) }}" alt="Malu Store" class="aspect-[3/4] h-full w-full object-cover">@endforeach</div>
+            </div>
+        </section>
+    @endif
 @endsection

@@ -4,9 +4,9 @@
 
 @section('content')
 
-<div class="max-w-6xl mx-auto px-6 py-10">
+<div class="store-container py-10 md:py-14">
 
-    <h1 class="text-3xl font-bold mb-8 tracking-tight">
+    <h1 class="store-title mb-8 text-4xl md:text-5xl">
         Finalizar Compra
     </h1>
 
@@ -17,7 +17,7 @@
     >
         @csrf
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
 
             {{-- FORMULÁRIO DE ENTREGA --}}
             @include('public.checkout.address-form')

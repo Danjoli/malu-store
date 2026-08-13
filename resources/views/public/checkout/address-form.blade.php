@@ -1,7 +1,7 @@
 <!-- FORMULÁRIO -->
-<div class="bg-white p-6 rounded-xl shadow">
+<div class="rounded-md border border-[#eee6e4] bg-white p-6 md:p-7">
 
-    <h2 class="text-xl font-semibold mb-6">
+    <h2 class="store-title mb-6 text-2xl font-semibold">
         Informações de Entrega
     </h2>
 
@@ -21,7 +21,7 @@
     <div class="mb-4">
         <label
             for="cep"
-            class="block mb-1"
+            class="mb-1 block text-xs font-medium text-stone-700"
         >
             CEP
         </label>
@@ -31,7 +31,7 @@
             id="cep"
             name="cep"
             value="{{ old('cep', $address->cep ?? '') }}"
-            class="w-full border rounded-lg px-4 py-2"
+            class="store-input"
             required
         >
     </div>
@@ -41,7 +41,7 @@
         <button
             type="button"
             id="btn-calcular-frete"
-            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            class="store-button store-button-primary py-2"
         >
             Calcular Frete
         </button>
@@ -98,7 +98,7 @@
             id="label"
             name="label"
             value="{{ old('label', $address->label ?? '') }}"
-            class="w-full border rounded-lg px-4 py-2"
+            class="store-input"
             placeholder="Ex: Casa, Trabalho (opcional)"
         >
     </div>
@@ -117,7 +117,7 @@
             id="recipient_name"
             name="recipient_name"
             value="{{ old('recipient_name', $address->recipient_name ?? '') }}"
-            class="w-full border rounded-lg px-4 py-2"
+            class="store-input"
             required
         >
     </div>
@@ -136,7 +136,7 @@
             id="phone"
             name="phone"
             value="{{ old('phone', $address->phone ?? '') }}"
-            class="w-full border rounded-lg px-4 py-2"
+            class="store-input"
             required
         >
     </div>
@@ -155,7 +155,7 @@
             id="cpf"
             name="cpf"
             value="{{ old('cpf') }}"
-            class="w-full border rounded-lg px-4 py-2"
+            class="store-input"
             required
         >
     </div>
@@ -174,7 +174,7 @@
             id="street"
             name="street"
             value="{{ old('street', $address->street ?? '') }}"
-            class="w-full border rounded-lg px-4 py-2"
+            class="store-input"
             required
         >
     </div>
@@ -193,7 +193,7 @@
             id="number"
             name="number"
             value="{{ old('number', $address->number ?? '') }}"
-            class="w-full border rounded-lg px-4 py-2"
+            class="store-input"
             required
         >
     </div>
@@ -212,7 +212,7 @@
             id="complement"
             name="complement"
             value="{{ old('complement', $address->complement ?? '') }}"
-            class="w-full border rounded-lg px-4 py-2"
+            class="store-input"
         >
     </div>
 
@@ -230,7 +230,7 @@
             id="neighborhood"
             name="neighborhood"
             value="{{ old('neighborhood', $address->neighborhood ?? '') }}"
-            class="w-full border rounded-lg px-4 py-2"
+            class="store-input"
             required
         >
     </div>
@@ -249,7 +249,7 @@
             id="city"
             name="city"
             value="{{ old('city', $address->city ?? '') }}"
-            class="w-full border rounded-lg px-4 py-2"
+            class="store-input"
             required
         >
     </div>
@@ -269,7 +269,7 @@
             name="state"
             maxlength="2"
             value="{{ old('state', $address->state ?? '') }}"
-            class="w-full border rounded-lg px-4 py-2 uppercase"
+            class="store-input uppercase"
             required
         >
     </div>

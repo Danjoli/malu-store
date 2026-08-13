@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Blade::anonymousComponentPath(
-            resource_path('views/public/components'),
+            resource_path('views/components/public'),
             'public'
         );
     }

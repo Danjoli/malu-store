@@ -3,7 +3,7 @@
 
 @include('layouts.public.partials.head')
 
-<body class="bg-gray-50">
+<body class="bg-[#fffdfc] font-sans antialiased">
 
     @include('layouts.public.partials.header')
 

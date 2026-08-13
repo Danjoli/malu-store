@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Public\HomeController;
+use App\Http\Controllers\Public\CatalogController;
 use App\Http\Controllers\Public\PublicProductController;
 
 /*
@@ -13,6 +14,9 @@ use App\Http\Controllers\Public\PublicProductController;
 
 Route::get('/', [HomeController::class, 'index'])
     ->name('home');
+
+Route::get('/produtos', [CatalogController::class, 'index'])
+    ->name('catalog.index');
 
 Route::view('/policy', 'public.pages.policy')
     ->name('policy');

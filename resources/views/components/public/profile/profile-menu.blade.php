@@ -3,16 +3,16 @@
     {{-- BOTÃO PERFIL --}}
     <button
         @click="open = !open"
-        class="flex items-center justify-center w-9 h-9 rounded-full hover:bg-gray-100 transition"
+        class="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#fff1ef]"
     >
 
         <svg xmlns="http://www.w3.org/2000/svg"
-            class="w-7 h-7 text-gray-700"
-            fill="currentColor"
+            class="h-5 w-5 text-stone-700"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
             viewBox="0 0 24 24">
-            <path fill-rule="evenodd"
-                d="M18 20a6 6 0 10-12 0h12zm-6-8a4 4 0 100-8 4 4 0 000 8z"
-                clip-rule="evenodd"/>
+            <path d="M20 21a8 8 0 0 0-16 0M12 13a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/>
         </svg>
 
     </button>
