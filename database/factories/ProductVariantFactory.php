@@ -15,7 +15,13 @@ class ProductVariantFactory extends Factory
     {
         return [
             'product_id' => Product::factory(),
-            'color' => fake()->randomElement(['Preto', 'Off-white', 'Rosé', 'Areia', 'Verde oliva']),
+            'color' => fake()->randomElement([
+                'Preto',
+                'Off-white',
+                'Rosé',
+                'Areia',
+                'Verde oliva'
+            ]),
             'size' => fake()->randomElement(['P', 'M', 'G', 'GG']),
             'stock' => fake()->numberBetween(3, 25),
         ];

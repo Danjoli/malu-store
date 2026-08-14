@@ -21,6 +21,8 @@ O funcionamento do catálogo, carrinho, checkout, pagamentos, webhooks, banco de
 * Checkout
 * Acompanhamento de pedidos
 * Sistema de autenticação de usuários
+* Cadastro e login públicos com identidade visual unificada
+* Redirecionamento de usuários já autenticados para a área apropriada
 
 ### Área Administrativa
 
@@ -32,6 +34,7 @@ O funcionamento do catálogo, carrinho, checkout, pagamentos, webhooks, banco de
 * Controle de estoque
 * Controle de envios
 * Integração com serviços de frete
+* Autenticação administrativa independente, com logout seguro no painel
 
 ## Tecnologias Utilizadas
 
@@ -90,7 +93,7 @@ malu_store/
 Clone o projeto:
 
 ```bash
-git clone URL_DO_REPOSITORIO
+git clone https://github.com/Danjoli/malu_store
 ```
 
 Entre na pasta do projeto:

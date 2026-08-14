@@ -55,6 +55,27 @@ Não há uma dependência extra para Actions ou DTOs: são classes nativas PHP/L
 
 As Policies `OrderPolicy` e `AddressPolicy` garantem que um cliente só acesse ou altere os próprios dados. As consultas continuam filtradas por `user_id` antes da Policy para preservar a resposta 404 quando um pedido ou endereço de outro cliente é solicitado.
 
+### Autenticação e sessões
+
+A aplicação mantém dois guards de sessão independentes:
+
+- `web`, para clientes da loja;
+- `admin`, para administradores do painel.
+
+As telas públicas de login e cadastro usam o mesmo layout, largura de card, tipografia, paleta rosé, campos e espaçamentos. O cadastro preserva os campos próprios de nome, e-mail, telefone e senha, mas funciona como continuação visual direta do login.
+
+O middleware `RedirectAuthenticatedUser` protege os formulários exibidos apenas para visitantes e resolve o destino conforme o guard ativo:
+
+| Rota acessada | Sessão autenticada | Destino |
+|---|---|---|
+| `/login` ou `/register` | Cliente (`web`) | Home pública (`home`) |
+| `/login` ou `/register` | Administrador (`admin`) | Painel administrativo (`admin.dashboard`) |
+| `/admin/login` | Administrador (`admin`) | Painel administrativo (`admin.dashboard`) |
+
+Visitantes continuam acessando os formulários normalmente. O GET `/admin/login` verifica somente o guard `admin`, portanto uma sessão comum do guard `web` não impede o acesso ao login administrativo. Os POSTs de autenticação não recebem esse middleware e mantêm o fluxo dos controllers.
+
+O botão **Sair** da barra lateral administrativa envia um formulário POST com proteção CSRF para `admin.logout`. O controller encerra especificamente o guard `admin`, rotaciona o identificador da sessão e regenera o token CSRF antes de redirecionar para `admin.login`. A sessão do guard `web`, quando existente no mesmo navegador, é preservada.
+
 ## Interface administrativa
 
 O painel usa `layouts/admin/app.blade.php` como base comum e `layouts/admin/partials/sidebar.blade.php` para a navegação. A identidade visual administrativa mantém os tons escuros, rosé e off-white da Malu Store, com `Manrope` para a interface e `Cormorant Garamond` para títulos.

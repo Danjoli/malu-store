@@ -3,54 +3,72 @@
 @section('title', 'Criar Conta')
 
 @section('content')
+    <div class="mx-auto flex min-h-[58vh] max-w-md items-center px-5 py-12">
+        <section
+            class="w-full overflow-hidden rounded-2xl border border-[#eaded9] bg-white shadow-[0_12px_34px_rgba(76,50,47,0.08)]">
 
-    <div class="flex items-center justify-center py-20">
+            <div class="border-b border-[#f0e5e1] bg-[#fdf8f6] px-6 py-7 text-center sm:px-8">
+                <p class="text-xs font-bold uppercase tracking-[0.18em] text-[#c96f82]">
+                    Minha conta
+                </p>
+                <h1 class="mt-2 font-['Cormorant_Garamond'] text-4xl font-semibold text-[#2d2928]">
+                    Crie sua conta
+                </h1>
+                <p class="mt-2 text-sm text-[#746b68]">
+                    Cadastre-se para comprar e acompanhar seus pedidos.
+                </p>
+            </div>
 
-        <form method="POST" action="/register" class="bg-white p-8 shadow rounded w-96">
+            <form method="POST" action="/register" class="space-y-5 px-6 py-7 sm:px-8">
+                @csrf
 
-            @csrf
+                @if ($errors->any())
+                    <div class="rounded-xl border border-[#f1c8d0] bg-[#fdf0f3] px-4 py-3 text-sm text-[#b44259]" role="alert">
+                        <ul class="space-y-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
 
-            <h2 class="text-2xl font-bold mb-6 text-center">Criar Conta</h2>
-
-            {{-- ERROS --}}
-            @if ($errors->any())
-
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-
-                    <ul class="list-disc pl-5">
-
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-
-                    </ul>
-
+                <div>
+                    <label for="name" class="mb-2 block text-sm font-semibold text-[#443d3b]">Nome completo</label>
+                    <input id="name" type="text" name="name" value="{{ old('name') }}" autocomplete="name"
+                        required autofocus placeholder="Seu nome"
+                        class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none transition focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]">
                 </div>
 
-            @endif
+                <div>
+                    <label for="email" class="mb-2 block text-sm font-semibold text-[#443d3b]">E-mail</label>
+                    <input id="email" type="email" name="email" value="{{ old('email') }}" autocomplete="email"
+                        required placeholder="voce@email.com"
+                        class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none transition focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]">
+                </div>
 
-            <input type="text" name="name" placeholder="Nome" value="{{ old('name') }}"
-                class="w-full border p-2 mb-4 rounded">
+                <div>
+                    <label for="phone" class="mb-2 block text-sm font-semibold text-[#443d3b]">Telefone</label>
+                    <input id="phone" type="tel" name="phone" value="{{ old('phone') }}" autocomplete="tel"
+                        inputmode="tel" required placeholder="(11) 99999-9999"
+                        class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none transition focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]">
+                </div>
 
-            <input type="email" name="email" placeholder="Email" value="{{ old('email') }}"
-                class="w-full border p-2 mb-4 rounded">
+                <div>
+                    <label for="password" class="mb-2 block text-sm font-semibold text-[#443d3b]">Senha</label>
+                    <input id="password" type="password" name="password" autocomplete="new-password" minlength="6"
+                        required placeholder="Mínimo de 6 caracteres"
+                        class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none transition focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]">
+                </div>
 
-            <input type="text" name="phone" placeholder="Telefone (11999999999)" value="{{ old('phone') }}"
-                class="w-full border p-2 mb-3 rounded focus:outline-green-500">
+                <button type="submit"
+                    class="w-full rounded-xl bg-[#cf7184] py-3.5 text-sm font-bold text-white transition hover:bg-[#b85d70]">Criar conta</button>
 
-            <input type="password" name="password" placeholder="Senha" class="w-full border p-2 mb-4 rounded">
-
-            <button class="w-full bg-blue-600 text-white py-2 rounded">
-                Criar Conta
-            </button>
-
-            <p class="text-sm mt-4 text-center">
-                Já tem conta?
-                <a href="{{ route('login') }}" class="text-blue-600">Login</a>
-            </p>
-
-        </form>
-
+                <p class="text-center text-sm text-[#746b68]">Já tem uma conta?
+                    <a href="{{ route('login') }}"
+                        class="font-bold text-[#b85d70] hover:text-[#9f4c5e]">Entrar
+                    </a>
+                </p>
+            </form>
+        </section>
     </div>
-
 @endsection

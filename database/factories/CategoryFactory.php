@@ -13,8 +13,18 @@ class CategoryFactory extends Factory
 
     public function definition(): array
     {
-        $name = fake()->unique()->randomElement(['Vestidos', 'Conjuntos', 'Blusas', 'Calças', 'Saias', 'Acessórios']);
+        $name = fake()->unique()->randomElement([
+            'Vestidos',
+            'Conjuntos',
+            'Blusas',
+            'Calças',
+            'Saias',
+            'Acessórios'
+        ]);
 
-        return ['name' => $name, 'slug' => Str::slug($name)];
+        return [
+            'name' => $name,
+            'slug' => Str::slug($name)
+        ];
     }
 }

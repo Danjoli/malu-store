@@ -50,6 +50,7 @@ return Application::configure(basePath: dirname(__DIR__))
         */
         $middleware->alias([
             'admin.role' => \App\Http\Middleware\AdminRole::class,
+            'redirect.authenticated' => \App\Http\Middleware\RedirectAuthenticatedUser::class,
         ]);
 
     })

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admins\Auth\LoginRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AdminAuthController extends Controller
@@ -28,12 +29,13 @@ class AdminAuthController extends Controller
         return redirect()->route('admin.dashboard');
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
         Auth::guard('admin')->logout();
 
-        request()->session()->invalidate();
-        request()->session()->regenerateToken();
+        // Rotaciona a sessão sem apagar uma eventual autenticação do guard web.
+        $request->session()->regenerate();
+        $request->session()->regenerateToken();
 
         return redirect()->route('admin.login');
     }
