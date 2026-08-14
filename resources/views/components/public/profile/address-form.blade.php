@@ -8,65 +8,25 @@
 
     <div class="grid grid-cols-2 gap-3">
 
-        <input
-            name="label"
-            placeholder="Casa / Trabalho"
-            class="store-input"
-        >
+        <input name="label" placeholder="Casa / Trabalho" class="store-input">
 
-        <input
-            name="recipient_name"
-            placeholder="Nome do destinatário"
-            class="store-input"
-        >
+        <input name="recipient_name" placeholder="Nome do destinatário" class="store-input">
 
-        <input
-            name="phone"
-            placeholder="Telefone"
-            class="store-input"
-        >
+        <input name="phone" placeholder="Telefone" class="store-input">
 
-        <input
-            name="cep"
-            placeholder="CEP"
-            class="store-input"
-        >
+        <input name="cep" placeholder="CEP" class="store-input">
 
-        <input
-            name="street"
-            placeholder="Rua"
-            class="store-input"
-        >
+        <input name="street" placeholder="Rua" class="store-input">
 
-        <input
-            name="number"
-            placeholder="Número"
-            class="store-input"
-        >
+        <input name="number" placeholder="Número" class="store-input">
 
-        <input
-            name="neighborhood"
-            placeholder="Bairro"
-            class="store-input"
-        >
+        <input name="neighborhood" placeholder="Bairro" class="store-input">
 
-        <input
-            name="city"
-            placeholder="Cidade"
-            class="store-input"
-        >
+        <input name="city" placeholder="Cidade" class="store-input">
 
-        <input
-            name="state"
-            placeholder="Estado"
-            class="store-input"
-        >
+        <input name="state" placeholder="Estado" class="store-input">
 
-        <input
-            name="complement"
-            placeholder="Complemento"
-            class="store-input"
-        >
+        <input name="complement" placeholder="Complemento" class="store-input">
 
     </div>
 

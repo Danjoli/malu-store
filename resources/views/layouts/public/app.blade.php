@@ -20,4 +20,5 @@
     @include('layouts.public.partials.scripts')
 
 </body>
+
 </html>

@@ -106,6 +106,8 @@ class ProfileController extends Controller
             ])
             ->findOrFail($id);
 
+        $this->authorize('view', $order);
+
         return view(
             'public.profile.orders.show',
             compact('order')

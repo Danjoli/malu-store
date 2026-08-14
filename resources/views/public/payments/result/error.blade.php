@@ -1,61 +1,19 @@
 @extends('layouts.public.app')
 
-@section('title', 'Pagamento Falhou')
+@section('title', 'Pagamento não concluído')
 
 @section('content')
+    @php
+        $messages = [
+            'cancelled' => 'O pagamento foi cancelado. Você pode escolher outra forma de pagamento.',
+            'insufficient_funds' => 'Não foi possível autorizar o pagamento por saldo insuficiente.',
+            'expired' => 'O prazo deste pagamento expirou. Gere uma nova cobrança para continuar.',
+            'card_declined' => 'A operadora não autorizou a transação. Revise os dados ou use outro meio de pagamento.',
+            'failed' => 'O pagamento não foi concluído. Tente novamente em alguns instantes.',
+        ];
+        $message = $messages[$reason ?? ''] ?? 'Ocorreu um problema ao processar o pagamento. Tente novamente.';
+    @endphp
 
-<div class="max-w-2xl mx-auto px-6 py-20 text-center">
-
-    <div class="bg-white p-10 rounded-xl shadow">
-
-        <div class="text-red-600 text-6xl mb-4">
-            ❌
-        </div>
-
-        <h1 class="text-3xl font-bold mb-4 tracking-tight">
-            Pagamento não foi concluído
-        </h1>
-
-        @php
-            // Define a mensagem padrão
-            $message = "Ocorreu um problema ao processar seu pagamento. Por favor, tente novamente.";
-
-            if (!empty($reason)) {
-                switch ($reason) {
-                    case 'cancelled':
-                        $message = "O pagamento foi cancelado pelo usuário ou pelo gateway.";
-                        break;
-                    case 'insufficient_funds':
-                        $message = "O pagamento não foi concluído: saldo insuficiente.";
-                        break;
-                    case 'expired':
-                        $message = "Este pagamento expirou. Por favor, gere um novo.";
-                        break;
-                    case 'card_declined':
-                        $message = "A transação não foi autorizada pela operadora do cartão. Verifique os dados do cartão ou tente outro cartão.";
-                        break;
-                    case 'failed':
-                        $message = "O pagamento falhou por um erro inesperado. Tente novamente.";
-                        break;
-
-                    default:
-                        $message = 'Ocorreu um problema ao processar seu pagamento. Por favor, tente novamente';
-                        break;
-                }
-            }
-        @endphp
-
-        <p class="text-gray-600 mb-6">
-            {{ $message }}
-        </p>
-
-        <a href="/checkout"
-           class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
-           Tentar novamente
-        </a>
-
-    </div>
-
-</div>
-
+    <x-error-page code="!" eyebrow="Pagamento não concluído" title="Vamos tentar de novo?" :message="$message"
+        action-label="Escolher outra forma" :action-url="route('payment.method', $order)" />
 @endsection

@@ -47,8 +47,13 @@ tests/Feature/               Testes dos fluxos de negócio
 - **Action:** executa uma única operação importante, reutilizável e simples de testar.
 - **DTO (`Data`):** transforma dados de entrada em uma estrutura consistente.
 - **Model:** representa a tabela e seus relacionamentos.
+- **Policy:** centraliza a autorização sobre uma entidade, como pedido ou endereço.
 
 Não há uma dependência extra para Actions ou DTOs: são classes nativas PHP/Laravel, carregadas pelo autoload `App\`.
+
+### Autorização
+
+As Policies `OrderPolicy` e `AddressPolicy` garantem que um cliente só acesse ou altere os próprios dados. As consultas continuam filtradas por `user_id` antes da Policy para preservar a resposta 404 quando um pedido ou endereço de outro cliente é solicitado.
 
 ## Interface administrativa
 
@@ -102,23 +107,7 @@ Os links estão disponíveis no rodapé público. Antes da publicação comercia
 
 ## Banco de dados
 
-Principais tabelas:
-
-| Tabela | Função |
-|---|---|
-| `users` | Clientes autenticados. |
-| `admins` | Usuários do painel administrativo. |
-| `categories` | Categorias, como Vestidos e Calças. |
-| `products` | Produto base: nome, preço, descrição, ativo. |
-| `product_images` | Fotos vinculadas ao produto. |
-| `product_variants` | Cor, tamanho e estoque por variante. |
-| `carts` / `cart_items` | Carrinho ativo do cliente e itens. |
-| `addresses` | Endereços salvos pelo cliente. |
-| `orders` / `order_items` | Pedido e snapshots dos itens comprados. |
-| `shipments` | Transportadora, código de rastreio e situação do envio. |
-| `favorites` | Relação entre usuário e produto favoritado. |
-
-O pedido guarda um **snapshot** do endereço, preço, nome, foto, cor e tamanho. Assim, alterações futuras no produto não mudam o histórico do pedido.
+O modelo completo de tabelas, relações, snapshots, seeders, imagens e comandos de banco está em [BANCO_DE_DADOS.md](BANCO_DE_DADOS.md).
 
 ## Fluxo de catálogo e produto
 
@@ -245,7 +234,7 @@ Os eventos críticos são registrados em `storage/logs/laravel.log` com contexto
 - erro ao consultar opções de frete;
 - falha definitiva de uma Job de webhook do Asaas, após as tentativas configuradas.
 
-Em produção, o próximo passo é definir um canal de alerta aprovado pela operação (por exemplo, Sentry, e-mail ou Slack) e configurá-lo no ambiente. Nenhum serviço externo de alerta é habilitado automaticamente pelo projeto.
+Em produção, o próximo passo é definir um canal de alerta aprovado pela operação (por exemplo, Sentry, e-mail ou Slack) e configurá-lo no ambiente. Nenhum serviço externo de alerta é habilitado automaticamente pelo projeto. O procedimento de SMTP por e-mail está em [IMPLANTACAO.md](IMPLANTACAO.md), mas o disparo de notificações ainda é uma etapa de implementação separada.
 
 ## Comandos de desenvolvimento
 

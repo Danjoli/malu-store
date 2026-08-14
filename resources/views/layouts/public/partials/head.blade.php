@@ -8,6 +8,8 @@
     <title>@yield('title') - Malu Store</title>
 
     <style>
-        [x-cloak] { display: none !important; }
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
 </head>

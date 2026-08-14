@@ -1,7 +1,7 @@
-<span class="rounded-full px-2.5 py-1 text-xs font-bold
+<span
+    class="rounded-full px-2.5 py-1 text-xs font-bold
 
-    @if($shipment->status == 'pending')
-        bg-[#f8f3f1] text-[#625956]
+    @if ($shipment->status == 'pending') bg-[#f8f3f1] text-[#625956]
 
     @elseif($shipment->status == 'waiting_post')
         bg-[#fff6df] text-[#986d16]
@@ -25,47 +25,44 @@
         bg-[#fdf0f3] text-[#b44259]
 
     @else
-        bg-[#f8f3f1] text-[#625956]
-    @endif
+        bg-[#f8f3f1] text-[#625956] @endif
 ">
 
     @switch($shipment->status)
-
         @case('pending')
             Aguardando Pagamento
-            @break
+        @break
 
         @case('waiting_post')
             Aguardando Postagem
-            @break
+        @break
 
         @case('shipped')
             Postado
-            @break
+        @break
 
         @case('in_transit')
             Em Trânsito
-            @break
+        @break
 
         @case('delivered')
             Entregue
-            @break
+        @break
 
         @case('failed')
             Falha na Entrega
-            @break
+        @break
 
         @case('problem')
             Problema no Envio
-            @break
+        @break
 
         @case('cancelled')
             Cancelado
-            @break
+        @break
 
         @default
             {{ ucfirst(str_replace('_', ' ', $shipment->status)) }}
-
     @endswitch
 
 </span>

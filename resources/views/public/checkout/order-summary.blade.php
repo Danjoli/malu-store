@@ -8,8 +8,7 @@
     <!-- ITENS DO PEDIDO -->
     <div class="space-y-4">
 
-        @foreach (($cart?->items ?? []) as $item)
-
+        @foreach ($cart?->items ?? [] as $item)
             <div class="flex justify-between gap-4 text-sm text-stone-700">
 
                 <span>
@@ -19,16 +18,10 @@
 
                 <span class="whitespace-nowrap">
                     R$
-                    {{ number_format(
-                        $item->price * $item->quantity,
-                        2,
-                        ',',
-                        '.'
-                    ) }}
+                    {{ number_format($item->price * $item->quantity, 2, ',', '.') }}
                 </span>
 
             </div>
-
         @endforeach
 
     </div>
@@ -57,21 +50,13 @@
 
         <span id="valor-total">
             R$
-            {{ number_format(
-                $total ?? $subtotal ?? 0,
-                2,
-                ',',
-                '.'
-            ) }}
+            {{ number_format($total ?? ($subtotal ?? 0), 2, ',', '.') }}
         </span>
 
     </div>
 
     <!-- FINALIZAR PEDIDO  -->
-    <button
-        type="submit"
-        class="store-button store-button-primary w-full py-4"
-    >
+    <button type="submit" class="store-button store-button-primary w-full py-4">
         Finalizar Pedido
     </button>
 

@@ -16,7 +16,12 @@ use RuntimeException;
 
 class CheckoutService
 {
-    public function __construct(private ResolveAddressAction $resolveAddress, private CreateOrderAction $createOrder, private CreateOrderItemsAction $createOrderItems, private CreateShipmentAction $createShipment) {}
+    public function __construct(
+        private ResolveAddressAction $resolveAddress,
+        private CreateOrderAction $createOrder,
+        private CreateOrderItemsAction $createOrderItems,
+        private CreateShipmentAction $createShipment,
+    ) {}
 
     public function process(array $input): Order
     {
@@ -24,18 +29,26 @@ class CheckoutService
         if (! $user) {
             throw new RuntimeException('Usuário não autenticado.');
         }
+        // Normaliza os dados antes de iniciar a transação do checkout.
         $data = CheckoutData::fromArray($input);
 
         return DB::transaction(function () use ($user, $data) {
-            $cart = Cart::with('items.variant')->where('user_id', $user->id)->where('status', 'active')->firstOrFail();
+            $cart = Cart::with('items.variant')
+                ->where('user_id', $user->id)
+                ->where('status', 'active')
+                ->firstOrFail();
+
             if ($cart->items->isEmpty()) {
                 throw new RuntimeException('Carrinho vazio.');
             }
+
+            // Todas as etapas precisam ser concluídas ou nenhuma delas é persistida.
             $address = $this->resolveAddress->execute($user, $data);
             $order = $this->createOrder->execute($user, $cart, $address, $data);
             $this->createOrderItems->execute($order, $cart);
             $this->createShipment->execute($order, $data);
 
+            // O log registra contexto operacional sem dados sensíveis do cliente.
             Log::info('Checkout concluído.', [
                 'order_id' => $order->id,
                 'user_id' => $user->id,

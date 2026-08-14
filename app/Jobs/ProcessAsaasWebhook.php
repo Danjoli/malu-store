@@ -28,6 +28,7 @@ class ProcessAsaasWebhook implements ShouldQueue
 
     public function failed(Throwable $exception): void
     {
+        // Executado apenas depois que todas as tentativas da fila falham.
         Log::critical('Webhook Asaas falhou definitivamente após as tentativas.', [
             'event' => $this->payload['event'] ?? null,
             'payment_id' => $this->payload['payment']['id'] ?? null,

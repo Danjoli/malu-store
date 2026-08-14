@@ -1,5 +1,4 @@
 # Malu Store
-
 Sistema de e-commerce desenvolvido em Laravel para gerenciamento e venda de produtos online.
 
 ## Sobre o Projeto
@@ -187,6 +186,10 @@ php artisan make:model NomeModel -m
 Projeto em desenvolvimento contínuo.
 
 Novas funcionalidades estão sendo implementadas conforme a evolução da plataforma.
+
+## Documentação
+
+Consulte o índice em [docs/README.md](docs/README.md) para a arquitetura, banco de dados e implantação.
 
 ## Autor
 

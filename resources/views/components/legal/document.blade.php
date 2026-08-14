@@ -8,7 +8,8 @@
             <p class="mt-4 max-w-2xl text-sm leading-6 text-stone-600 sm:text-base">{{ $description }}</p>
         </div>
 
-        <article class="legal-document mt-8 rounded-2xl border border-[#eaded9] bg-white p-6 shadow-[0_8px_24px_rgba(76,50,47,0.05)] sm:p-9">
+        <article
+            class="legal-document mt-8 rounded-2xl border border-[#eaded9] bg-white p-6 shadow-[0_8px_24px_rgba(76,50,47,0.05)] sm:p-9">
             {{ $slot }}
         </article>
     </div>

@@ -11,14 +11,14 @@
         {{ $order->recipient_name }}
     </p>
 
-    @if($order->phone)
+    @if ($order->phone)
         <p>
             <strong>Telefone:</strong>
             {{ $order->phone }}
         </p>
     @endif
 
-    @if($order->cpf)
+    @if ($order->cpf)
         <p>
             <strong>CPF:</strong>
             {{ $order->cpf }}
@@ -29,7 +29,7 @@
         {{ $order->street }}, {{ $order->number }}
     </p>
 
-    @if($order->complement)
+    @if ($order->complement)
         <p>{{ $order->complement }}</p>
     @endif
 

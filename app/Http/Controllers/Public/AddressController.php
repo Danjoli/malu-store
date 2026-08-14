@@ -56,6 +56,8 @@ class AddressController extends Controller
             ->where('id', $id)
             ->firstOrFail();
 
+        $this->authorize('update', $address);
+
         $address->update($data);
 
         if ($request->boolean('is_default')) {
@@ -96,6 +98,8 @@ class AddressController extends Controller
             ->where('id', $id)
             ->firstOrFail();
 
+        $this->authorize('update', $address);
+
         // Remove o endereço principal atual.
         Address::where('user_id', $user->id)
             ->update([
@@ -123,6 +127,8 @@ class AddressController extends Controller
         $address = Address::where('user_id', $user->id)
             ->where('id', $id)
             ->firstOrFail();
+
+        $this->authorize('delete', $address);
 
         $address->delete();
 
