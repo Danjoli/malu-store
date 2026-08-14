@@ -15,10 +15,10 @@ class AdminAuthController extends Controller
 
     public function login(LoginRequest $request)
     {
-        if (!Auth::guard('admin')->attempt($request->validated())) {
+        if (! Auth::guard('admin')->attempt($request->validated())) {
             return back()
                 ->withErrors([
-                    'email' => 'Credenciais inválidas.'
+                    'email' => 'Credenciais inválidas.',
                 ])
                 ->onlyInput('email');
         }

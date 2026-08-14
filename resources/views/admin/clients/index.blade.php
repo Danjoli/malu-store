@@ -3,52 +3,6 @@
 @section('title', 'Clientes')
 
 @section('content')
-<div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold">Clientes</h1>
-</div>
-
-<div class="bg-white shadow rounded overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="w-full text-left">
-            <thead class="bg-gray-100 text-gray-700 uppercase text-sm">
-                <tr>
-                    <th class="p-3">Nome</th>
-                    <th class="p-3">Email</th>
-                    <th class="p-3">Senha</th>
-                    <th class="p-3">Telêfone</th>
-                    <th class="p-3 text-right">Ações</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @forelse($users as $user)
-                <tr class="border-t hover:bg-gray-50 transition">
-                    <td class="p-3 font-medium">{{ $user->name }}</td>
-
-                    <td class="p-3 text-gray-600">{{ $user->email }}</td>
-
-                    <td class="p-3 font-medium">{{ $user->password }}</td>
-
-                    <td class="p-3 text-gray-600">{{ $user->phone }}</td>
-
-
-                    <td class="p-3 text-right space-x-2">
-                        <a href="{{ route('admin.clients.show', $user) }}"
-                           class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 text-sm">
-                            Ver
-                        </a>
-                    </td>
-                </tr>
-
-                @empty
-                <tr>
-                    <td colspan="4" class="p-6 text-center text-gray-500">
-                        Nenhum cliente cadastrado ainda.
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-</div>
+    <div class="mb-8"><p class="text-xs font-bold uppercase tracking-[0.18em] text-[#c96f82]">Relacionamento</p><h1 class="mt-2 font-['Cormorant_Garamond'] text-4xl font-semibold">Clientes</h1><p class="mt-1 text-sm text-[#746b68]">Consulte os dados e histórico de cada cliente.</p></div>
+    <div class="overflow-hidden rounded-2xl border border-[#eaded9] bg-white shadow-[0_8px_24px_rgba(76,50,47,0.05)]"><div class="overflow-x-auto"><table class="w-full min-w-[650px] text-left text-sm"><thead class="bg-[#fdf8f6] text-xs font-bold uppercase tracking-wide text-[#746b68]"><tr><th class="p-4">Cliente</th><th class="p-4">E-mail</th><th class="p-4">Telefone</th><th class="p-4 text-right">Ação</th></tr></thead><tbody class="divide-y divide-[#f0e5e1]">@forelse($users as $user)<tr class="transition hover:bg-[#fdf8f6]"><td class="p-4 font-bold text-[#3e3532]">{{ $user->name }}</td><td class="p-4 text-[#625956]">{{ $user->email }}</td><td class="p-4 text-[#625956]">{{ $user->phone ?: '—' }}</td><td class="p-4 text-right"><a href="{{ route('admin.clients.show', $user) }}" class="text-xs font-bold text-[#b85d70] hover:text-[#9f4c5e]">Ver cliente</a></td></tr>@empty<tr><td colspan="4" class="p-12 text-center text-[#746b68]">Nenhum cliente cadastrado ainda.</td></tr>@endforelse</tbody></table></div></div>
 @endsection

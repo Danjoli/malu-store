@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Admins\Admin;
 
+use App\Models\Admin;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Models\Admin;
 
 class StoreAdminRequest extends FormRequest
 {

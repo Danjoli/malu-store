@@ -2,6 +2,10 @@
 
 @import 'tailwindcss';
 
+[x-cloak] {
+    display: none !important;
+}
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
@@ -25,7 +29,8 @@
 }
 
 @layer components {
-    .store-container { width: min(100% - 2rem, 76rem); margin-inline: auto; }
+    .store-container { width: calc(100% - clamp(2rem, 6vw, 8rem)); margin-inline: auto; }
+    .home-container { width: calc(100% - clamp(2rem, 6vw, 8rem)); max-width: none; }
     .store-title { font-family: var(--font-display); letter-spacing: -.035em; }
     .store-kicker { font-size: .6875rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
     .store-button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: .25rem; padding: .75rem 1.1rem; font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; transition: .2s ease; }
@@ -35,4 +40,12 @@
     .store-button-outline:hover { border-color: var(--color-brand-500); color: var(--color-brand-600); }
     .store-input { width: 100%; border: 1px solid #eadfdd; border-radius: .25rem; background: white; padding: .75rem .875rem; font-size: .875rem; outline: none; transition: .2s; }
     .store-input:focus { border-color: var(--color-brand-500); box-shadow: 0 0 0 3px rgb(214 111 124 / .12); }
+    .legal-document h2 { margin-top: 2rem; color: #302a29; font-family: var(--font-display); font-size: clamp(1.65rem, 2vw, 2.15rem); font-weight: 600; letter-spacing: -.025em; }
+    .legal-document h2:first-child { margin-top: 0; }
+    .legal-document h3 { margin-top: 1.35rem; color: #443d3b; font-size: .9rem; font-weight: 700; }
+    .legal-document p, .legal-document li { color: #625956; font-size: .9rem; line-height: 1.8; }
+    .legal-document p { margin-top: .75rem; }
+    .legal-document ul, .legal-document ol { margin-top: .75rem; padding-left: 1.25rem; }
+    .legal-document ul { list-style: disc; }
+    .legal-document ol { list-style: decimal; }
 }

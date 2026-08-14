@@ -14,7 +14,7 @@ class Product extends Model
         'name',
         'description',
         'price',
-        'active'
+        'active',
     ];
 
     public function category()
@@ -35,5 +35,10 @@ class Product extends Model
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
     }
 }

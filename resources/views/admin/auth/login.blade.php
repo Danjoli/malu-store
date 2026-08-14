@@ -6,45 +6,46 @@
     <title>@yield('title') | Admin</title>
     @vite('resources/css/app.css')
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+<body class="min-h-screen bg-[#f8f3f1] text-[#2d2928]">
+    <main class="flex min-h-screen items-center justify-center px-4 py-10 sm:px-6">
+        <section class="w-full max-w-md overflow-hidden rounded-[28px] border border-[#eaded9] bg-white shadow-[0_20px_60px_rgba(76,50,47,0.10)]">
+            <div class="border-b border-[#f0e5e1] bg-[#fdf8f6] px-7 py-8 text-center sm:px-10">
+                <a href="{{ route('home') }}" class="font-['Cormorant_Garamond'] text-3xl tracking-[0.08em] text-[#2d2928]">MALU STORE</a>
+                <p class="mt-3 text-[10px] font-bold uppercase tracking-[0.22em] text-[#c96f82]">Administração</p>
+                <h1 class="mt-4 font-['Cormorant_Garamond'] text-3xl font-semibold text-[#2d2928]">Painel Administrativo</h1>
+                <p class="mt-2 text-sm text-[#746b68]">Entre para gerenciar a sua loja.</p>
+            </div>
 
-    <div class="flex w-full max-w-2xl bg-white shadow-lg rounded-lg overflow-hidden">
-        <div class="w-full p-10">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Painel Administrativo</h2>
-            <p class="text-center text-gray-500 mb-8">Faça login para acessar o dashboard</p>
+            <div class="px-7 py-8 sm:px-10">
+                <form action="{{ route('admin.login.submit') }}" method="POST" class="space-y-5">
+                    @csrf
 
-            <form action="{{ route('admin.login.submit') }}" method="POST" class="space-y-5">
-                @csrf
+                    <div>
+                        <label for="email" class="mb-2 block text-sm font-semibold text-[#443d3b]">E-mail</label>
+                        <input id="email" type="email" name="email" value="{{ old('email') }}" autocomplete="email" required autofocus
+                            class="w-full rounded-xl border border-[#ded4d0] bg-white px-4 py-3 text-sm text-[#2d2928] outline-none transition placeholder:text-[#afa5a1] focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]">
 
-                <!-- Email -->
-                <div>
-                    <label class="block text-gray-700 mb-2">Email</label>
-                    <input type="email" name="email" value="{{ old('email') }}"
-                        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        @error('email')
+                            <p class="mt-2 text-sm text-[#bd445d]">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                    @error('email')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+                    <div>
+                        <label for="password" class="mb-2 block text-sm font-semibold text-[#443d3b]">Senha</label>
+                        <input id="password" type="password" name="password" autocomplete="current-password" required
+                            class="w-full rounded-xl border border-[#ded4d0] bg-white px-4 py-3 text-sm text-[#2d2928] outline-none transition placeholder:text-[#afa5a1] focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]">
+                    </div>
 
-                <!-- Senha -->
-                <div>
-                    <label class="block text-gray-700 mb-2">Senha</label>
-                    <input type="password" name="password"
-                        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                </div>
+                    <button type="submit" class="w-full rounded-xl bg-[#cf7184] px-4 py-3.5 text-sm font-bold text-white transition hover:bg-[#b85d70] focus:outline-none focus:ring-4 focus:ring-[#f7dce2]">
+                        Entrar no painel
+                    </button>
+                </form>
+            </div>
 
-                <button type="submit"
-                    class="w-full bg-blue-600 text-white p-3 rounded-lg font-semibold hover:bg-blue-700 transition">
-                    Entrar
-                </button>
-            </form>
-
-            <p class="mt-6 text-center text-gray-500 text-sm">
-                &copy; 2026 Sua Empresa. Todos os direitos reservados.
-            </p>
-        </div>
-    </div>
-
+            <footer class="border-t border-[#f0e5e1] px-6 py-4 text-center text-xs text-[#928784]">
+                &copy; {{ now()->year }} Malu Store. Área restrita.
+            </footer>
+        </section>
+    </main>
 </body>
 </html>

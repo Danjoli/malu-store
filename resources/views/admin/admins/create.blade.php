@@ -1,48 +1,16 @@
 @extends('layouts.admin.app')
 
-@section('title', 'Criar Admin')
+@section('title', 'Novo Administrador')
 
 @section('content')
-
-<div class="h-full flex items-center justify-center px-4">
-
-    <div class="w-full max-w-3xl">
-
-        <a href="{{ route('admin.admins.index') }}"
-           class="inline-block mb-4 text-sm text-blue-600 hover:underline">
-            ← Voltar para administradores
-        </a>
-
-        <h1 class="text-4xl font-bold mb-8 text-center">
-            Novo Administrador
-        </h1>
-
-        <div class="bg-white p-8 rounded-lg shadow-md">
-
-            <form action="{{ route('admin.admins.store') }}" method="POST" class="space-y-5">
-
-                @include('admin.admins.form')
-
-                <div class="flex justify-between items-center pt-4">
-
-                    <a href="{{ route('admin.admins.index') }}"
-                       class="text-gray-600 hover:text-gray-900">
-                        Cancelar
-                    </a>
-
-                    <button
-                        class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition">
-                        Salvar
-                    </button>
-
-                </div>
-
-            </form>
-
-        </div>
-
+    <div class="mx-auto max-w-2xl">
+        <a href="{{ route('admin.admins.index') }}" class="text-sm font-semibold text-[#b85d70] hover:text-[#9f4c5e]">← Voltar para administradores</a>
+        <p class="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-[#c96f82]">Equipe</p>
+        <h1 class="mt-2 font-['Cormorant_Garamond'] text-4xl font-semibold">Novo administrador</h1>
+        <p class="mt-1 text-sm text-[#746b68]">Crie um novo acesso ao painel.</p>
+        <form action="{{ route('admin.admins.store') }}" method="POST" class="mt-7 max-w-xl space-y-5 rounded-2xl border border-[#eaded9] bg-white p-6 shadow-[0_8px_24px_rgba(76,50,47,0.05)]">
+            @include('admin.admins.form')
+            <div class="flex items-center justify-between border-t border-[#f0e5e1] pt-5"><a href="{{ route('admin.admins.index') }}" class="text-sm font-semibold text-[#746b68] hover:text-[#443d3b]">Cancelar</a><button class="rounded-xl bg-[#cf7184] px-4 py-3 text-sm font-bold text-white hover:bg-[#b85d70]">Salvar administrador</button></div>
+        </form>
     </div>
-
-</div>
-
 @endsection

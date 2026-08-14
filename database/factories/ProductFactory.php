@@ -15,7 +15,7 @@ class ProductFactory extends Factory
     {
         return [
             'category_id' => Category::factory(),
-            'name' => fake()->randomElement(['Vestido', 'Conjunto', 'Blusa', 'Calça', 'Saia']) . ' ' . fake()->unique()->word(),
+            'name' => fake()->randomElement(['Vestido', 'Conjunto', 'Blusa', 'Calça', 'Saia']).' '.fake()->unique()->word(),
             'description' => fake()->paragraph(2),
             'price' => fake()->randomFloat(2, 69.90, 299.90),
             'active' => true,

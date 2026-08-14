@@ -11,13 +11,13 @@ class MelhorEnvioWebhookService
     {
         Log::info('Webhook Melhor Envio', $data);
 
-        if (!isset($data['id'])) {
+        if (! isset($data['id'])) {
             return;
         }
 
         $shipment = Shipment::where('shipment_id', $data['id'])->first();
 
-        if (!$shipment) {
+        if (! $shipment) {
             return;
         }
 

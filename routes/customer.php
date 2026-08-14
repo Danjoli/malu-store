@@ -1,12 +1,12 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Public\AddressController;
 use App\Http\Controllers\Public\CartController;
 use App\Http\Controllers\Public\CheckoutController;
-use App\Http\Controllers\Public\ProfileController;
-use App\Http\Controllers\Public\AddressController;
+use App\Http\Controllers\Public\FavoriteController;
 use App\Http\Controllers\Public\FreteController;
+use App\Http\Controllers\Public\ProfileController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -78,6 +78,9 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{id}', [CartController::class, 'remove'])
             ->name('cart.remove');
     });
+
+    Route::get('/favoritos', [FavoriteController::class, 'index'])->name('favorites.index');
+    Route::post('/favoritos/{product}', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
 
     /*
     |--------------------------------------------------------------------------

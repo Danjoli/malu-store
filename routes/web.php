@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
-use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\CatalogController;
+use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\PublicProductController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,13 +17,13 @@ Route::get('/', [HomeController::class, 'index'])
 Route::get('/produtos', [CatalogController::class, 'index'])
     ->name('catalog.index');
 
-Route::view('/policy', 'public.pages.policy')
+Route::view('/policy', 'public.legal.policy')
     ->name('policy');
 
-Route::view('/terms', 'public.pages.terms')
+Route::view('/terms', 'public.legal.terms')
     ->name('terms');
 
-Route::view('/privacy', 'public.pages.privacy')
+Route::view('/privacy', 'public.legal.privacy')
     ->name('privacy');
 
 Route::get('/product/{id}', [PublicProductController::class, 'show'])

@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Public\Auth\RegisterRequest;
 use App\Http\Requests\Public\Auth\LoginRequest;
+use App\Http\Requests\Public\Auth\RegisterRequest;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
@@ -36,7 +36,7 @@ class AuthController extends Controller
         Auth::login($user);
 
         return redirect('/')
-            ->with('success', 'Conta criada com sucesso! Bem-vindo, ' . $user->name);
+            ->with('success', 'Conta criada com sucesso! Bem-vindo, '.$user->name);
     }
 
     public function login(LoginRequest $request)
@@ -51,7 +51,7 @@ class AuthController extends Controller
 
         if (Auth::attempt([
             $field => $login,
-            'password' => $data['password']
+            'password' => $data['password'],
         ])) {
             $request->session()->regenerate();
 

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->enum('status', [
                 'active',
                 'converted',
-                'abandoned'
+                'abandoned',
             ])->default('active');
 
             $table->timestamp('expires_at')

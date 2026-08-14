@@ -34,11 +34,11 @@ class ProductService
             'price' => $data['price'],
         ]);
 
-        if (!empty($data['images'])) {
+        if (! empty($data['images'])) {
             $this->replaceImages($product, $data['images']);
         }
 
-        if (!empty($data['variants'])) {
+        if (! empty($data['variants'])) {
             $this->replaceVariants($product, $data['variants']);
         }
 
@@ -48,7 +48,7 @@ class ProductService
     public function delete(Product $product): void
     {
         foreach ($product->images as $img) {
-            Storage::disk('public')->delete('products/' . $img->image);
+            Storage::disk('public')->delete('products/'.$img->image);
             $img->delete();
         }
 
@@ -58,7 +58,7 @@ class ProductService
     private function handleImages(Product $product, array $images): void
     {
         foreach ($images as $image) {
-            $name = time() . '_' . $image->getClientOriginalName();
+            $name = time().'_'.$image->getClientOriginalName();
             $image->storeAs('products', $name, 'public');
 
             ProductImage::create([
@@ -71,7 +71,7 @@ class ProductService
     private function replaceImages(Product $product, array $images): void
     {
         foreach ($product->images as $img) {
-            Storage::disk('public')->delete('products/' . $img->image);
+            Storage::disk('public')->delete('products/'.$img->image);
             $img->delete();
         }
 

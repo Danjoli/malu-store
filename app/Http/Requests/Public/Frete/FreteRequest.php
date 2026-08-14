@@ -31,7 +31,7 @@ class FreteRequest extends FormRequest
     {
         return [
             'cep.required' => 'Informe o CEP.',
-            'cep.string'   => 'O CEP informado é inválido.',
+            'cep.string' => 'O CEP informado é inválido.',
         ];
     }
 

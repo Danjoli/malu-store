@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -25,15 +25,24 @@ class DashboardController extends Controller
         // Total geral de vendas
         $totalSalesOverall = Order::sum('total');
 
+        $salesThisMonth = Order::where('status', 'paid')
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->sum('total');
+
+        $pendingOrders = Order::whereIn('status', ['pending', 'pending_payment'])->count();
+        $paidOrders = Order::where('status', 'paid')->count();
+        $lowStockProducts = Product::whereHas('variants', fn ($query) => $query->where('stock', '<=', 5))->count();
+
         // Vendas mensais (últimos 12 meses)
         $salesData = Order::select(
-            DB::raw("MONTH(created_at) as month"),
-            DB::raw("SUM(total) as total")
+            DB::raw('MONTH(created_at) as month'),
+            DB::raw('SUM(total) as total')
         )
-        ->whereYear('created_at', now()->year)
-        ->groupBy('month')
-        ->orderBy('month')
-        ->pluck('total', 'month');
+            ->whereYear('created_at', now()->year)
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('total', 'month');
 
         $months = [];
         $sales = [];
@@ -55,6 +64,10 @@ class DashboardController extends Controller
             'totalClients',
             'totalShipped',
             'totalSalesOverall',
+            'salesThisMonth',
+            'pendingOrders',
+            'paidOrders',
+            'lowStockProducts',
             'sales',
             'months',
             'recentOrders'

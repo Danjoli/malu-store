@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
 {
@@ -34,7 +34,7 @@ class Order extends Model
         'gateway_status',
     ];
 
-     protected $casts = [
+    protected $casts = [
         'expires_at' => 'datetime',
         'paid_at' => 'datetime',
     ];

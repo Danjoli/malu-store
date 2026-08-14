@@ -2,13 +2,19 @@
 
 namespace App\Services\Public\Payment;
 
+use App\Actions\Payment\CreateBoletoPaymentAction;
+use App\Actions\Payment\CreatePixPaymentAction;
+use App\Actions\Payment\ProcessCardPaymentAction;
 use App\Http\Requests\Public\Payments\ProcessCardPaymentRequest;
 use App\Models\Order;
 
 class PaymentService
 {
     public function __construct(
-        protected AsaasService $asaasService
+        protected AsaasService $asaasService,
+        private CreatePixPaymentAction $createPixPayment,
+        private CreateBoletoPaymentAction $createBoletoPayment,
+        private ProcessCardPaymentAction $processCardPayment,
     ) {}
 
     /**
@@ -28,27 +34,14 @@ class PaymentService
     {
         $order = Order::findOrFail($orderId);
 
-        // Cria o pagamento
-        $payment = $this->asaasService->createPixPayment($order);
-
-        // Busca o QR Code do Pix
-        $pix = $this->asaasService->getPixQrCode($payment['id']);
-
-        // Atualiza o pedido
-        $order->update([
-            'gateway_payment_id' => $payment['id'] ?? null,
-            'gateway_status' => $payment['status'] ?? 'PENDING',
-            'status' => 'pending',
-            'payment_method' => 'pix',
-            'expires_at' => now()->addMinutes(30),
-        ]);
+        $result = $this->createPixPayment->execute($order);
 
         // Exibe a tela do Pix
         return view('public.payments.methods.pix', [
             'order' => $order,
-            'payment' => $payment,
-            'qr_code_base64' => $pix['encodedImage'],
-            'qr_code' => $pix['payload'],
+            'payment' => $result['payment'],
+            'qr_code_base64' => $result['qr_code_base64'],
+            'qr_code' => $result['qr_code'],
         ]);
     }
 
@@ -59,17 +52,7 @@ class PaymentService
     {
         $order = Order::findOrFail($orderId);
 
-        $payment = $this->asaasService->createBoletoPayment($order);
-
-        $order->update([
-            'gateway_payment_id' => $payment['id'] ?? null,
-            'gateway_status' => $payment['status'] ?? 'PENDING',
-            'status' => 'pending',
-            'payment_method' => 'boleto',
-            'expires_at' => isset($payment['dueDate'])
-                ? $payment['dueDate'] . ' 23:59:59'
-                : null,
-        ]);
+        $payment = $this->createBoletoPayment->execute($order);
 
         return view('public.payments.methods.boleto', [
             'order' => $order,
@@ -107,28 +90,7 @@ class PaymentService
 
         try {
 
-            // Cria pagamento no Asaas
-
-            $payment = $this->asaasService->createCardPayment(
-                $order,
-                $request->all()
-            );
-
-            $paymentStatus = $payment['status'] ?? 'PENDING';
-
-            // Atualiza pedido
-
-            $order->update([
-                'gateway_payment_id' => $payment['id'] ?? null,
-                'gateway_status' => $paymentStatus,
-                'status' => $paymentStatus === 'CONFIRMED'
-                    ? 'paid'
-                    : 'pending',
-                'payment_method' => 'card',
-                'paid_at' => $paymentStatus === 'CONFIRMED'
-                    ? now()
-                    : null,
-            ]);
+            $payment = $this->processCardPayment->execute($order, $request->all());
 
             // Retorna sucesso
 
@@ -136,7 +98,7 @@ class PaymentService
                 'success' => true,
                 'payment' => $payment,
             ]);
-    }   catch (\RuntimeException $e) {
+        } catch (\RuntimeException $e) {
 
             $message = $e->getMessage();
 

@@ -37,7 +37,7 @@ return new class extends Migration
 
             $table->unique([
                 'cart_id',
-                'product_variant_id'
+                'product_variant_id',
             ]);
         });
     }

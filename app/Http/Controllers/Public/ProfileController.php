@@ -3,15 +3,12 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-
-use App\Models\Order;
-
-use App\Services\Public\Profile\ProfileService;
-
 use App\Http\Requests\Public\Profile\UpdatePasswordRequest;
 use App\Http\Requests\Public\Profile\UpdateProfileRequest;
+use App\Models\Order;
+use App\Services\Public\Profile\ProfileService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
@@ -61,7 +58,7 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        if (!Hash::check(
+        if (! Hash::check(
             $request->current_password,
             $user->password
         )) {

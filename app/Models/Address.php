@@ -18,7 +18,7 @@ class Address extends Model
         'city',
         'state',
         'cep',
-        'is_default'
+        'is_default',
     ];
 
     public function user()

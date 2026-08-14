@@ -1,4 +1,4 @@
-<h3 class="font-semibold mt-6 mb-4">
+<h3 class="store-title mb-4 mt-8 text-xl font-semibold">
     Adicionar novo endereço
 </h3>
 
@@ -11,66 +11,66 @@
         <input
             name="label"
             placeholder="Casa / Trabalho"
-            class="border p-2 rounded"
+            class="store-input"
         >
 
         <input
             name="recipient_name"
             placeholder="Nome do destinatário"
-            class="border p-2 rounded"
+            class="store-input"
         >
 
         <input
             name="phone"
             placeholder="Telefone"
-            class="border p-2 rounded"
+            class="store-input"
         >
 
         <input
             name="cep"
             placeholder="CEP"
-            class="border p-2 rounded"
+            class="store-input"
         >
 
         <input
             name="street"
             placeholder="Rua"
-            class="border p-2 rounded"
+            class="store-input"
         >
 
         <input
             name="number"
             placeholder="Número"
-            class="border p-2 rounded"
+            class="store-input"
         >
 
         <input
             name="neighborhood"
             placeholder="Bairro"
-            class="border p-2 rounded"
+            class="store-input"
         >
 
         <input
             name="city"
             placeholder="Cidade"
-            class="border p-2 rounded"
+            class="store-input"
         >
 
         <input
             name="state"
             placeholder="Estado"
-            class="border p-2 rounded"
+            class="store-input"
         >
 
         <input
             name="complement"
             placeholder="Complemento"
-            class="border p-2 rounded"
+            class="store-input"
         >
 
     </div>
 
-    <button class="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2 rounded mt-4">
+    <button class="store-button store-button-primary mt-4">
         Salvar Endereço
     </button>
 

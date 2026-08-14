@@ -17,7 +17,7 @@ class Shipment extends Model
         'label_url',
         'last_update',
         'shipped_at',
-        'delivered_at'
+        'delivered_at',
     ];
 
     /*

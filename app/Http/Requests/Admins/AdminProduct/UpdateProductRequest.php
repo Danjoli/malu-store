@@ -25,7 +25,7 @@ class UpdateProductRequest extends FormRequest
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png,webp',
-                'max:2048'
+                'max:2048',
             ],
 
             'variants' => ['required', 'array', 'min:1'],

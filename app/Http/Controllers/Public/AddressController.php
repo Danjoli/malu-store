@@ -17,7 +17,7 @@ class AddressController extends Controller
         $user = Auth::user();
         $data = $request->validated();
 
-        $address = new Address();
+        $address = new Address;
         $address->fill($data);
         $address->user_id = $user->id;
 

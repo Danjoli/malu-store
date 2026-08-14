@@ -18,7 +18,7 @@ class CartService
             ->with('items')
             ->first();
 
-        if (!$cart) {
+        if (! $cart) {
             $cart = Cart::create([
                 'user_id' => $userId,
                 'status' => 'active',
@@ -41,6 +41,7 @@ class CartService
 
         if ($item) {
             $item->increment('quantity', $quantity);
+
             return $item;
         }
 
@@ -65,7 +66,7 @@ class CartService
         $item = $cart->items()->where('id', $itemId)->firstOrFail();
 
         $item->update([
-            'quantity' => $quantity
+            'quantity' => $quantity,
         ]);
 
         return $item;

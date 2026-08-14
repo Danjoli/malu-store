@@ -3,17 +3,14 @@
 namespace App\Http\Controllers\Webhooks;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
+use App\Jobs\ProcessAsaasWebhook;
 use App\Services\Admins\Shipment\MelhorEnvioWebhookService;
-use App\Services\Public\Payment\AsaasWebhookService;
-
+use Illuminate\Http\Request;
 
 class WebhookController extends Controller
 {
     public function __construct(
-        protected MelhorEnvioWebhookService $melhorEnvioWebhookService,
-        protected AsaasWebhookService $asaasWebhookService
+        protected MelhorEnvioWebhookService $melhorEnvioWebhookService
     ) {}
 
     public function melhorEnvio(Request $request)
@@ -23,7 +20,7 @@ class WebhookController extends Controller
         );
 
         return response()->json([
-            'status' => 'ok'
+            'status' => 'ok',
         ]);
     }
 
@@ -33,16 +30,14 @@ class WebhookController extends Controller
 
         if ($token !== config('services.asaas.webhook_token')) {
             return response()->json([
-                'message' => 'Unauthorized'
+                'message' => 'Unauthorized',
             ], 401);
         }
 
-        $this->asaasWebhookService->handleAsaas(
-            $request->all()
-        );
+        ProcessAsaasWebhook::dispatch($request->all());
 
         return response()->json([
-            'status' => 'ok'
+            'status' => 'ok',
         ]);
     }
 }

@@ -4,9 +4,10 @@ namespace App\Services\Public\MelhorEnvio;
 
 use Illuminate\Support\Facades\Http;
 
-class MelhorEnvioService {
-
+class MelhorEnvioService
+{
     private $baseUrl;
+
     private $token;
 
     public function __construct()
@@ -20,7 +21,7 @@ class MelhorEnvioService {
         $http = Http::withToken($this->token)
             ->acceptJson();
 
-        $url = $this->baseUrl . $endpoint;
+        $url = $this->baseUrl.$endpoint;
 
         if ($method === 'GET') {
             $response = $http->get($url, $data);
@@ -28,9 +29,9 @@ class MelhorEnvioService {
             $response = $http->post($url, $data);
         }
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             throw new \Exception(
-                "Erro Melhor Envio ({$response->status()}): " . $response->body()
+                "Erro Melhor Envio ({$response->status()}): ".$response->body()
             );
         }
 
@@ -61,8 +62,8 @@ class MelhorEnvioService {
     {
         $response = Http::withToken($this->token)
             ->acceptJson()
-            ->post($this->baseUrl . "shipment/tracking", [
-                'orders' => [$shipmentId]
+            ->post($this->baseUrl.'shipment/tracking', [
+                'orders' => [$shipmentId],
             ]);
 
         // dd([
@@ -81,7 +82,7 @@ class MelhorEnvioService {
             'shipment/print',
             [
                 'mode' => 'public',
-                'orders' => $ids
+                'orders' => $ids,
             ]
         );
     }

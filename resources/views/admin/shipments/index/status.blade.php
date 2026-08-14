@@ -1,31 +1,31 @@
-<span class="px-2 py-1 text-xs rounded
+<span class="rounded-full px-2.5 py-1 text-xs font-bold
 
     @if($shipment->status == 'pending')
-        bg-gray-200 text-gray-800
+        bg-[#f8f3f1] text-[#625956]
 
     @elseif($shipment->status == 'waiting_post')
-        bg-yellow-200 text-yellow-800
+        bg-[#fff6df] text-[#986d16]
 
     @elseif($shipment->status == 'shipped')
-        bg-indigo-200 text-indigo-800
+        bg-[#edf4ff] text-[#3b6199]
 
     @elseif($shipment->status == 'in_transit')
-        bg-blue-200 text-blue-800
+        bg-[#edf4ff] text-[#3b6199]
 
     @elseif($shipment->status == 'delivered')
-        bg-green-200 text-green-800
+        bg-[#eaf6ef] text-[#27754a]
 
     @elseif($shipment->status == 'failed')
-        bg-red-200 text-red-800
+        bg-[#fdf0f3] text-[#b44259]
 
     @elseif($shipment->status == 'problem')
-        bg-orange-200 text-orange-800
+        bg-[#fff6df] text-[#986d16]
 
     @elseif($shipment->status == 'cancelled')
-        bg-red-300 text-red-900
+        bg-[#fdf0f3] text-[#b44259]
 
     @else
-        bg-gray-100 text-gray-700
+        bg-[#f8f3f1] text-[#625956]
     @endif
 ">
 

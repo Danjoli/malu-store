@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Admin extends Authenticatable
 {
@@ -22,10 +22,10 @@ class Admin extends Authenticatable
         'email',
         'password',
         'is_active',
-        'role'
+        'role',
     ];
 
     protected $hidden = [
-        'password'
+        'password',
     ];
 }

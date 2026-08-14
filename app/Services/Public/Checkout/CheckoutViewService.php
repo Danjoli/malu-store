@@ -18,7 +18,7 @@ class CheckoutViewService
         |--------------------------------------------------------------------------
         */
 
-        if (!$user) {
+        if (! $user) {
             return [
                 'cart' => null,
                 'items' => collect(),
@@ -91,7 +91,7 @@ class CheckoutViewService
         |--------------------------------------------------------------------------
         */
 
-        if (!$cart) {
+        if (! $cart) {
             return [
                 'cart' => null,
                 'items' => collect(),

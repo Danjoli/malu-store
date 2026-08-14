@@ -1,6 +1,6 @@
 @props(['user'])
 
-<h2 class="text-xl font-semibold mb-6">
+<h2 class="store-title mb-6 text-2xl font-semibold">
     Editar Conta
 </h2>
 
@@ -10,7 +10,7 @@
     @method('PUT')
 
     <div class="mb-4">
-        <label class="text-sm text-gray-600">
+        <label class="text-xs font-medium text-stone-700">
             Nome
         </label>
 
@@ -18,12 +18,12 @@
             type="text"
             name="name"
             value="{{ $user->name }}"
-            class="w-full border rounded p-2 mt-1"
+            class="store-input mt-1"
         >
     </div>
 
     <div class="mb-4">
-        <label class="text-sm text-gray-600">
+        <label class="text-xs font-medium text-stone-700">
             Email
         </label>
 
@@ -31,12 +31,12 @@
             type="email"
             name="email"
             value="{{ $user->email }}"
-            class="w-full border rounded p-2 mt-1"
+            class="store-input mt-1"
         >
     </div>
 
     <div class="mb-4">
-        <label class="text-sm text-gray-600">
+        <label class="text-xs font-medium text-stone-700">
             Telefone
         </label>
 
@@ -44,11 +44,11 @@
             type="text"
             name="phone"
             value="{{ $user->phone }}"
-            class="w-full border rounded p-2 mt-1"
+            class="store-input mt-1"
         >
     </div>
 
-    <button class="bg-pink-500 hover:bg-pink-600 text-white px-6 py-2 rounded">
+    <button class="store-button store-button-primary">
         Salvar Alterações
     </button>
 

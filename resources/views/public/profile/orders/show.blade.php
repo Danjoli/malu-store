@@ -2,20 +2,20 @@
 
 @section('content')
 
-<div class="container mx-auto max-w-4xl py-10">
+<div class="store-container max-w-4xl py-10 md:py-14">
 
-    <h1 class="text-2xl font-bold mb-6">
+    <h1 class="mb-7 text-3xl font-bold leading-none tracking-tight text-stone-900">
         Pedido #{{ $order->id }}
     </h1>
 
     <!-- Informações do Pedido -->
-    <div class="bg-white shadow-lg rounded-xl p-6 mb-6 space-y-4">
+    <div class="mb-6 space-y-4 rounded-md border border-[#eee6e4] bg-white p-5 shadow-[0_10px_30px_rgba(63,38,35,.05)] md:p-6">
 
         <!-- Status Pagamento e Entrega -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
             <!-- Status Pagamento -->
-            <div class="p-4 rounded-lg bg-gray-50 flex items-center space-x-3">
+            <div class="flex items-center space-x-3 rounded-md bg-[#fff8f7] p-4">
                 <svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3z"/>
@@ -26,18 +26,20 @@
                     <strong>Status Pagamento:</strong><br>
                     @if($order->status == 'pending')
                         <span class="text-yellow-600 font-semibold">Aguardando pagamento</span>
+                    @elseif(in_array($order->status, ['pending_payment', 'expired']))
+                        <span class="text-yellow-600 font-semibold">Aguardando pagamento</span>
                     @elseif($order->status == 'paid')
                         <span class="text-blue-600 font-semibold">Pago</span>
                     @elseif($order->status == 'cancelled')
                         <span class="text-red-600 font-semibold">Cancelado</span>
                     @else
-                        <span>{{ ucfirst($order->status) }}</span>
+                        <span>{{ $order->status === 'failed' ? 'Pagamento recusado' : ($order->status === 'shipped' ? 'Pedido enviado' : ($order->status === 'delivered' ? 'Pedido entregue' : 'Em processamento')) }}</span>
                     @endif
                 </div>
             </div>
 
             <!-- Status Entrega -->
-            <div class="p-4 rounded-lg bg-gray-50 flex items-center space-x-3">
+            <div class="flex items-center space-x-3 rounded-md bg-[#fff8f7] p-4">
                 <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M3 12h18M12 3v18"/>
@@ -162,7 +164,7 @@
         </div>
 
         <!-- Data do Pedido -->
-        <div class="p-4 rounded-lg bg-gray-50 flex items-center space-x-3">
+        <div class="flex items-center space-x-3 rounded-md bg-[#fff8f7] p-4">
             <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M8 7V3m8 4V3M3 11h18M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
@@ -173,7 +175,7 @@
         </div>
 
         <!-- Endereço de Entrega -->
-        <div class="p-4 rounded-lg bg-gray-50 flex items-start space-x-3">
+        <div class="flex items-start space-x-3 rounded-md bg-[#fff8f7] p-4">
 
             <svg class="w-6 h-6 text-green-500 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -239,17 +241,17 @@
     </div>
 
     <!-- Itens do Pedido -->
-    <div class="bg-white shadow rounded-lg p-6 mb-6">
+    <div class="mb-6 rounded-md border border-[#eee6e4] bg-white p-5 md:p-6">
 
-        <h2 class="text-lg font-semibold mb-4">Itens do Pedido</h2>
+        <h2 class="store-title mb-5 text-2xl font-semibold">Itens do Pedido</h2>
 
         @if($order->items && $order->items->count() > 0)
             @foreach($order->items as $item)
-                <div class="flex items-center border-b py-3 space-x-4">
+                <div class="flex items-center space-x-4 border-b border-[#eee6e4] py-4">
 
                     <!-- Imagem do produto -->
                     @if($item->image_snapshot)
-                        <img src="{{ asset('storage/products/' . $item->image_snapshot) }}" alt="{{ $item->name_snapshot }}" class="w-16 h-16 object-cover rounded">
+                        <img src="{{ asset('storage/products/' . $item->image_snapshot) }}" alt="{{ $item->name_snapshot }}" class="h-20 w-16 rounded-sm object-cover">
                     @else
                         <div class="w-16 h-16 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs">
                             Sem imagem
@@ -269,7 +271,7 @@
                     </div>
 
                     <!-- Preço -->
-                    <div class="font-semibold">
+                    <div class="text-lg font-bold text-stone-800">
                         R$ {{ number_format($item->price,2,',','.') }}
                     </div>
 
@@ -282,11 +284,11 @@
     </div>
 
     <!-- Totais com botão Voltar -->
-    <div class="bg-white shadow rounded-lg p-6 mb-6 flex justify-between items-center">
+    <div class="mb-6 flex items-center justify-between rounded-md border border-[#eee6e4] bg-white p-5 md:p-6">
 
         <!-- Botão Voltar à esquerda -->
         <a href="{{ route('profile.orders') }}"
-        class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">
+        class="store-button store-button-outline">
             ← Voltar
         </a>
 
@@ -298,7 +300,7 @@
             <p>
                 <strong>Frete:</strong> R$ {{ number_format($order->shipping,2,',','.') }}
             </p>
-            <p class="text-xl font-bold mt-2">
+            <p class="mt-2 text-2xl font-bold tracking-tight text-stone-900">
                 <strong>Total:</strong> R$ {{ number_format($order->total,2,',','.') }}
             </p>
         </div>

@@ -15,10 +15,9 @@
             @endif
             @if($stock <= 0)
                 <span class="absolute left-3 top-3 bg-white px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-600">Esgotado</span>
-            @else
+            @elseif($product->created_at?->greaterThanOrEqualTo(now()->subDays(30)))
                 <span class="absolute left-3 top-3 rounded-sm bg-white px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-[#bd5564]">Novo</span>
             @endif
-            <span class="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-sm text-[#d66f7c]">♡</span>
         </div>
         <div class="p-4">
             <h3 class="min-h-10 text-sm font-medium text-stone-800">{{ $product->name }}</h3>
@@ -26,4 +25,10 @@
             <p class="mt-1 text-xs text-stone-500">3x de R$ {{ number_format($product->price / 3, 2, ',', '.') }}</p>
         </div>
     </a>
+    @auth
+        @php $isFavorite = $product->favorites()->where('user_id', auth()->id())->exists(); @endphp
+        <form action="{{ route('favorites.toggle', $product) }}" method="POST" class="absolute right-3 top-3">@csrf<button aria-label="Favoritar {{ $product->name }}" class="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-sm text-[#d66f7c]">{{ $isFavorite ? '♥' : '♡' }}</button></form>
+    @else
+        <a href="{{ route('login') }}" aria-label="Entrar para favoritar" class="absolute right-3 top-3 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-sm text-[#d66f7c]">♡</a>
+    @endauth
 </article>

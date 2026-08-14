@@ -23,7 +23,7 @@
         x-cloak
         @click.outside="open = false"
         x-transition
-        class="absolute right-0 mt-3 w-52 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden"
+        class="absolute right-0 z-50 mt-3 w-52 overflow-hidden rounded-md border border-[#eadfdd] bg-white shadow-xl"
     >
 
         {{-- SE ESTIVER LOGADO --}}

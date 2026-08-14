@@ -2,16 +2,16 @@
 
 @section('content')
 
-<div class="container mx-auto max-w-5xl py-10">
+<div class="store-container py-10 md:py-14">
 
-    <h1 class="text-2xl font-bold mb-6">
+    <h1 class="store-title mb-8 text-4xl md:text-5xl">
         Meus Pedidos
     </h1>
 
-    <div class="bg-white shadow rounded-lg overflow-hidden">
+    <div class="overflow-x-auto rounded-md border border-[#eee6e4] bg-white shadow-[0_10px_30px_rgba(63,38,35,.05)]">
 
-        <table class="w-full">
-            <thead class="bg-gray-100">
+        <table class="w-full min-w-[760px] text-sm">
+            <thead class="border-b border-[#ded5d2] bg-[#fff8f7] text-xs font-bold uppercase tracking-wide text-stone-700">
                 <tr>
                     <th class="p-4 text-left">Pedido</th>
                     <th class="p-4 text-left">Data</th>
@@ -24,7 +24,7 @@
 
             <tbody>
                 @forelse($orders as $order)
-                    <tr class="border-t">
+                    <tr class="border-t border-[#eee6e4] transition hover:bg-[#fffaf9]">
                         <td class="p-4">#{{ $order->id }}</td>
                         <td class="p-4">{{ $order->created_at->format('d/m/Y') }}</td>
                         <td class="p-4">R$ {{ number_format($order->total,2,',','.') }}</td>
@@ -32,13 +32,15 @@
                         <!-- Status de Pagamento -->
                         <td class="p-4">
                             @if($order->status == 'pending')
-                                <span class="text-yellow-600 font-semibold">Aguardando pagamento</span>
+                                <span class="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">Aguardando pagamento</span>
+                            @elseif(in_array($order->status, ['pending_payment', 'expired']))
+                                <span class="rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">Aguardando pagamento</span>
                             @elseif($order->status == 'paid')
-                                <span class="text-blue-600 font-semibold">Pago</span>
+                                <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">Pago</span>
                             @elseif($order->status == 'cancelled')
-                                <span class="text-red-600 font-semibold">Cancelado</span>
+                                <span class="rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600">Cancelado</span>
                             @else
-                                <span>{{ ucfirst($order->status) }}</span>
+                                <span class="rounded-full bg-stone-100 px-2.5 py-1 text-xs font-semibold text-stone-700">{{ $order->status === 'failed' ? 'Pagamento recusado' : ($order->status === 'shipped' ? 'Pedido enviado' : ($order->status === 'delivered' ? 'Pedido entregue' : 'Em processamento')) }}</span>
                             @endif
                         </td>
 
@@ -134,15 +136,16 @@
                         </td>
 
                         <td class="p-4">
-                            <a href="{{ route('profile.orders.show', $order->id) }}" class="text-pink-600 hover:underline">
+                            <a href="{{ route('profile.orders.show', $order->id) }}" class="text-xs font-bold text-[#bd5564] hover:underline">
                                 Ver
                             </a>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="p-6 text-center text-gray-500">
-                            Você ainda não possui pedidos.
+                        <td colspan="6" class="p-12 text-center text-stone-500">
+                            <p class="store-title text-2xl text-stone-700">Você ainda não possui pedidos.</p>
+                            <a href="{{ route('catalog.index') }}" class="store-button store-button-primary mt-5">Conhecer a coleção</a>
                         </td>
                     </tr>
                 @endforelse

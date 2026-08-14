@@ -1,40 +1,40 @@
 @props(['addresses'])
 
-<h2 class="text-xl font-semibold mb-6">
+<h2 class="store-title mb-6 text-2xl font-semibold">
     Meus Endereços
 </h2>
 
 @forelse ($addresses as $address)
 
-    <div class="border rounded-lg p-4 mb-4">
+    <div class="mb-4 rounded-md border border-[#eadfdd] bg-[#fffaf9] p-5">
 
         <div class="flex items-center justify-between mb-2">
 
-            <div class="font-semibold text-gray-800">
+            <div class="font-semibold text-stone-800">
                 {{ $address->label ?: 'Endereço' }}
             </div>
 
             @if ($address->is_default)
-                <span class="text-sm font-semibold text-green-600">
+                <span class="text-xs font-semibold text-emerald-700">
                     Endereço principal
                 </span>
             @endif
 
         </div>
 
-        <p class="text-sm text-gray-600">
+        <p class="text-sm text-stone-600">
             {{ $address->street }}, {{ $address->number }}
         </p>
 
-        <p class="text-sm text-gray-600">
+        <p class="text-sm text-stone-600">
             {{ $address->neighborhood }}
         </p>
 
-        <p class="text-sm text-gray-600">
+        <p class="text-sm text-stone-600">
             {{ $address->city }} - {{ $address->state }}
         </p>
 
-        <p class="text-sm text-gray-600">
+        <p class="text-sm text-stone-600">
             CEP: {{ $address->cep }}
         </p>
 

@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Product;
-use App\Models\Category;
-use App\Services\Admins\AdminProduct\ProductService;
 use App\Http\Requests\Admins\AdminProduct\StoreProductRequest;
 use App\Http\Requests\Admins\AdminProduct\UpdateProductRequest;
+use App\Models\Category;
+use App\Models\Product;
+use App\Services\Admins\AdminProduct\ProductService;
 
 class AdminProductController extends Controller
 {

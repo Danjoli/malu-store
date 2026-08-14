@@ -9,7 +9,7 @@
     {{-- Número do cartão --}}
     <div class="mb-4">
         <label for="card_number"
-            class="block text-sm font-medium text-gray-700 mb-1">
+            class="mb-2 block text-sm font-semibold text-[#443d3b]">
             Número do cartão
         </label>
 
@@ -19,7 +19,7 @@
             name="card_number"
             maxlength="19"
             placeholder="0000 0000 0000 0000"
-            class="w-full border rounded-lg px-4 py-3"
+            class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
             required
         >
     </div>
@@ -27,7 +27,7 @@
     {{-- Nome do titular --}}
     <div class="mb-4">
         <label for="holder_name"
-            class="block text-sm font-medium text-gray-700 mb-1">
+            class="mb-2 block text-sm font-semibold text-[#443d3b]">
             Nome no cartão
         </label>
 
@@ -36,7 +36,7 @@
             id="holder_name"
             name="holder_name"
             placeholder="Nome como aparece no cartão"
-            class="w-full border rounded-lg px-4 py-3"
+            class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
             required
         >
     </div>
@@ -44,7 +44,7 @@
     {{-- CPF --}}
     <div class="mb-4">
         <label for="cpf"
-            class="block text-sm font-medium text-gray-700 mb-1">
+            class="mb-2 block text-sm font-semibold text-[#443d3b]">
             CPF do titular
         </label>
 
@@ -54,7 +54,7 @@
             name="cpf"
             maxlength="14"
             placeholder="000.000.000-00"
-            class="w-full border rounded-lg px-4 py-3"
+            class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
             required
         >
     </div>
@@ -64,14 +64,14 @@
 
         <div>
             <label for="expiration_month"
-                class="block text-sm font-medium text-gray-700 mb-1">
+                class="mb-2 block text-sm font-semibold text-[#443d3b]">
                 Mês
             </label>
 
             <select
                 id="expiration_month"
                 name="expiration_month"
-                class="w-full border rounded-lg px-4 py-3"
+                class="w-full rounded-xl border border-[#ded4d0] bg-white px-4 py-3 text-sm outline-none focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
                 required
             >
                 <option value="">Mês</option>
@@ -89,14 +89,14 @@
 
         <div>
             <label for="expiration_year"
-                class="block text-sm font-medium text-gray-700 mb-1">
+                class="mb-2 block text-sm font-semibold text-[#443d3b]">
                 Ano
             </label>
 
             <select
                 id="expiration_year"
                 name="expiration_year"
-                class="w-full border rounded-lg px-4 py-3"
+                class="w-full rounded-xl border border-[#ded4d0] bg-white px-4 py-3 text-sm outline-none focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
                 required
             >
                 <option value="">Ano</option>
@@ -118,7 +118,7 @@
     <div class="mb-4">
 
         <label for="ccv"
-            class="block text-sm font-medium text-gray-700 mb-1">
+            class="mb-2 block text-sm font-semibold text-[#443d3b]">
             CVV
         </label>
 
@@ -128,20 +128,20 @@
             name="ccv"
             maxlength="4"
             placeholder="123"
-            class="w-full border rounded-lg px-4 py-3"
+            class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
             required
         >
 
     </div>
 
     {{-- Total --}}
-    <div class="border-t pt-4 mb-6">
+    <div class="mb-6 border-t border-[#f0e5e1] pt-5">
 
         <div class="flex justify-between text-lg font-bold">
 
             <span>Total:</span>
 
-            <span class="text-blue-600">
+            <span class="text-[#b85d70]">
                 R$ {{ number_format($order->total, 2, ',', '.') }}
             </span>
 
@@ -153,7 +153,7 @@
     <button
         type="submit"
         id="cardSubmitButton"
-        class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+        class="w-full rounded-xl bg-[#cf7184] py-3.5 text-sm font-bold text-white transition hover:bg-[#b85d70]"
     >
         Pagar com Cartão
     </button>

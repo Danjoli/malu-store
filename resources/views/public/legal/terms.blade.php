@@ -3,43 +3,23 @@
 @section('title', 'Termos de Uso')
 
 @section('content')
+    <x-legal.document eyebrow="Informações legais" title="Termos de uso" description="Estes termos explicam as regras básicas para navegar, criar uma conta e comprar na Malu Store.">
+        <h2>Uso da loja</h2>
+        <p>Ao utilizar este site, você declara que fornecerá informações verdadeiras e manterá seus dados cadastrais atualizados. A conta é pessoal e o usuário é responsável por proteger sua senha.</p>
 
-<div class="container mx-auto px-6 py-10 mt-20 max-w-4xl bg-white rounded shadow">
+        <h2>Produtos, preços e estoque</h2>
+        <p>As informações de produto, preço e disponibilidade são apresentadas no site e podem ser atualizadas. A confirmação do pedido depende da aprovação do pagamento e da disponibilidade do item no momento do processamento.</p>
 
-    <h1 class="text-3xl font-bold mb-6">Termos de Uso</h1>
+        <h2>Pedidos e pagamentos</h2>
+        <p>O pagamento é processado pelos meios disponibilizados no checkout. Caso a cobrança não seja aprovada, o pedido poderá permanecer pendente ou ser cancelado. Não armazenamos os dados completos do cartão no painel da loja.</p>
 
-    <p class="mb-4">
-        Bem-vindo à Malu Store. Ao acessar e utilizar nosso site, você concorda com os seguintes termos e condições:
-    </p>
+        <h2>Entrega</h2>
+        <p>Os prazos e valores de frete são apresentados de acordo com o endereço informado. O cliente deve revisar os dados de entrega antes de concluir o pedido. Eventuais atualizações de rastreio ficam disponíveis conforme a transportadora informar o status.</p>
 
-    <h2 class="text-xl font-semibold mb-2">1. Uso do Site</h2>
-    <p class="mb-4">
-        Você concorda em utilizar a loja apenas para fins legais e de acordo com todas as leis aplicáveis.
-        É proibido reproduzir, distribuir ou utilizar nossos conteúdos sem autorização.
-    </p>
+        <h2>Propriedade intelectual</h2>
+        <p>Textos, fotos, marca, identidade visual e demais conteúdos da Malu Store não podem ser copiados ou utilizados sem autorização prévia.</p>
 
-    <h2 class="text-xl font-semibold mb-2">2. Compras e Pagamentos</h2>
-    <p class="mb-4">
-        Todas as compras estão sujeitas à disponibilidade de estoque. Os preços podem ser alterados sem aviso prévio.
-        O pagamento deve ser concluído através dos métodos fornecidos no site.
-    </p>
-
-    <h2 class="text-xl font-semibold mb-2">3. Entrega e Responsabilidade</h2>
-    <p class="mb-4">
-        A Malu Store não se responsabiliza por atrasos causados por transportadoras ou informações incorretas de endereço.
-        É responsabilidade do cliente fornecer dados corretos.
-    </p>
-
-    <h2 class="text-xl font-semibold mb-2">4. Privacidade</h2>
-    <p class="mb-4">
-        Seus dados pessoais serão utilizados conforme nossa <a href="{{ route('privacy') }}" class="text-blue-600 hover:underline">Política de Privacidade</a>.
-    </p>
-
-    <h2 class="text-xl font-semibold mb-2">5. Alterações nos Termos</h2>
-    <p>
-        Reservamo-nos o direito de modificar estes termos a qualquer momento. Alterações serão publicadas nesta página.
-    </p>
-
-</div>
-
+        <h2>Alterações</h2>
+        <p>Estes termos podem ser atualizados para refletir mudanças na operação da loja ou na legislação aplicável. A versão publicada nesta página é a válida no momento da consulta.</p>
+    </x-legal.document>
 @endsection

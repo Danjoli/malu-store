@@ -10,6 +10,7 @@ class ClientController extends Controller
     public function index()
     {
         $users = User::all();
+
         return view('admin.clients.index', compact('users'));
     }
 
@@ -17,11 +18,11 @@ class ClientController extends Controller
     {
         $client->load([
             'addresses',
-            'orders.items'
+            'orders.items',
         ]);
 
         return view('admin.clients.show.index', [
-            'user' => $client
+            'user' => $client,
         ]);
     }
 }

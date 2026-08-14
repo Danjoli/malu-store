@@ -36,7 +36,7 @@ class ShipmentService
             throw new \Exception('Pedido ainda não foi pago.');
         }
 
-        if (!$shipment->service_id) {
+        if (! $shipment->service_id) {
             throw new \Exception('Serviço de frete não encontrado.');
         }
 
@@ -45,7 +45,7 @@ class ShipmentService
         // 1. carrinho
         $cart = $this->melhorEnvio->adicionarAoCarrinho($data);
 
-        if (!isset($cart['id'])) {
+        if (! isset($cart['id'])) {
             throw new \Exception($cart['message'] ?? 'Erro ao criar carrinho.');
         }
 
@@ -77,7 +77,7 @@ class ShipmentService
     {
         $shipment = Shipment::findOrFail($id);
 
-        if (!$shipment->shipment_id) {
+        if (! $shipment->shipment_id) {
             throw new \Exception('Envio não existe na Melhor Envio.');
         }
 
@@ -99,50 +99,50 @@ class ShipmentService
     private function buildPayload(Shipment $shipment): array
     {
         return [
-            "service" => (int) $shipment->service_id,
+            'service' => (int) $shipment->service_id,
 
-            "from" => [
-                "name" => "Malu Store",
-                "phone" => "11954598885",
-                "email" => "store@email.com",
-                "document" => "00000000000",
-                "address" => "Rua Exemplo",
-                "number" => "100",
-                "district" => "Centro",
-                "city" => "São Paulo",
-                "state_abbr" => "SP",
-                "postal_code" => "00000000"
+            'from' => [
+                'name' => 'Malu Store',
+                'phone' => '11954598885',
+                'email' => 'store@email.com',
+                'document' => '00000000000',
+                'address' => 'Rua Exemplo',
+                'number' => '100',
+                'district' => 'Centro',
+                'city' => 'São Paulo',
+                'state_abbr' => 'SP',
+                'postal_code' => '00000000',
             ],
 
-            "to" => [
-                "name" => $shipment->order->address->recipient_name,
-                "phone" => $shipment->order->address->phone,
-                "email" => $shipment->order->user->email,
-                "document" => preg_replace('/\D/', '', $shipment->order->address->cpf),
-                "address" => $shipment->order->address->street,
-                "number" => $shipment->order->address->number,
-                "district" => $shipment->order->address->neighborhood,
-                "city" => $shipment->order->address->city,
-                "state_abbr" => strtoupper($shipment->order->address->state),
-                "postal_code" => preg_replace('/\D/', '', $shipment->order->address->cep)
+            'to' => [
+                'name' => $shipment->order->address->recipient_name,
+                'phone' => $shipment->order->address->phone,
+                'email' => $shipment->order->user->email,
+                'document' => preg_replace('/\D/', '', $shipment->order->address->cpf),
+                'address' => $shipment->order->address->street,
+                'number' => $shipment->order->address->number,
+                'district' => $shipment->order->address->neighborhood,
+                'city' => $shipment->order->address->city,
+                'state_abbr' => strtoupper($shipment->order->address->state),
+                'postal_code' => preg_replace('/\D/', '', $shipment->order->address->cep),
             ],
 
-            "products" => $shipment->order->items->map(function ($item) {
+            'products' => $shipment->order->items->map(function ($item) {
                 return [
-                    "name" => $item->name_snapshot,
-                    "quantity" => $item->quantity,
-                    "unitary_value" => $item->price
+                    'name' => $item->name_snapshot,
+                    'quantity' => $item->quantity,
+                    'unitary_value' => $item->price,
                 ];
             })->toArray(),
 
-            "volumes" => [
+            'volumes' => [
                 [
-                    "weight" => 0.3,
-                    "width" => 20,
-                    "height" => 5,
-                    "length" => 25
-                ]
-            ]
+                    'weight' => 0.3,
+                    'width' => 20,
+                    'height' => 5,
+                    'length' => 25,
+                ],
+            ],
         ];
     }
 

@@ -29,7 +29,7 @@ class AdminController extends Controller
     public function create()
     {
         return view('admin.admins.create', [
-            'roles' => Admin::ROLES
+            'roles' => Admin::ROLES,
         ]);
     }
 
@@ -46,7 +46,7 @@ class AdminController extends Controller
     {
         return view('admin.admins.edit', [
             'admin' => $admin,
-            'roles' => Admin::ROLES
+            'roles' => Admin::ROLES,
         ]);
     }
 

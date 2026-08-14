@@ -8,6 +8,10 @@ A Malu Store é uma plataforma de comércio eletrônico que permite o gerenciame
 
 O projeto foi desenvolvido utilizando Laravel seguindo boas práticas de organização, modularização e arquitetura MVC.
 
+## Documentação técnica
+
+O funcionamento do catálogo, carrinho, checkout, pagamentos, webhooks, banco de dados, dados de demonstração e testes está documentado em [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
+
 ## Funcionalidades
 
 ### Área do Cliente

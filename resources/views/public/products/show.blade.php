@@ -29,8 +29,14 @@
                 <a href="#descricao" class="text-xs font-semibold underline underline-offset-4">Guia de medidas</a>
                 <input type="hidden" name="quantity" value="1">
                 @if($stock > 0)<button class="store-button store-button-primary mt-5 w-full">♧ Adicionar à sacola</button>@else<button disabled class="mt-5 w-full rounded bg-stone-300 py-3 text-xs text-white">Produto esgotado</button>@endif
-                <button type="button" class="store-button store-button-outline mt-2 w-full">♡ Adicionar aos favoritos</button>
+                @auth
+                    @php $isFavorite = $product->favorites()->where('user_id', auth()->id())->exists(); @endphp
+                    <button form="favorite-form" type="submit" class="store-button store-button-outline mt-2 w-full">{{ $isFavorite ? '♥ Remover dos favoritos' : '♡ Adicionar aos favoritos' }}</button>
+                @else
+                    <a href="{{ route('login') }}" class="store-button store-button-outline mt-2 w-full">♡ Entrar para favoritar</a>
+                @endauth
             </form>
+            @auth<form id="favorite-form" action="{{ route('favorites.toggle', $product) }}" method="POST" class="hidden">@csrf</form>@endauth
         </div>
     </div>
     <section class="mt-8 max-w-xl rounded-md border border-[#eee6e4] bg-white p-5"><p class="mb-3 text-xs font-bold">Calcule o frete</p><div class="flex gap-2"><input class="store-input py-2 text-xs" placeholder="Digite seu CEP"><button class="store-button store-button-outline py-2 text-[10px]">Calcular</button></div></section>

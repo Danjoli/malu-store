@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Category;
+use App\Models\Product;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use App\Models\Product;
-use App\Models\Category;
 
 class GenerateSitemap extends Command
 {
@@ -61,8 +61,8 @@ class GenerateSitemap extends Command
         // Monta URLs
         foreach ($urls as $url) {
             $xml .= '<url>';
-            $xml .= '<loc>' . htmlspecialchars($url, ENT_XML1, 'UTF-8') . '</loc>';
-            $xml .= '<lastmod>' . now()->toDateString() . '</lastmod>';
+            $xml .= '<loc>'.htmlspecialchars($url, ENT_XML1, 'UTF-8').'</loc>';
+            $xml .= '<lastmod>'.now()->toDateString().'</lastmod>';
             $xml .= '</url>';
         }
 

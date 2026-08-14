@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Services\Public\Cart\CartService;
+use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
@@ -26,7 +26,7 @@ class CartController extends Controller
     {
         $request->validate([
             'variant_id' => 'required|exists:product_variants,id',
-            'quantity' => 'required|integer|min:1'
+            'quantity' => 'required|integer|min:1',
         ]);
 
         $this->cartService->addItem(
@@ -40,7 +40,7 @@ class CartController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'quantity' => 'required|integer|min:1'
+            'quantity' => 'required|integer|min:1',
         ]);
 
         $this->cartService->updateItem($id, $request->quantity);

@@ -17,7 +17,7 @@ class ProductFilterService
 
         // Busca por nome
         if ($request->search) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where('name', 'like', '%'.$request->search.'%');
         }
 
         // Preço mínimo
@@ -34,7 +34,7 @@ class ProductFilterService
         if ($request->color) {
             $query->whereHas('variants', function ($q) use ($request) {
                 $q->where('color', $request->color)
-                  ->where('stock', '>', 0);
+                    ->where('stock', '>', 0);
             });
         }
 
@@ -42,7 +42,7 @@ class ProductFilterService
         if ($request->size) {
             $query->whereHas('variants', function ($q) use ($request) {
                 $q->where('size', $request->size)
-                  ->where('stock', '>', 0);
+                    ->where('stock', '>', 0);
             });
         }
 

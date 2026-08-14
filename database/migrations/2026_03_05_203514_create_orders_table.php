@@ -45,7 +45,7 @@ return new class extends Migration
                 'expired',
                 'cancelled',
                 'shipped',
-                'delivered'
+                'delivered',
             ])->default('pending');
 
             // Pagamento

@@ -18,14 +18,21 @@ class CatalogController extends Controller
         if ($request->filled('category')) {
             $query->whereHas('category', fn ($category) => $category->where('slug', $request->category));
         }
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%'.$request->search.'%');
+        }
         if ($request->filled('color')) {
             $query->whereHas('variants', fn ($variant) => $variant->where('color', $request->color)->where('stock', '>', 0));
         }
         if ($request->filled('size')) {
             $query->whereHas('variants', fn ($variant) => $variant->where('size', $request->size)->where('stock', '>', 0));
         }
-        if ($request->filled('min_price')) $query->where('price', '>=', $request->min_price);
-        if ($request->filled('max_price')) $query->where('price', '<=', $request->max_price);
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
 
         $sort = $request->get('sort', 'recent');
         match ($sort) {

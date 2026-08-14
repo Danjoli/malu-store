@@ -17,7 +17,7 @@ class AdminService
 
     public function update(Admin $admin, array $data): Admin
     {
-        if (!empty($data['password'])) {
+        if (! empty($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         } else {
             unset($data['password']);

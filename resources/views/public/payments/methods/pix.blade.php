@@ -1,70 +1,12 @@
 @extends('layouts.payments.app')
 
-@section('title', 'Pagamento via PIX')
+@section('title', 'Pagamento via Pix')
 
 @section('content')
-
-<div class="max-w-lg mx-auto bg-white shadow-md rounded-lg p-8 text-center">
-
-    <h2 class="text-2xl font-semibold mb-2">
-        Pagamento via PIX
-    </h2>
-
-    <p class="text-gray-500 mb-2">
-        Pedido #{{ $order->id }}
-    </p>
-
-    <div class="bg-yellow-100 text-yellow-800 p-3 rounded-lg mb-6">
-        ⚠️ Este pagamento expira em <strong id="countdown">--:--</strong>
-    </div>
-
-    <div class="bg-gray-50 p-6 rounded-lg mb-6">
-
-        <p class="text-gray-700 mb-4">
-            Escaneie o QR Code abaixo para pagar
-        </p>
-
-        <img src="data:image/png;base64,{{ $qr_code_base64 }}" class="w-56 mx-auto">
-
-    </div>
-
-    <div class="text-left">
-
-        <p class="text-gray-700 mb-2">
-            Ou use o PIX Copia e Cola
-        </p>
-
-        <textarea
-            id="pixCode"
-            readonly
-            class="w-full h-24 border rounded-lg p-3 text-sm"
-        >{{ $qr_code }}</textarea>
-
-        <button
-            onclick="copiarPix()"
-            type="button"
-            class="mt-3 w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition"
-        >
-            Copiar código PIX
-        </button>
-
-    </div>
-
-</div>
-
+    <div class="w-full max-w-lg rounded-2xl border border-[#eaded9] bg-white p-6 text-center shadow-[0_12px_34px_rgba(76,50,47,0.08)] sm:p-8"><p class="text-xs font-bold uppercase tracking-[0.18em] text-[#c96f82]">Pedido #{{ $order->id }}</p><h1 class="mt-2 font-['Cormorant_Garamond'] text-3xl font-semibold">Pague com Pix</h1><p class="mt-2 text-sm text-[#746b68]">Escaneie o QR Code ou copie o código abaixo.</p><div class="my-6 rounded-xl bg-[#fff6df] px-4 py-3 text-sm text-[#986d16]">Este pagamento expira em <strong id="countdown">--:--</strong></div><div class="rounded-2xl bg-[#fdf8f6] p-5"><img src="data:image/png;base64,{{ $qr_code_base64 }}" class="mx-auto w-56" alt="QR Code Pix"></div><div class="mt-6 text-left"><label for="pixCode" class="mb-2 block text-sm font-semibold text-[#443d3b]">Pix Copia e Cola</label><textarea id="pixCode" readonly class="h-24 w-full rounded-xl border border-[#ded4d0] p-3 text-xs text-[#625956]">{{ $qr_code }}</textarea><button onclick="copiarPix()" type="button" class="mt-3 w-full rounded-xl bg-[#cf7184] py-3 text-sm font-bold text-white hover:bg-[#b85d70]">Copiar código Pix</button></div></div>
 @endsection
 
 @push('payment-scripts')
-<script>
-
-    window.PIX_ORDER_ID = @json($order->id);
-    window.PIX_EXPIRES_AT = @json($order->expires_at?->toIso8601String());
-    window.PIX_STATUS_URL = @json(route('payment.status', $order->id));
-    window.PIX_SUCCESS_URL = @json(route('payment.success', $order->id));
-    window.PIX_ERROR_URL = @json(route('payment.error', $order->id));
-
-</script>
-
+<script>window.PIX_ORDER_ID=@json($order->id);window.PIX_EXPIRES_AT=@json($order->expires_at?->toIso8601String());window.PIX_STATUS_URL=@json(route('payment.status',$order->id));window.PIX_SUCCESS_URL=@json(route('payment.success',$order->id));window.PIX_ERROR_URL=@json(route('payment.error',$order->id));</script>
 @vite('resources/js/payments/pix/index.js')
-
 @endpush
