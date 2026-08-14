@@ -48,11 +48,11 @@ Para usar uma conta Gmail como remetente, crie uma **senha de app** na conta Goo
 
 ```env
 MAIL_MAILER=smtp
+MAIL_SCHEME=smtp
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USERNAME=alertas@sua-loja.com
 MAIL_PASSWORD=sua_senha_de_app
-MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=alertas@sua-loja.com
 MAIL_FROM_NAME="Malu Store"
 ALERT_EMAIL=responsavel@sua-loja.com
@@ -65,6 +65,14 @@ php artisan optimize:clear
 php artisan config:cache
 ```
 
-`MAIL_USERNAME` é a conta que envia os e-mails; `ALERT_EMAIL` é quem os recebe e pode ser o mesmo endereço. Caso a conta remetente seja uma caixa criada na Hostinger, mantenha o host SMTP fornecido pela própria Hostinger em vez de `smtp.gmail.com`.
+`MAIL_USERNAME` é a conta que envia os e-mails; `ALERT_EMAIL` é quem os recebe e pode ser o mesmo endereço. Para Gmail na porta `587`, use `MAIL_SCHEME=smtp`: o TLS é negociado automaticamente. Caso a conta remetente seja uma caixa criada na Hostinger, mantenha o host SMTP fornecido pela própria Hostinger em vez de `smtp.gmail.com`.
 
-> A ligação de `ALERT_EMAIL` ao disparo de notificações ainda deve ser implementada antes de depender de e-mails em produção. Até lá, os registros críticos permanecem disponíveis no log do Laravel.
+Com a variável `ALERT_EMAIL` configurada, o sistema envia alertas para falha definitiva do webhook do Asaas e falhas técnicas ao criar cobranças ou calcular frete. O conteúdo do e-mail usa somente contexto técnico mínimo; não inclui senha, dados de cartão, payload do webhook, QR Code ou dados pessoais completos.
+
+Teste o canal depois de configurar o SMTP:
+
+```bash
+php artisan alerts:test
+```
+
+O comando solicita um e-mail de teste sem exigir uma falha real. Se o e-mail não chegar, consulte `storage/logs/laravel.log` para verificar um eventual erro de SMTP.

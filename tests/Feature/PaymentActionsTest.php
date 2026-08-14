@@ -7,6 +7,7 @@ use App\Actions\Payment\CreatePixPaymentAction;
 use App\Actions\Payment\ProcessCardPaymentAction;
 use App\Models\Order;
 use App\Models\User;
+use App\Services\OperationalAlertService;
 use App\Services\Public\Payment\AsaasService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
@@ -27,7 +28,7 @@ class PaymentActionsTest extends TestCase
         $asaas->shouldReceive('createPixPayment')->once()->andReturn(['id' => 'pix_1', 'status' => 'PENDING']);
         $asaas->shouldReceive('getPixQrCode')->once()->with('pix_1')->andReturn(['encodedImage' => 'base64', 'payload' => 'pix-payload']);
         $order = $this->order();
-        $result = (new CreatePixPaymentAction($asaas))->execute($order);
+        $result = (new CreatePixPaymentAction($asaas, app(OperationalAlertService::class)))->execute($order);
         $this->assertSame('pix-payload', $result['qr_code']);
         $this->assertDatabaseHas('orders', ['id' => $order->id, 'gateway_payment_id' => 'pix_1', 'payment_method' => 'pix', 'status' => 'pending']);
     }
@@ -37,7 +38,7 @@ class PaymentActionsTest extends TestCase
         $asaas = Mockery::mock(AsaasService::class);
         $asaas->shouldReceive('createBoletoPayment')->once()->andReturn(['id' => 'boleto_1', 'status' => 'PENDING', 'dueDate' => '2026-09-01']);
         $order = $this->order();
-        (new CreateBoletoPaymentAction($asaas))->execute($order);
+        (new CreateBoletoPaymentAction($asaas, app(OperationalAlertService::class)))->execute($order);
         $this->assertDatabaseHas('orders', ['id' => $order->id, 'gateway_payment_id' => 'boleto_1', 'payment_method' => 'boleto', 'status' => 'pending']);
     }
 
@@ -46,7 +47,7 @@ class PaymentActionsTest extends TestCase
         $asaas = Mockery::mock(AsaasService::class);
         $asaas->shouldReceive('createCardPayment')->once()->andReturn(['id' => 'card_1', 'status' => 'CONFIRMED']);
         $order = $this->order();
-        (new ProcessCardPaymentAction($asaas))->execute($order, ['holderName' => 'Teste']);
+        (new ProcessCardPaymentAction($asaas, app(OperationalAlertService::class)))->execute($order, ['holderName' => 'Teste']);
         $this->assertDatabaseHas('orders', ['id' => $order->id, 'gateway_payment_id' => 'card_1', 'payment_method' => 'card', 'status' => 'paid']);
         $this->assertNotNull($order->fresh()->paid_at);
     }

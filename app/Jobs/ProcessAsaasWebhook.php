@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Services\OperationalAlertService;
 use App\Services\Public\Payment\AsaasWebhookService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -35,5 +36,14 @@ class ProcessAsaasWebhook implements ShouldQueue
             'exception' => $exception::class,
             'message' => $exception->getMessage(),
         ]);
+
+        app(OperationalAlertService::class)->critical(
+            'Webhook do Asaas falhou após todas as tentativas.',
+            [
+                'Evento' => $this->payload['event'] ?? null,
+                'Referência do pagamento' => $this->payload['payment']['id'] ?? null,
+                'Tipo de erro' => $exception::class,
+            ],
+        );
     }
 }

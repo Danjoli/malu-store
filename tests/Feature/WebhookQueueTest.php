@@ -3,7 +3,10 @@
 namespace Tests\Feature;
 
 use App\Jobs\ProcessAsaasWebhook;
+use App\Notifications\CriticalOperationalAlert;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Notification;
+use RuntimeException;
 use Tests\TestCase;
 
 class WebhookQueueTest extends TestCase
@@ -25,5 +28,23 @@ class WebhookQueueTest extends TestCase
         config(['services.asaas.webhook_token' => 'test-token']);
         $this->postJson('/api/webhooks/asaas', ['event' => 'PAYMENT_RECEIVED'])
             ->assertUnauthorized();
+    }
+
+    public function test_final_webhook_failure_sends_an_operational_alert(): void
+    {
+        Notification::fake();
+        config(['alerts.email' => 'alerts@example.test']);
+
+        $job = new ProcessAsaasWebhook([
+            'event' => 'PAYMENT_RECEIVED',
+            'payment' => ['id' => 'pay_test_1'],
+        ]);
+
+        $job->failed(new RuntimeException('Erro interno do gateway.'));
+
+        Notification::assertSentOnDemand(
+            CriticalOperationalAlert::class,
+            fn (CriticalOperationalAlert $notification, array $channels): bool => $channels === ['mail'],
+        );
     }
 }

@@ -234,7 +234,7 @@ Os eventos críticos são registrados em `storage/logs/laravel.log` com contexto
 - erro ao consultar opções de frete;
 - falha definitiva de uma Job de webhook do Asaas, após as tentativas configuradas.
 
-Em produção, o próximo passo é definir um canal de alerta aprovado pela operação (por exemplo, Sentry, e-mail ou Slack) e configurá-lo no ambiente. Nenhum serviço externo de alerta é habilitado automaticamente pelo projeto. O procedimento de SMTP por e-mail está em [IMPLANTACAO.md](IMPLANTACAO.md), mas o disparo de notificações ainda é uma etapa de implementação separada.
+Com `ALERT_EMAIL` configurado no ambiente, falhas críticas do webhook do Asaas, da criação de cobranças e da consulta de frete enviam um e-mail operacional com contexto técnico mínimo. O canal de e-mail não registra credenciais, dados de cartão, QR Code, payload completo de webhook ou dados pessoais completos. O procedimento de SMTP e o comando de teste estão em [IMPLANTACAO.md](IMPLANTACAO.md).
 
 ## Comandos de desenvolvimento
 
