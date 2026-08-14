@@ -1,8 +1,8 @@
 {{-- ENDEREÇO DE ENTREGA --}}
 
-<div class="bg-white shadow rounded-lg p-6 mt-6">
+<div class="mt-6 rounded-lg bg-white p-6 shadow">
 
-    <h2 class="text-xl font-semibold mb-4">
+    <h2 class="mb-4 text-xl font-semibold">
         Endereço de Entrega
     </h2>
 
@@ -30,10 +30,14 @@
     </p>
 
     @if ($order->complement)
-        <p>{{ $order->complement }}</p>
+        <p>
+            {{ $order->complement }}
+        </p>
     @endif
 
-    <p>{{ $order->neighborhood }}</p>
+    <p>
+        {{ $order->neighborhood }}
+    </p>
 
     <p>
         {{ $order->city }} - {{ $order->state }}

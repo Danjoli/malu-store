@@ -22,19 +22,18 @@
         ];
     }
 
-    $validationErrors = $errors?->any() ? $errors->all() : [];
+    $validationErrors = $errors?->any()
+        ? $errors->all()
+        : [];
 @endphp
 
 @if (count($alerts) || count($validationErrors))
     <script>
-        document.addEventListener('DOMContentLoaded', async function() {
-
+        document.addEventListener('DOMContentLoaded', async function () {
             const alerts = @json($alerts);
             const errors = @json($validationErrors);
 
             for (const alert of alerts) {
-
-                // SUCCESS (toast leve)
                 if (alert.type === 'success') {
                     await Swal.fire({
                         toast: true,
@@ -43,12 +42,9 @@
                         title: alert.message,
                         showConfirmButton: false,
                         timer: 3000,
-                        timerProgressBar: true
+                        timerProgressBar: true,
                     });
-                }
-
-                // WARNING (toast mais chamativo)
-                else if (alert.type === 'warning') {
+                } else if (alert.type === 'warning') {
                     await Swal.fire({
                         toast: true,
                         position: 'top-end',
@@ -58,31 +54,26 @@
                         timer: 4000,
                         timerProgressBar: true,
                         background: '#fff8e1',
-                        iconColor: '#f59e0b'
+                        iconColor: '#f59e0b',
                     });
-                }
-
-                // ERROR (modal forte)
-                else if (alert.type === 'error') {
+                } else if (alert.type === 'error') {
                     await Swal.fire({
                         icon: 'error',
                         title: 'Erro',
                         text: alert.message,
-                        confirmButtonColor: '#dc2626'
+                        confirmButtonColor: '#dc2626',
                     });
                 }
             }
 
-            // ERROS DE VALIDAÇÃO (sempre modal)
             if (errors.length) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Erro de validação',
                     html: errors.join('<br>'),
-                    confirmButtonColor: '#dc2626'
+                    confirmButtonColor: '#dc2626',
                 });
             }
-
         });
     </script>
 @endif

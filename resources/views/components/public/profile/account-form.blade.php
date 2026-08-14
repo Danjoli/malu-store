@@ -4,8 +4,10 @@
     Editar Conta
 </h2>
 
-<form method="POST" action="{{ route('profile.update') }}">
-
+<form
+    method="POST"
+    action="{{ route('profile.update') }}"
+>
     @csrf
     @method('PUT')
 
@@ -14,7 +16,12 @@
             Nome
         </label>
 
-        <input type="text" name="name" value="{{ $user->name }}" class="store-input mt-1">
+        <input
+            type="text"
+            name="name"
+            value="{{ $user->name }}"
+            class="store-input mt-1"
+        >
     </div>
 
     <div class="mb-4">
@@ -22,7 +29,12 @@
             Email
         </label>
 
-        <input type="email" name="email" value="{{ $user->email }}" class="store-input mt-1">
+        <input
+            type="email"
+            name="email"
+            value="{{ $user->email }}"
+            class="store-input mt-1"
+        >
     </div>
 
     <div class="mb-4">
@@ -30,11 +42,18 @@
             Telefone
         </label>
 
-        <input type="text" name="phone" value="{{ $user->phone }}" class="store-input mt-1">
+        <input
+            type="text"
+            name="phone"
+            value="{{ $user->phone }}"
+            class="store-input mt-1"
+        >
     </div>
 
-    <button class="store-button store-button-primary">
+    <button
+        type="submit"
+        class="store-button store-button-primary"
+    >
         Salvar Alterações
     </button>
-
 </form>

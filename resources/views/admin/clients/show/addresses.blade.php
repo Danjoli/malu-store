@@ -1,17 +1,15 @@
 {{-- ENDEREÇOS --}}
 
 @if ($addresses->count())
+    <div class="border-t pt-6">
 
-    <div class="pt-6 border-t">
-
-        <p class="text-lg font-semibold mb-3">
+        <p class="mb-3 text-lg font-semibold">
             Endereços do Cliente
         </p>
 
         <div class="space-y-3">
-
             @foreach ($addresses as $address)
-                <div class="border rounded-lg p-4 bg-gray-50">
+                <div class="rounded-lg border bg-gray-50 p-4">
 
                     <p class="font-semibold">
                         {{ $address->label ?? 'Endereço' }}
@@ -41,9 +39,7 @@
 
                 </div>
             @endforeach
-
         </div>
 
     </div>
-
 @endif

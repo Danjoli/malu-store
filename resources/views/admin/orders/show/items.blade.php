@@ -1,8 +1,8 @@
 {{-- ITENS DO PEDIDO --}}
 
-<div class="bg-white shadow rounded-lg p-6 mt-6">
+<div class="mt-6 rounded-lg bg-white p-6 shadow">
 
-    <h2 class="text-xl font-semibold mb-4">
+    <h2 class="mb-4 text-xl font-semibold">
         Itens do Pedido
     </h2>
 
@@ -19,10 +19,13 @@
                 <div class="flex items-center gap-4">
 
                     @if ($image)
-                        <img src="{{ asset('storage/products/' . $image->image) }}" alt="{{ $item->name_snapshot }}"
-                            class="w-14 h-14 object-cover rounded">
+                        <img
+                            src="{{ asset('storage/products/' . $image->image) }}"
+                            alt="{{ $item->name_snapshot }}"
+                            class="h-14 w-14 rounded object-cover"
+                        >
                     @else
-                        <div class="w-14 h-14 bg-gray-200 rounded flex items-center justify-center">
+                        <div class="flex h-14 w-14 items-center justify-center rounded bg-gray-200">
                             <span class="text-xs text-gray-500">
                                 Sem imagem
                             </span>
@@ -30,13 +33,11 @@
                     @endif
 
                     <div>
-
                         <p class="font-semibold">
                             {{ $item->name_snapshot }}
                         </p>
 
                         <p class="text-sm text-gray-500">
-
                             @if ($item->color_snapshot)
                                 Cor: {{ $item->color_snapshot }}
                             @endif
@@ -44,13 +45,11 @@
                             @if ($item->size_snapshot)
                                 | Tamanho: {{ $item->size_snapshot }}
                             @endif
-
                         </p>
 
                         <p class="text-sm">
                             Qtd: {{ $item->quantity }}
                         </p>
-
                     </div>
 
                 </div>
