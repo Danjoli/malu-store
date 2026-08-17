@@ -3,23 +3,19 @@
 namespace App\Providers;
 
 use App\Models\Cart;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         Blade::anonymousComponentPath(
@@ -29,15 +25,24 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer('layouts.public.partials.header', function ($view) {
             $cartItemCount = 0;
+            $favoritesCount = 0;
 
-            if (auth()->check()) {
-                $cartItemCount = (int) Cart::where('user_id', auth()->id())
+            if (Auth::check()) {
+                /** @var User $user */
+                $user = Auth::user();
+
+                $cartItemCount = (int) Cart::where('user_id', $user->id)
                     ->where('status', 'active')
                     ->withSum('items', 'quantity')
                     ->value('items_sum_quantity');
+
+                $favoritesCount = $user->favorites()->count();
             }
 
-            $view->with('cartItemCount', $cartItemCount);
+            $view->with([
+                'cartItemCount' => $cartItemCount,
+                'favoritesCount' => $favoritesCount,
+            ]);
         });
     }
 }

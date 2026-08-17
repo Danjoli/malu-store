@@ -162,7 +162,7 @@
             <a
                 href="{{ auth()->check() ? route('favorites.index') : route('login') }}"
                 aria-label="Favoritos"
-                class="hidden p-1 transition hover:text-[#bd5564] sm:block"
+                class="relative hidden p-1 transition hover:text-[#bd5564] sm:block"
             >
                 <svg
                     class="h-5 w-5"
@@ -173,6 +173,14 @@
                 >
                     <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.9-8.6a5.5 5.5 0 0 0-.1-7.8Z" />
                 </svg>
+
+                @if (($favoritesCount ?? 0) > 0)
+                    <span
+                        class="absolute right-0 top-0 flex h-4 w-4 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#d66f7c] text-[9px] font-semibold leading-none text-white"
+                    >
+                        {{ min($favoritesCount, 99) }}
+                    </span>
+                @endif
             </a>
 
             <div class="hidden md:block">
@@ -196,7 +204,9 @@
                 </svg>
 
                 @if (($cartItemCount ?? 0) > 0)
-                    <span class="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#d66f7c] text-[8px] text-white">
+                    <span
+                        class="absolute right-0 top-0 flex h-4 w-4 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#d66f7c] text-[9px] font-semibold leading-none text-white"
+                    >
                         {{ min($cartItemCount, 99) }}
                     </span>
                 @endif
