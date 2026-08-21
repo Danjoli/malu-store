@@ -19,12 +19,12 @@ class CategoryFactory extends Factory
             'Blusas',
             'Calças',
             'Saias',
-            'Acessórios'
+            'Acessórios',
         ]);
 
         return [
             'name' => $name,
-            'slug' => Str::slug($name)
+            'slug' => Str::slug($name),
         ];
     }
 }

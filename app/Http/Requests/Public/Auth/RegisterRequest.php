@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Public\Auth;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\StrongPassword;
+use Illuminate\Foundation\Http\FormRequest;
 
 class RegisterRequest extends FormRequest
 {

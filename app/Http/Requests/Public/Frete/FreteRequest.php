@@ -20,7 +20,8 @@ class FreteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cep' => 'required|string',
+            'cep' => ['required', 'string', 'regex:/^\d{8}$/'],
+            'product_id' => ['nullable', 'integer', 'exists:products,id'],
         ];
     }
 
@@ -32,6 +33,7 @@ class FreteRequest extends FormRequest
         return [
             'cep.required' => 'Informe o CEP.',
             'cep.string' => 'O CEP informado é inválido.',
+            'cep.regex' => 'Informe um CEP com 8 dígitos.',
         ];
     }
 

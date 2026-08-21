@@ -2,6 +2,4 @@
 
 namespace App\Exceptions\Domain;
 
-class PaymentGatewayException extends PaymentException
-{
-}
+class PaymentGatewayException extends PaymentException {}

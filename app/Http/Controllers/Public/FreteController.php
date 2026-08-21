@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Actions\Shipping\CalculateShippingOptionsAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Public\Frete\FreteRequest;
+use App\Models\Product;
 use App\Services\OperationalAlertService;
 use Illuminate\Support\Facades\Log;
 
@@ -15,7 +16,10 @@ class FreteController extends Controller
     public function calcular(FreteRequest $request, CalculateShippingOptionsAction $calculateShipping)
     {
         try {
-            return response()->json($calculateShipping->execute($request->validated()['cep']));
+            $data = $request->validated();
+            $product = isset($data['product_id']) ? Product::find($data['product_id']) : null;
+
+            return response()->json($calculateShipping->execute($data['cep'], $product));
         } catch (\Throwable $e) {
             Log::error('Falha ao calcular opções de frete.', [
                 'cep_prefix' => substr($request->validated()['cep'], 0, 5),

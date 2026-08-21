@@ -3,9 +3,9 @@
 namespace App\Http\Requests\Admin\Admins;
 
 use App\Enums\AdminRole;
+use App\Rules\StrongPassword;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Rules\StrongPassword;
 
 class UpdateAdminRequest extends FormRequest
 {

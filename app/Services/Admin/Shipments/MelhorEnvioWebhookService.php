@@ -31,5 +31,4 @@ class MelhorEnvioWebhookService
             'last_update' => json_encode($data),
         ]);
     }
-
 }

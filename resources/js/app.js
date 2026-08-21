@@ -4,6 +4,7 @@ import './checkout/index';
 
 import './products/variants';
 import './products/product-image-preview';
+import './products/shipping-calculator';
 
 import './dashboard/index';
 

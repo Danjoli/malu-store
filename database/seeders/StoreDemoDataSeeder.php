@@ -21,31 +21,31 @@ class StoreDemoDataSeeder extends Seeder
     {
         $user = User::updateOrCreate(
             [
-                'email' => 'test@gmail.com'
+                'email' => 'test@gmail.com',
             ],
             [
                 'name' => 'test',
                 'phone' => '(11) 99999-9999',
-                'password' => Hash::make('Senha@2026')
+                'password' => Hash::make('Senha@2026'),
             ]
         );
 
         Admin::updateOrCreate(
             [
-                'email' => 'admin@malustore.test'
+                'email' => 'admin@malustore.test',
             ],
             [
                 'name' => 'Administrador Malu Store',
                 'password' => Hash::make('Senha@2026'),
                 'role' => 'superadmin',
-                'is_active' => true
+                'is_active' => true,
             ]
         );
 
         $address = Address::updateOrCreate(
             [
                 'user_id' => $user->id,
-                'label' => 'Casa'
+                'label' => 'Casa',
             ],
             [
                 'recipient_name' => 'test',
@@ -57,7 +57,7 @@ class StoreDemoDataSeeder extends Seeder
                 'city' => 'São Paulo',
                 'state' => 'SP',
                 'cep' => '01001-000',
-                'is_default' => true
+                'is_default' => true,
             ]
         );
 
@@ -83,7 +83,7 @@ class StoreDemoDataSeeder extends Seeder
             'pending_payment',
             'paid',
             'shipped',
-            'delivered'
+            'delivered',
         ];
 
         foreach ($statuses as $index => $status) {
@@ -96,7 +96,7 @@ class StoreDemoDataSeeder extends Seeder
             $order = Order::updateOrCreate(
                 [
                     'user_id' => $user->id,
-                    'gateway_payment_id' => 'demo-order-'.($index + 1)
+                    'gateway_payment_id' => 'demo-order-'.($index + 1),
                 ],
                 [
                     'recipient_name' => $address->recipient_name,
@@ -137,7 +137,7 @@ class StoreDemoDataSeeder extends Seeder
             if ($status !== 'pending_payment') {
                 Shipment::updateOrCreate(
                     [
-                        'order_id' => $order->id
+                        'order_id' => $order->id,
                     ],
                     [
                         'shipment_id' => 'DEMO-SHIP-'.($index + 1),
@@ -158,7 +158,7 @@ class StoreDemoDataSeeder extends Seeder
                             : null,
                         'delivered_at' => $status === 'delivered'
                             ? now()->subDay()
-                            : null
+                            : null,
                     ]
                 );
             }
@@ -166,7 +166,7 @@ class StoreDemoDataSeeder extends Seeder
 
         $cart = Cart::firstOrCreate([
             'user_id' => $user->id,
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         $cartProduct = $products->last();
@@ -174,7 +174,7 @@ class StoreDemoDataSeeder extends Seeder
 
         CartItem::updateOrCreate(
             [
-                'cart_id' => $cart->id, 'product_variant_id' => $cartVariant->id
+                'cart_id' => $cart->id, 'product_variant_id' => $cartVariant->id,
             ],
             [
                 'name_snapshot' => $cartProduct->name,
@@ -182,7 +182,7 @@ class StoreDemoDataSeeder extends Seeder
                 'color_snapshot' => $cartVariant->color,
                 'size_snapshot' => $cartVariant->size,
                 'price' => $cartProduct->price,
-                'quantity' => 1
+                'quantity' => 1,
             ]
         );
     }

@@ -123,6 +123,54 @@
                         Guia de medidas
                     </a>
 
+                    {{-- Estimativa antes da compra; a opção final é escolhida no checkout. --}}
+                    <section
+                        data-product-shipping
+                        data-product-id="{{ $product->id }}"
+                        data-endpoint="{{ route('frete.calcular') }}"
+                        class="mt-5 rounded-md border border-[#eee6e4] bg-[#fcfaf9] p-4"
+                        aria-labelledby="product-shipping-title"
+                    >
+                        <div class="flex items-start gap-3">
+                            <span class="mt-0.5 text-base text-[#bd5564]" aria-hidden="true">⌖</span>
+                            <div>
+                                <h2 id="product-shipping-title" class="text-sm font-bold text-stone-800">
+                                    Calcule o frete
+                                </h2>
+                                <p class="mt-1 text-xs text-stone-500">
+                                    Consulte prazo e valor antes de adicionar à sacola.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 flex gap-2">
+                            <input
+                                data-shipping-cep
+                                type="text"
+                                inputmode="numeric"
+                                autocomplete="postal-code"
+                                maxlength="9"
+                                class="store-input min-w-0 flex-1 py-2 text-xs"
+                                placeholder="Digite seu CEP"
+                                aria-label="CEP para cálculo de frete"
+                            >
+
+                            <button
+                                data-shipping-submit
+                                type="button"
+                                class="store-button store-button-outline shrink-0 px-4 py-2 text-[10px]"
+                            >
+                                Calcular
+                            </button>
+                        </div>
+
+                        <p data-shipping-feedback class="mt-3 text-[11px] text-stone-500" aria-live="polite">
+                            O frete definitivo é escolhido no checkout.
+                        </p>
+
+                        <ul data-shipping-results class="mt-3 hidden rounded-md bg-white p-3"></ul>
+                    </section>
+
                     <input type="hidden" name="quantity" value="1">
 
                     @if ($stock > 0)
@@ -175,24 +223,6 @@
                 @endauth
             </div>
         </div>
-
-        {{-- Frete --}}
-        <section class="mt-8 max-w-xl rounded-md border border-[#eee6e4] bg-white p-5">
-            <p class="mb-3 text-xs font-bold">
-                Calcule o frete
-            </p>
-
-            <div class="flex gap-2">
-                <input
-                    class="store-input py-2 text-xs"
-                    placeholder="Digite seu CEP"
-                >
-
-                <button class="store-button store-button-outline py-2 text-[10px]">
-                    Calcular
-                </button>
-            </div>
-        </section>
 
         {{-- Benefícios --}}
         <section class="mt-6 grid gap-4 rounded-md border border-[#eee6e4] bg-white p-5 text-center text-[10px] sm:grid-cols-4">

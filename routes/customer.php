@@ -106,12 +106,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout/process', [CheckoutController::class, 'processOrder'])
         ->name('checkout.process');
 
-    /*
-    |--------------------------------------------------------------------------
-    | FRETE
-    |--------------------------------------------------------------------------
-    */
-
-    Route::post('/frete/calcular', [FreteController::class, 'calcular'])
-        ->name('frete.calcular');
 });
+
+// Também é usado como estimativa antes de o cliente entrar no checkout.
+Route::post('/frete/calcular', [FreteController::class, 'calcular'])
+    ->middleware('throttle:10,1')
+    ->name('frete.calcular');

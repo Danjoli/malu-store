@@ -20,7 +20,7 @@ class ProductVariantFactory extends Factory
                 'Off-white',
                 'Rosé',
                 'Areia',
-                'Verde oliva'
+                'Verde oliva',
             ]),
             'size' => fake()->randomElement(['P', 'M', 'G', 'GG']),
             'stock' => fake()->numberBetween(3, 25),

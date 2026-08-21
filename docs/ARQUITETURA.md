@@ -153,6 +153,10 @@ Cada produto possui uma relação `hasMany` com `ProductImage`: a primeira foto 
 
 No painel, a tela **Produtos → Detalhes** possui a seção **Substituir imagens do produto**. Administradores com permissão de gestão podem selecionar de 1 a 8 arquivos JPG, JPEG, PNG ou WebP de até 2 MB cada. Ao salvar, a galeria anterior e seus arquivos em `storage/app/public/products` são substituídos pelas imagens selecionadas.
 
+### Estimativa de frete no produto
+
+A página de produto oferece uma estimativa de frete antes da compra. O visitante informa um CEP e consulta as opções retornadas pelo Melhor Envio, com valor e prazo estimado para uma unidade. A rota é pública e limitada a 10 consultas por minuto para reduzir abuso da integração. A escolha da modalidade de frete e o valor definitivo continuam no checkout, pois dependem do endereço e do pedido completo.
+
 ### Slugs de categoria e produto
 
 `CategoryObserver` gera o slug da categoria quando ele não é informado. `ProductObserver` gera um slug único para cada produto. A página pública de produto usa `/produtos/{slug}`; links antigos por ID são redirecionados para a URL atual.

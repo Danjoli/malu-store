@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Auth\LoginRequest;
+use App\Models\Admin;
+use App\Rules\StrongPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
-use App\Models\Admin;
-use App\Rules\StrongPassword;
 
 class AdminAuthController extends Controller
 {
@@ -31,6 +31,7 @@ class AdminAuthController extends Controller
 
         if (! Auth::guard('admin')->attempt($credentials + ['is_active' => true])) {
             RateLimiter::hit($throttleKey, 60);
+
             return back()
                 ->withErrors([
                     'email' => 'Credenciais inválidas.',

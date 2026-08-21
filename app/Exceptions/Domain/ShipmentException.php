@@ -2,6 +2,4 @@
 
 namespace App\Exceptions\Domain;
 
-class ShipmentException extends DomainException
-{
-}
+class ShipmentException extends DomainException {}

@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests\Public\Profile;
 
-use Illuminate\Foundation\Http\FormRequest;
 use App\Rules\StrongPassword;
+use Illuminate\Foundation\Http\FormRequest;
 
 class UpdatePasswordRequest extends FormRequest
 {

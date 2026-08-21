@@ -29,7 +29,7 @@ class AsaasWebhookTest extends TestCase
         $variant = ProductVariant::factory()
             ->for($product)
             ->create([
-                'stock' => 10
+                'stock' => 10,
             ]);
 
         $order = Order::create([
@@ -44,7 +44,7 @@ class AsaasWebhookTest extends TestCase
             'shipping' => 0,
             'total' => 100,
             'status' => 'pending',
-            'gateway_payment_id' => 'pay_test'
+            'gateway_payment_id' => 'pay_test',
         ]);
 
         OrderItem::create([
@@ -53,12 +53,12 @@ class AsaasWebhookTest extends TestCase
             'name_snapshot' => $product->name,
             'image_snapshot' => '',
             'price' => 100,
-            'quantity' => 2
+            'quantity' => 2,
         ]);
 
         $cart = Cart::create([
             'user_id' => $user->id,
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         CartItem::create([
@@ -67,16 +67,15 @@ class AsaasWebhookTest extends TestCase
             'name_snapshot' => $product->name,
             'image_snapshot' => '',
             'price' => 100,
-            'quantity' => 1
+            'quantity' => 1,
         ]);
 
         $payload = [
             'event' => 'PAYMENT_RECEIVED',
             'payment' => [
                 'id' => 'pay_test',
-                'billingType' =>
-                'PIX'
-            ]
+                'billingType' => 'PIX',
+            ],
         ];
 
         app(AsaasWebhookService::class)->handleAsaas($payload);
@@ -85,7 +84,7 @@ class AsaasWebhookTest extends TestCase
         $this->assertDatabaseHas('orders', [
             'id' => $order->id,
             'status' => 'paid',
-            'payment_method' => 'pix'
+            'payment_method' => 'pix',
         ]);
 
         $this->assertSame(8, $variant->fresh()->stock);

@@ -2,6 +2,7 @@
 
 namespace App\Actions\Shipping;
 
+use App\Models\Product;
 use App\Services\Shipping\MelhorEnvioService;
 use Illuminate\Support\Collection;
 
@@ -9,8 +10,10 @@ class CalculateShippingOptionsAction
 {
     public function __construct(private MelhorEnvioService $melhorEnvio) {}
 
-    public function execute(string $destinationZip): Collection
+    public function execute(string $destinationZip, ?Product $product = null): Collection
     {
+        $declaredValue = $product?->price ?? 100;
+
         $result = $this->melhorEnvio->calcularFrete([
             'from' => ['postal_code' => config('shipping.origin_zip')],
             'to' => ['postal_code' => $destinationZip],
@@ -20,7 +23,7 @@ class CalculateShippingOptionsAction
                 'height' => 10,
                 'length' => 20,
                 'weight' => 1,
-                'insurance_value' => 100,
+                'insurance_value' => $declaredValue,
                 'quantity' => 1,
             ]],
         ]);

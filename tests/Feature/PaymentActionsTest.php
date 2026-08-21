@@ -30,7 +30,7 @@ class PaymentActionsTest extends TestCase
             'subtotal' => 100,
             'shipping' => 0,
             'total' => 100,
-            'status' => 'pending'
+            'status' => 'pending',
         ]);
     }
 
@@ -41,14 +41,14 @@ class PaymentActionsTest extends TestCase
         $asaas->shouldReceive('createPixPayment')
             ->once()->andReturn([
                 'id' => 'pix_1',
-                'status' => 'PENDING'
+                'status' => 'PENDING',
             ]);
 
         $asaas->shouldReceive('getPixQrCode')
             ->once()->with('pix_1')
             ->andReturn([
                 'encodedImage' => 'base64',
-                'payload' => 'pix-payload'
+                'payload' => 'pix-payload',
             ]);
 
         $order = $this->order();
@@ -64,7 +64,7 @@ class PaymentActionsTest extends TestCase
             'id' => $order->id,
             'gateway_payment_id' => 'pix_1',
             'payment_method' => 'pix',
-            'status' => 'pending'
+            'status' => 'pending',
         ]);
     }
 
@@ -77,7 +77,7 @@ class PaymentActionsTest extends TestCase
             ->andReturn([
                 'id' => 'boleto_1',
                 'status' => 'PENDING',
-                'dueDate' => '2026-09-01'
+                'dueDate' => '2026-09-01',
             ]);
 
         $order = $this->order();
@@ -91,7 +91,7 @@ class PaymentActionsTest extends TestCase
             'id' => $order->id,
             'gateway_payment_id' => 'boleto_1',
             'payment_method' => 'boleto',
-            'status' => 'pending'
+            'status' => 'pending',
         ]);
     }
 
@@ -102,7 +102,7 @@ class PaymentActionsTest extends TestCase
         $asaas->shouldReceive('createCardPayment')
             ->once()->andReturn([
                 'id' => 'card_1',
-                'status' => 'CONFIRMED'
+                'status' => 'CONFIRMED',
             ]);
 
         $order = $this->order();
@@ -111,14 +111,14 @@ class PaymentActionsTest extends TestCase
             $asaas,
             app(OperationalAlertService::class)
         ))->execute($order, [
-            'holderName' => 'Teste'
+            'holderName' => 'Teste',
         ]);
 
         $this->assertDatabaseHas('orders', [
             'id' => $order->id,
             'gateway_payment_id' => 'card_1',
             'payment_method' => 'card',
-            'status' => 'paid'
+            'status' => 'paid',
         ]);
 
         $this->assertNotNull($order->fresh()->paid_at);
