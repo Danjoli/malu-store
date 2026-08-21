@@ -14,12 +14,12 @@ class AddressRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'label' => 'nullable|string|max:100',
+            'label' => 'nullable|string|max:50',
             'recipient_name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
             'street' => 'required|string|max:255',
             'number' => 'required|string|max:20',
-            'complement' => 'nullable|string|max:100',
+            'complement' => 'nullable|string|max:255',
             'neighborhood' => 'required|string|max:100',
             'city' => 'required|string|max:100',
             'state' => 'required|string|size:2',

@@ -23,11 +23,16 @@ app/
 │   └── Payment/             Cobranças e processamento de webhook
 ├── Data/                    DTOs normalizados
 │   └── CheckoutData.php
+├── Exceptions/Domain/        Exceções de regra de negócio
 ├── Http/
 │   ├── Controllers/         Entrada HTTP; não concentra regra de negócio
-│   └── Requests/            Validação de formulários
+│   └── Requests/            Validação por área e recurso
 ├── Models/                  Entidades e relacionamentos Eloquent
+├── Observers/               Regras automáticas de persistência
 └── Services/                Orquestração e integrações externas
+    ├── Admin/               Serviços administrativos por recurso
+    ├── Public/              Fluxos exclusivos da loja
+    └── Shipping/            Melhor Envio e mapeamento de status
 database/
 ├── factories/               Dados aleatórios para testes
 ├── migrations/              Estrutura do banco
@@ -48,6 +53,7 @@ tests/Feature/               Testes dos fluxos de negócio
 - **DTO (`Data`):** transforma dados de entrada em uma estrutura consistente.
 - **Model:** representa a tabela e seus relacionamentos.
 - **Policy:** centraliza a autorização sobre uma entidade, como pedido ou endereço.
+- **Observer:** aplica regra de persistência automática, como a geração de slugs.
 
 Não há uma dependência extra para Actions ou DTOs: são classes nativas PHP/Laravel, carregadas pelo autoload `App\`.
 
@@ -61,6 +67,8 @@ A aplicação mantém dois guards de sessão independentes:
 
 - `web`, para clientes da loja;
 - `admin`, para administradores do painel.
+
+O fluxo completo de login, limitação de tentativas, senhas fortes e recuperação de acesso está em [AUTENTICACAO.md](AUTENTICACAO.md).
 
 As telas públicas de login e cadastro usam o mesmo layout, largura de card, tipografia, paleta rosé, campos e espaçamentos. O cadastro preserva os campos próprios de nome, e-mail, telefone e senha, mas funciona como continuação visual direta do login.
 
@@ -138,6 +146,10 @@ O modelo completo de tabelas, relações, snapshots, seeders, imagens e comandos
 4. O catálogo filtra por categoria, tamanho, cor e preço.
 5. Os cards usam `components/store/product-card.blade.php`.
 6. O selo **Novo** aparece até 30 dias após `products.created_at`.
+
+### Slugs de categoria e produto
+
+`CategoryObserver` gera o slug da categoria quando ele não é informado. `ProductObserver` gera um slug único para cada produto. A página pública de produto usa `/produtos/{slug}`; links antigos por ID são redirecionados para a URL atual.
 
 ## Carrinho e favoritos
 
@@ -227,6 +239,8 @@ Credenciais locais de demonstração:
 
 Essas credenciais são apenas para ambiente local.
 
+Após incluir uma migration nova em uma instalação existente, execute `php artisan migrate`. Para apenas reaplicar os dados de demonstração sem apagar tabelas, use `php artisan db:seed`.
+
 ## Testes
 
 Execute todos os testes:
@@ -244,6 +258,8 @@ Cobertura atual:
 - webhook recebido baixa o estoque somente uma vez e limpa o carrinho.
 - rotas de cliente exigem autenticação e pedidos não podem ser acessados por outro usuário.
 - catálogo filtra busca/categoria e oculta produtos inativos ou sem estoque.
+- slugs de categorias e produtos são únicos e as URLs antigas de produto redirecionam corretamente;
+- status de envio do provedor é convertido em um único ponto de mapeamento.
 
 ## Observabilidade
 

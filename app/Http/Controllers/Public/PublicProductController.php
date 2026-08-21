@@ -7,11 +7,12 @@ use App\Models\Product;
 
 class PublicProductController extends Controller
 {
-    public function show($id)
+    public function show(Product $product)
     {
         $product = Product::with(['images', 'variants', 'category'])
             ->where('active', 1)
-            ->findOrFail($id);
+            ->whereKey($product->id)
+            ->firstOrFail();
 
         $relatedProducts = Product::with(['images', 'variants'])
             ->where('active', true)
@@ -34,5 +35,12 @@ class PublicProductController extends Controller
         }
 
         return view('public.products.show', compact('product', 'relatedProducts'));
+    }
+
+    public function legacyShow(int $id)
+    {
+        $product = Product::where('active', true)->findOrFail($id);
+
+        return redirect()->route('product.show', $product);
     }
 }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Shipment;
-use App\Services\Admins\Shipment\ShipmentService;
+use App\Services\Admin\Shipments\ShipmentService;
 use Illuminate\Http\Request;
 
 class ShipmentController extends Controller

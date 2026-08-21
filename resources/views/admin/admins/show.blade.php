@@ -49,18 +49,8 @@
                         Cargo
                     </p>
 
-                    @php
-                        $roles = [
-                            'superadmin' => 'bg-purple-200 text-purple-800',
-                            'admin' => 'bg-blue-200 text-blue-800',
-                            'suporte' => 'bg-yellow-200 text-yellow-800',
-                        ];
-
-                        $class = $roles[$admin->role] ?? 'bg-gray-200 text-gray-800';
-                    @endphp
-
-                    <span class="rounded px-3 py-1 text-sm font-semibold {{ $class }}">
-                        {{ ucfirst($admin->role) }}
+                    <span class="rounded px-3 py-1 text-sm font-semibold {{ $admin->role?->badgeClass() ?? 'bg-gray-200 text-gray-800' }}">
+                        {{ $admin->role?->label() ?? 'Sem cargo' }}
                     </span>
                 </div>
 

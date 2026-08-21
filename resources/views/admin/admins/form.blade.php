@@ -63,12 +63,12 @@
         name="role"
         class="w-full rounded-xl border border-[#ded4d0] bg-white px-4 py-3 outline-none focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
     >
-        @foreach ($roles as $value => $label)
+        @foreach ($roles as $role)
             <option
-                value="{{ $value }}"
-                @selected(old('role', $admin->role ?? 'admin') == $value)
+                value="{{ $role->value }}"
+                @selected(old('role', $admin->role?->value ?? 'admin') === $role->value)
             >
-                {{ ucfirst($label) }}
+                {{ $role->label() }}
             </option>
         @endforeach
     </select>

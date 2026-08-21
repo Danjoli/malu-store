@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Public\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\StrongPassword;
 
 class RegisterRequest extends FormRequest
 {
@@ -17,7 +18,7 @@ class RegisterRequest extends FormRequest
             'name' => ['required', 'string', 'min:3', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'phone' => ['required', 'string', 'min:10', 'max:20', 'unique:users,phone'],
-            'password' => ['required', 'string', 'min:6'],
+            'password' => ['required', ...StrongPassword::rules()],
         ];
     }
 
@@ -52,7 +53,10 @@ class RegisterRequest extends FormRequest
             'phone.unique' => 'Este telefone já está cadastrado.',
 
             'password.required' => 'A senha é obrigatória.',
-            'password.min' => 'A senha deve ter pelo menos 6 caracteres.',
+            'password.min' => 'A senha deve ter pelo menos 8 caracteres.',
+            'password.mixed' => 'A senha deve ter letras maiúsculas e minúsculas.',
+            'password.numbers' => 'A senha deve ter pelo menos um número.',
+            'password.symbols' => 'A senha deve ter pelo menos um símbolo.',
         ];
     }
 }

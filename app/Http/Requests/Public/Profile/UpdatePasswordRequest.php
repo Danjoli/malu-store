@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Public\Profile;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Rules\StrongPassword;
 
 class UpdatePasswordRequest extends FormRequest
 {
@@ -15,7 +16,7 @@ class UpdatePasswordRequest extends FormRequest
     {
         return [
             'current_password' => ['required', 'string'],
-            'password' => ['required', 'string', 'min:6', 'confirmed'],
+            'password' => ['required', 'confirmed', ...StrongPassword::rules()],
         ];
     }
 
@@ -38,7 +39,10 @@ class UpdatePasswordRequest extends FormRequest
 
             'current_password.required' => 'Informe sua senha atual.',
             'password.required' => 'Informe a nova senha.',
-            'password.min' => 'A nova senha deve ter pelo menos 6 caracteres.',
+            'password.min' => 'A nova senha deve ter pelo menos 8 caracteres.',
+            'password.mixed' => 'A nova senha deve ter letras maiúsculas e minúsculas.',
+            'password.numbers' => 'A nova senha deve ter pelo menos um número.',
+            'password.symbols' => 'A nova senha deve ter pelo menos um símbolo.',
             'password.confirmed' => 'As senhas não conferem.',
         ];
     }

@@ -2,9 +2,9 @@
 
 namespace App\Services\Public\Payment;
 
+use App\Exceptions\Domain\PaymentGatewayException;
 use App\Models\Order;
 use Illuminate\Support\Facades\Http;
-use RuntimeException;
 
 class AsaasService
 {
@@ -38,11 +38,11 @@ class AsaasService
         $user = $order->user;
 
         if (! $user) {
-            throw new RuntimeException('Usuário não encontrado.');
+            throw new PaymentGatewayException('Usuário não encontrado.');
         }
 
         if (! $order->cpf) {
-            throw new RuntimeException('CPF não encontrado no pedido.');
+            throw new PaymentGatewayException('CPF não encontrado no pedido.');
         }
 
         $response = $this->http()->post(
@@ -60,7 +60,7 @@ class AsaasService
         );
 
         if ($response->failed()) {
-            throw new RuntimeException(
+            throw new PaymentGatewayException(
                 'Erro ao criar cliente no Asaas: '.
                 $response->body()
             );
@@ -77,7 +77,7 @@ class AsaasService
         $user = $order->user;
 
         if (! $user) {
-            throw new RuntimeException('Usuário não encontrado.');
+            throw new PaymentGatewayException('Usuário não encontrado.');
         }
 
         // Usuário já possui um cliente cadastrado no Asaas
@@ -91,7 +91,7 @@ class AsaasService
         $customer = $this->createCustomer($order);
 
         if (empty($customer['id'])) {
-            throw new RuntimeException(
+            throw new PaymentGatewayException(
                 'O Asaas não retornou o ID do cliente.'
             );
         }
@@ -125,7 +125,7 @@ class AsaasService
         );
 
         if ($response->failed()) {
-            throw new RuntimeException(
+            throw new PaymentGatewayException(
                 'Erro ao criar cobrança Pix no Asaas: '.
                 $response->body()
             );
@@ -144,7 +144,7 @@ class AsaasService
         );
 
         if ($response->failed()) {
-            throw new RuntimeException(
+            throw new PaymentGatewayException(
                 'Erro ao obter QR Code do Pix: '.
                 $response->body()
             );
@@ -173,7 +173,7 @@ class AsaasService
         );
 
         if ($response->failed()) {
-            throw new RuntimeException(
+            throw new PaymentGatewayException(
                 'Erro ao criar boleto no Asaas: '.
                 $response->body()
             );
@@ -195,13 +195,13 @@ class AsaasService
         $user = $order->user;
 
         if (! $user) {
-            throw new RuntimeException(
+            throw new PaymentGatewayException(
                 'Usuário não encontrado para o pedido.'
             );
         }
 
         if (! $order->cep) {
-            throw new RuntimeException(
+            throw new PaymentGatewayException(
                 'Endereço não encontrado no pedido.'
             );
         }
@@ -275,7 +275,7 @@ class AsaasService
 
         if ($response->failed()) {
 
-            throw new RuntimeException(
+            throw new PaymentGatewayException(
                 'Erro ao criar pagamento com cartão no Asaas: '.
                 $response->body()
             );
@@ -293,7 +293,7 @@ class AsaasService
 
         if ($response->failed()) {
 
-            throw new RuntimeException(
+            throw new PaymentGatewayException(
                 'Erro ao consultar pagamento no Asaas: '.
                 $response->body()
             );
@@ -311,7 +311,7 @@ class AsaasService
 
         if ($response->failed()) {
 
-            throw new RuntimeException(
+            throw new PaymentGatewayException(
                 'Erro ao cancelar pagamento no Asaas: '.
                 $response->body()
             );

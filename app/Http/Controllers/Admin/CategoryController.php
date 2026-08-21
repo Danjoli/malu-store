@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admins\Category\StoreCategoryRequest;
-use App\Http\Requests\Admins\Category\UpdateCategoryRequest;
+use App\Http\Requests\Admin\Categories\StoreCategoryRequest;
+use App\Http\Requests\Admin\Categories\UpdateCategoryRequest;
 use App\Models\Category;
-use App\Services\Admins\Category\CategoryService;
+use App\Services\Admin\Categories\CategoryService;
 
 class CategoryController extends Controller
 {

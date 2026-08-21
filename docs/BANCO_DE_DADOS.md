@@ -26,7 +26,7 @@ Cliente N ── N Produtos (favoritos)
 | `users` | Clientes da loja. | Endereços, carrinhos, pedidos e favoritos. |
 | `admins` | Acessos ao painel administrativo. | Não se mistura com clientes. |
 | `categories` | Agrupa produtos do catálogo. | Possui muitos produtos. |
-| `products` | Produto base, preço, descrição e ativo. | Categoria, imagens, variantes e favoritos. |
+| `products` | Produto base, slug, preço, descrição e ativo. | Categoria, imagens, variantes e favoritos. |
 | `product_images` | Caminhos das fotos do produto. | Pertence a um produto. |
 | `product_variants` | Cor, tamanho e estoque. | Pertence a um produto; é selecionada no carrinho. |
 | `carts` | Carrinho por cliente e status. | Possui itens de carrinho. |
@@ -36,6 +36,8 @@ Cliente N ── N Produtos (favoritos)
 | `order_items` | Itens comprados com snapshots de produto. | Pertence a pedido e variante quando aplicável. |
 | `shipments` | Frete, transportadora, rastreio e status. | Pertence a um pedido. |
 | `favorites` | Produtos salvos por cada cliente. | Liga `users` a `products`. |
+| `password_reset_tokens` | Tokens de recuperação de senha de clientes. | Associado ao e-mail do cliente. |
+| `admin_password_reset_tokens` | Tokens de recuperação de senha administrativa. | Associado ao e-mail administrativo. |
 | `jobs` / `failed_jobs` | Fila de tarefas do Laravel. | Webhooks do Asaas usam esta estrutura. |
 
 ## Snapshots e histórico
@@ -66,6 +68,8 @@ php artisan migrate:fresh --seed --force
 ```
 
 > Atenção: `migrate:fresh` apaga todas as tabelas do banco configurado no `.env`.
+
+Os produtos do catálogo de demonstração recebem slug diretamente no seeder, pois o `DatabaseSeeder` desativa eventos de modelo durante a carga. Produtos criados pela aplicação recebem slug pelo `ProductObserver`.
 
 ## Imagens do catálogo
 

@@ -34,16 +34,16 @@
 
                 <div>
                     <label for="email" class="mb-2 block text-sm font-semibold text-[#443d3b]">
-                        E-mail
+                        E-mail ou telefone
                     </label>
 
                     <input
                         id="email"
-                        type="email"
+                        type="text"
                         name="email"
                         value="{{ old('email') }}"
-                        autocomplete="email"
-                        placeholder="voce@email.com"
+                        autocomplete="username"
+                        placeholder="voce@email.com ou seu telefone"
                         class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none transition focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
                         required
                         autofocus
@@ -64,6 +64,12 @@
                         class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none transition focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
                         required
                     >
+                </div>
+
+                <div class="-mt-2 text-right">
+                    <a href="{{ route('password.request') }}" class="text-xs font-bold text-[#b85d70] hover:text-[#9f4c5e]">
+                        Esqueci minha senha
+                    </a>
                 </div>
 
                 <button class="w-full rounded-xl bg-[#cf7184] py-3.5 text-sm font-bold text-white transition hover:bg-[#b85d70]">

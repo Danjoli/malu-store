@@ -26,8 +26,12 @@ Route::view('/terms', 'public.legal.terms')
 Route::view('/privacy', 'public.legal.privacy')
     ->name('privacy');
 
-Route::get('/product/{id}', [PublicProductController::class, 'show'])
+Route::get('/produtos/{product}', [PublicProductController::class, 'show'])
     ->name('product.show');
+
+Route::get('/product/{id}', [PublicProductController::class, 'legacyShow'])
+    ->whereNumber('id')
+    ->name('product.legacy-show');
 
 /*
 |--------------------------------------------------------------------------

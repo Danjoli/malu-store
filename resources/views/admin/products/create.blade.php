@@ -26,5 +26,6 @@
         window.PRODUCT = {
             variantIndex: @json($variantIndex),
         };
+        window.CLOTHING_SIZES = @json(array_map(fn ($size) => $size->value, $sizes));
     </script>
 @endpush

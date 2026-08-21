@@ -15,6 +15,11 @@ Route::get('/login', [AuthController::class, 'showLogin'])
 
 Route::post('/login', [AuthController::class, 'login']);
 
+Route::get('/esqueci-a-senha', [AuthController::class, 'showForgotPassword'])->middleware('redirect.authenticated')->name('password.request');
+Route::post('/esqueci-a-senha', [AuthController::class, 'sendResetLink'])->middleware('throttle:5,1')->name('password.email');
+Route::get('/redefinir-senha/{token}', [AuthController::class, 'showResetPassword'])->middleware('redirect.authenticated')->name('password.reset');
+Route::post('/redefinir-senha', [AuthController::class, 'resetPassword'])->middleware('throttle:5,1')->name('password.update');
+
 Route::get('/register', [AuthController::class, 'showRegister'])
     ->middleware('redirect.authenticated')
     ->name('register');

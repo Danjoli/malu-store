@@ -41,14 +41,6 @@
 
                 <tbody class="divide-y divide-[#f0e5e1]">
                     @forelse ($admins as $admin)
-                        @php
-                            $roles = [
-                                'superadmin' => 'Superadmin',
-                                'admin' => 'Admin',
-                                'suporte' => 'Suporte',
-                            ];
-                        @endphp
-
                         <tr class="transition hover:bg-[#fdf8f6]">
                             <td class="p-4 font-bold text-[#3e3532]">
                                 {{ $admin->name }}
@@ -60,7 +52,7 @@
 
                             <td class="p-4">
                                 <span class="rounded-full bg-[#f8f3f1] px-2.5 py-1 text-xs font-bold text-[#625956]">
-                                    {{ $roles[$admin->role] ?? ucfirst($admin->role) }}
+                                    {{ $admin->role?->label() ?? 'Sem cargo' }}
                                 </span>
                             </td>
 

@@ -18,6 +18,9 @@ class ResolveAddressAction
             return $address->fresh();
         }
 
-        return Address::firstOrCreate(['user_id' => $user->id, 'recipient_name' => $data->recipientName, 'street' => $data->street, 'number' => $data->number, 'cep' => $data->cep], $attributes + ['user_id' => $user->id, 'is_default' => $data->isDefault]);
+        return Address::updateOrCreate(
+            ['user_id' => $user->id, 'recipient_name' => $data->recipientName, 'street' => $data->street, 'number' => $data->number, 'cep' => $data->cep],
+            $attributes + ['user_id' => $user->id, 'is_default' => $data->isDefault]
+        );
     }
 }

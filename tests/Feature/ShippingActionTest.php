@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Actions\Shipping\CalculateShippingOptionsAction;
-use App\Services\Public\MelhorEnvio\MelhorEnvioService;
+use App\Services\Shipping\MelhorEnvioService;
 use Mockery;
 use Tests\TestCase;
 

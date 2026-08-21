@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\AdminRole;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admins\Admin\StoreAdminRequest;
-use App\Http\Requests\Admins\Admin\UpdateAdminRequest;
+use App\Http\Requests\Admin\Admins\StoreAdminRequest;
+use App\Http\Requests\Admin\Admins\UpdateAdminRequest;
 use App\Models\Admin;
-use App\Services\Admins\Admin\AdminService;
+use App\Services\Admin\Admins\AdminService;
 
 class AdminController extends Controller
 {
@@ -29,7 +30,7 @@ class AdminController extends Controller
     public function create()
     {
         return view('admin.admins.create', [
-            'roles' => Admin::ROLES,
+            'roles' => AdminRole::cases(),
         ]);
     }
 
@@ -46,7 +47,7 @@ class AdminController extends Controller
     {
         return view('admin.admins.edit', [
             'admin' => $admin,
-            'roles' => Admin::ROLES,
+            'roles' => AdminRole::cases(),
         ]);
     }
 

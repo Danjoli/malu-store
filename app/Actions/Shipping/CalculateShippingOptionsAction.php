@@ -2,7 +2,7 @@
 
 namespace App\Actions\Shipping;
 
-use App\Services\Public\MelhorEnvio\MelhorEnvioService;
+use App\Services\Shipping\MelhorEnvioService;
 use Illuminate\Support\Collection;
 
 class CalculateShippingOptionsAction

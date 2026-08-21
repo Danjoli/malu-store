@@ -62,7 +62,6 @@ class CheckoutViewService
                 'label' => $address->label,
                 'recipient_name' => $address->recipient_name,
                 'phone' => $address->phone,
-                'cpf' => $address->cpf,
                 'cep' => $address->cep,
                 'street' => $address->street,
                 'number' => $address->number,

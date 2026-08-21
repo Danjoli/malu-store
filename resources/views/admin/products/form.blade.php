@@ -124,13 +124,16 @@
                             class="rounded border p-2"
                         >
 
-                        <input
-                            type="text"
+                        <select
                             name="variants[{{ $i }}][size]"
-                            value="{{ $variant->size }}"
-                            placeholder="Tamanho"
                             class="rounded border p-2"
                         >
+                            @foreach ($sizes as $size)
+                                <option value="{{ $size->value }}" @selected($variant->size === $size->value)>
+                                    {{ $size->value }}
+                                </option>
+                            @endforeach
+                        </select>
 
                         <input
                             type="number"

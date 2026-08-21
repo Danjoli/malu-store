@@ -34,7 +34,10 @@
             CEP: {{ $address->cep }}
         </p>
 
-        <div class="mt-4 flex items-center gap-4">
+        <div class="mt-4 flex flex-wrap items-center gap-4">
+            <button type="button" class="text-sm text-[#bd5564] hover:underline" x-data @click="$dispatch('toggle-address-edit', { id: {{ $address->id }} })">
+                Editar endereço
+            </button>
             @if (!$address->is_default)
                 <form
                     method="POST"
@@ -64,6 +67,18 @@
                 >
                     Excluir endereço
                 </button>
+            </form>
+        </div>
+
+        <div x-data="{ open: false }" @toggle-address-edit.window="if ($event.detail.id === {{ $address->id }}) open = !open" x-show="open" x-cloak class="mt-5 border-t border-[#eadfdd] pt-5">
+            <form method="POST" action="{{ route('addresses.update', $address->id) }}">
+                @csrf
+                @method('PUT')
+                <x-public.address-fields :address="$address" :show-default="true" :id-suffix="'-edit-'.$address->id" />
+                <div class="mt-4 flex gap-3">
+                    <button type="submit" class="store-button store-button-primary">Salvar alterações</button>
+                    <button type="button" class="store-button store-button-outline" @click="open = false">Cancelar</button>
+                </div>
             </form>
         </div>
     </div>

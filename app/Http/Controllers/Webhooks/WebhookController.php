@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Webhooks;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessAsaasWebhook;
-use App\Services\Admins\Shipment\MelhorEnvioWebhookService;
+use App\Services\Admin\Shipments\MelhorEnvioWebhookService;
 use Illuminate\Http\Request;
 
 class WebhookController extends Controller

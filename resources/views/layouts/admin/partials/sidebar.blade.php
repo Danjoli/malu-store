@@ -4,9 +4,9 @@
         '-translate-x-full': !adminMenuOpen,
         'lg:hidden': sidebarCollapsed,
     }"
-    class="fixed inset-y-0 left-0 z-50 flex h-screen w-72 flex-col justify-between border-r border-[#4c3d3b] bg-[#2d2928] p-5 text-[#fdf8f6] shadow-[10px_0_30px_rgba(45,41,40,0.12)] transition-transform duration-200 lg:sticky lg:top-0 lg:w-64 lg:translate-x-0"
+    class="fixed inset-y-0 left-0 z-50 flex h-screen w-72 flex-col overflow-y-auto overscroll-contain border-r border-[#4c3d3b] bg-[#2d2928] p-5 text-[#fdf8f6] shadow-[10px_0_30px_rgba(45,41,40,0.12)] transition-transform duration-200 lg:sticky lg:top-0 lg:w-64 lg:translate-x-0"
 >
-    <div>
+    <div class="shrink-0">
         <div class="border-b border-white/10 pb-6">
             <div class="flex items-start justify-between">
                 <h1 class="mb-1 font-['Cormorant_Garamond'] text-2xl font-semibold tracking-[0.06em] text-white">
@@ -107,7 +107,7 @@
         </nav>
     </div>
 
-    <div class="border-t border-white/10 pt-4">
+    <div class="mt-auto shrink-0 border-t border-white/10 pt-4">
         <p class="mb-2 text-sm text-[#b8aaa7]">
             Logado como:
             <span class="font-semibold text-white">

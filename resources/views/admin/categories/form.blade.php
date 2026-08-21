@@ -58,11 +58,10 @@
         value="{{ old('slug', $category->slug ?? '') }}"
         placeholder="Ex.: vestidos"
         autocomplete="off"
-        required
         class="w-full rounded-xl border border-[#ded4d0] bg-white px-4 py-3 font-mono text-sm text-[#443d3b] outline-none transition placeholder:text-[#a99b98] focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
     >
 
     <p class="mt-2 text-xs leading-5 text-[#857b78]">
-        Usado na URL da categoria. Utilize letras minúsculas e hífens no lugar de espaços.
+        Usado na URL da categoria. Se deixar em branco, ele será criado automaticamente a partir do nome.
     </p>
 </div>

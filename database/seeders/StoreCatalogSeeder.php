@@ -103,6 +103,7 @@ class StoreCatalogSeeder extends Seeder
                 [
                     'category_id' => $category->id,
                     'description' => $item['description'],
+                    'slug' => Str::slug($item['name']),
                     'price' => $item['price'],
                     'active' => true,
                 ]

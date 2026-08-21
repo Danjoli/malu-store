@@ -7,12 +7,13 @@ use App\Actions\Checkout\CreateOrderItemsAction;
 use App\Actions\Checkout\CreateShipmentAction;
 use App\Actions\Checkout\ResolveAddressAction;
 use App\Data\CheckoutData;
+use App\Exceptions\Domain\EmptyCartException;
+use App\Exceptions\Domain\UnauthenticatedCheckoutException;
 use App\Models\Cart;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use RuntimeException;
 
 class CheckoutService
 {
@@ -27,7 +28,7 @@ class CheckoutService
     {
         $user = Auth::user();
         if (! $user) {
-            throw new RuntimeException('Usuário não autenticado.');
+            throw new UnauthenticatedCheckoutException;
         }
         // Normaliza os dados antes de iniciar a transação do checkout.
         $data = CheckoutData::fromArray($input);
@@ -39,7 +40,7 @@ class CheckoutService
                 ->firstOrFail();
 
             if ($cart->items->isEmpty()) {
-                throw new RuntimeException('Carrinho vazio.');
+                throw new EmptyCartException;
             }
 
             // Todas as etapas precisam ser concluídas ou nenhuma delas é persistida.

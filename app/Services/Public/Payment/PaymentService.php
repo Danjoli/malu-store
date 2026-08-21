@@ -114,6 +114,18 @@ class PaymentService
         }
     }
 
+    public function cardFromData(Order $order, array $cardData)
+    {
+        try {
+            $this->processCardPayment->execute($order, $cardData);
+
+            return redirect()->route('payment.success', $order->id);
+        } catch (\RuntimeException $exception) {
+            return redirect()->route('payment.error', $order->id)
+                ->with('error', 'Não foi possível autorizar o cartão. Confira os dados e tente novamente.');
+        }
+    }
+
     /**
      * Página de sucesso.
      */

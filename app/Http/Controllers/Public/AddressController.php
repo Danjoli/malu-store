@@ -38,6 +38,13 @@ class AddressController extends Controller
 
         $address->save();
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Endereço salvo com sucesso!',
+                'address' => $address->fresh(),
+            ], 201);
+        }
+
         return back()->with(
             'success',
             'Endereço salvo com sucesso!'

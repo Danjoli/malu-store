@@ -1,22 +1,13 @@
 {{-- Resumo --}}
-<div class="h-fit rounded-md border border-[#eee6e4] bg-white p-6 md:p-7">
-    <h2 class="store-title mb-6 text-2xl font-semibold">
+<aside class="h-fit rounded-md border border-[#eee6e4] bg-white p-6 lg:sticky lg:top-24" aria-labelledby="order-summary-title">
+    <h2 id="order-summary-title" class="store-title mb-6 text-2xl font-semibold">
         Resumo do Pedido
     </h2>
 
-    {{-- Itens do pedido --}}
-    <div class="space-y-4">
-        @foreach ($cart?->items ?? [] as $item)
-            <div class="flex justify-between gap-4 text-sm text-stone-700">
-                <span>
-                    {{ $item->name_snapshot }} (x{{ $item->quantity }})
-                </span>
-
-                <span class="whitespace-nowrap">
-                    R$ {{ number_format($item->price * $item->quantity, 2, ',', '.') }}
-                </span>
-            </div>
-        @endforeach
+    {{-- Subtotal --}}
+    <div class="flex justify-between text-sm text-stone-700">
+        <span>Subtotal</span>
+        <span>R$ {{ number_format($subtotal ?? 0, 2, ',', '.') }}</span>
     </div>
 
     {{-- Frete --}}
@@ -39,8 +30,10 @@
     {{-- Finalizar pedido --}}
     <button
         type="submit"
+        id="checkout-submit"
         class="store-button store-button-primary w-full py-4"
     >
         Finalizar Pedido
     </button>
-</div>
+    <p class="mt-3 text-center text-[11px] leading-relaxed text-stone-400">Ao finalizar, você confirma os dados acima e segue diretamente para a confirmação do pagamento escolhido.</p>
+</aside>

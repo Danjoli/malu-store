@@ -40,6 +40,8 @@
     .store-button-outline:hover { border-color: var(--color-brand-500); color: var(--color-brand-600); }
     .store-input { width: 100%; border: 1px solid #eadfdd; border-radius: .25rem; background: white; padding: .75rem .875rem; font-size: .875rem; outline: none; transition: .2s; }
     .store-input:focus { border-color: var(--color-brand-500); box-shadow: 0 0 0 3px rgb(214 111 124 / .12); }
+    .checkout-step { border: 1px solid #eee6e4; border-radius: .5rem; background: white; padding: clamp(1.25rem, 3vw, 1.75rem); }
+    .address-card:has(input:checked), .payment-card:has(input:checked) { border-color: var(--color-brand-500); background: var(--color-brand-50); box-shadow: 0 0 0 1px rgb(214 111 124 / .18); }
     .legal-document h2 { margin-top: 2rem; color: #302a29; font-family: var(--font-display); font-size: clamp(1.65rem, 2vw, 2.15rem); font-weight: 600; letter-spacing: -.025em; }
     .legal-document h2:first-child { margin-top: 0; }
     .legal-document h3 { margin-top: 1.35rem; color: #443d3b; font-size: .9rem; font-weight: 700; }

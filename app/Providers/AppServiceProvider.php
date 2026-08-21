@@ -3,7 +3,11 @@
 namespace App\Providers;
 
 use App\Models\Cart;
+use App\Models\Category;
+use App\Models\Product;
 use App\Models\User;
+use App\Observers\CategoryObserver;
+use App\Observers\ProductObserver;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
@@ -18,6 +22,9 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Category::observe(CategoryObserver::class);
+        Product::observe(ProductObserver::class);
+
         Blade::anonymousComponentPath(
             resource_path('views/components/public'),
             'public'

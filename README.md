@@ -9,7 +9,7 @@ O projeto foi desenvolvido utilizando Laravel seguindo boas práticas de organiz
 
 ## Documentação técnica
 
-O funcionamento do catálogo, carrinho, checkout, pagamentos, webhooks, banco de dados, dados de demonstração e testes está documentado em [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
+O funcionamento do catálogo, carrinho, checkout, pagamentos, webhooks, banco de dados, dados de demonstração e testes está documentado em [docs/ARQUITETURA.md](docs/ARQUITETURA.md). Consulte também [autenticação](docs/AUTENTICACAO.md) e [implantação](docs/IMPLANTACAO.md).
 
 ## Funcionalidades
 
@@ -20,7 +20,7 @@ O funcionamento do catálogo, carrinho, checkout, pagamentos, webhooks, banco de
 * Carrinho de compras
 * Checkout
 * Acompanhamento de pedidos
-* Sistema de autenticação de usuários
+* Login por e-mail ou telefone, recuperação de senha e senhas fortes
 * Cadastro e login públicos com identidade visual unificada
 * Redirecionamento de usuários já autenticados para a área apropriada
 
@@ -34,7 +34,7 @@ O funcionamento do catálogo, carrinho, checkout, pagamentos, webhooks, banco de
 * Controle de estoque
 * Controle de envios
 * Integração com serviços de frete
-* Autenticação administrativa independente, com logout seguro no painel
+* Autenticação administrativa independente, recuperação de senha e bloqueio de contas inativas
 
 ## Tecnologias Utilizadas
 

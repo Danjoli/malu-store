@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Public\Checkout;
 
+use App\Enums\PaymentMethod;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CheckoutRequest extends FormRequest
 {
@@ -20,6 +22,7 @@ class CheckoutRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'address_id' => 'nullable|integer|exists:addresses,id',
             'label' => 'nullable|string|max:50',
             'recipient_name' => 'required|string|max:255',
             'phone' => 'required|string|max:20',
@@ -32,12 +35,18 @@ class CheckoutRequest extends FormRequest
             'neighborhood' => 'required|string|max:100',
             'city' => 'required|string|max:100',
             'state' => 'required|string|size:2',
-            'cep' => 'required|string|max:20',
+            'cep' => ['required', 'string', 'max:20', 'regex:/^\D*\d(?:\D*\d){7}\D*$/'],
             'cpf' => 'required|string|max:14',
 
-            'shipping_cost' => 'required|numeric|min:0',
+            'shipping_cost' => 'required|numeric|gt:0',
             'carrier' => 'required|string|max:100',
             'service' => 'required|string',
+            'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
+            'card_number' => 'required_if:payment_method,card|nullable|string',
+            'holder_name' => 'required_if:payment_method,card|nullable|string',
+            'expiration_month' => 'required_if:payment_method,card|nullable|string',
+            'expiration_year' => 'required_if:payment_method,card|nullable|string',
+            'ccv' => 'required_if:payment_method,card|nullable|string',
         ];
     }
 
@@ -65,10 +74,16 @@ class CheckoutRequest extends FormRequest
 
             'shipping_cost.required' => 'Selecione um frete antes de finalizar o pedido.',
             'shipping_cost.numeric' => 'O valor do frete é inválido.',
-            'shipping_cost.min' => 'O valor do frete deve ser maior ou igual a zero.',
+            'shipping_cost.gt' => 'Selecione uma opção de entrega válida.',
 
             'carrier.required' => 'Selecione uma transportadora.',
             'service.required' => 'Selecione um serviço de entrega.',
+            'payment_method.required' => 'Escolha uma forma de pagamento.',
+            'card_number.required_if' => 'Informe o número do cartão.',
+            'holder_name.required_if' => 'Informe o nome no cartão.',
+            'expiration_month.required_if' => 'Informe o mês de validade.',
+            'expiration_year.required_if' => 'Informe o ano de validade.',
+            'ccv.required_if' => 'Informe o código de segurança.',
         ];
     }
 

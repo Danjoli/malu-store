@@ -98,6 +98,12 @@
 
                     </div>
 
+                    <div class="-mt-2 text-right">
+                        <a href="{{ route('admin.password.request') }}" class="text-xs font-bold text-[#b85d70] hover:text-[#9f4c5e]">
+                            Esqueci minha senha
+                        </a>
+                    </div>
+
                     {{-- Botão --}}
                     <button type="submit"
                         class="w-full rounded-xl bg-[#cf7184] px-4 py-3.5 text-sm font-bold text-white transition hover:bg-[#b85d70] focus:outline-none focus:ring-4 focus:ring-[#f7dce2]">
