@@ -15,8 +15,16 @@ class ProductImageFactory extends Factory
     {
         return [
             'product_id' => Product::factory(),
-            // O arquivo deve ser copiado para storage/app/public/products pelo seeder ou upload administrativo.
-            'image' => 'produto-exemplo.jpg',
+            // Arquivos de demonstração presentes em storage/app/public/products.
+            'image' => fake()->randomElement([
+                'catalogo-vestido-floral.png',
+                'catalogo-conjunto-linho.png',
+                'catalogo-blusa-decote-v.png',
+                'catalogo-calca-wide-leg.png',
+                'catalogo-macacao-preto.png',
+                'catalogo-conjunto-areia.png',
+                'catalogo-blusa-oliva.png',
+            ]),
         ];
     }
 }

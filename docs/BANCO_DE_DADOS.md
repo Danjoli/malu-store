@@ -75,7 +75,9 @@ Os produtos do catálogo de demonstração recebem slug diretamente no seeder, p
 
 ## Imagens do catálogo
 
-O banco guarda apenas o caminho da imagem. Os arquivos devem existir em:
+O banco guarda apenas o caminho da imagem na tabela `product_images`; um produto pode ter várias imagens. O catálogo de demonstração cria três registros por produto, e `ProductImageFactory` escolhe uma imagem de demonstração quando for usada em testes. Para cenários que precisem de uma galeria completa, use `Product::factory()->withGallery()->create()`.
+
+Os arquivos devem existir em:
 
 ```text
 storage/app/public/products
@@ -87,7 +89,7 @@ Para expô-los pela web, execute:
 php artisan storage:link
 ```
 
-Em uma implantação, envie a pasta `storage/app/public/products` junto com o projeto. Executar os seeders sem enviar os arquivos não faz as imagens aparecerem.
+Em uma implantação, envie a pasta `storage/app/public/products` junto com o projeto. Executar os seeders sem enviar os arquivos não faz as imagens aparecerem. No painel, a tela de detalhes do produto permite substituir a galeria com até oito imagens válidas; ao substituir, os registros e arquivos anteriores são removidos.
 
 ## Boas práticas para evoluir
 

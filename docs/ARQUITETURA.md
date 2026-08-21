@@ -147,6 +147,12 @@ O modelo completo de tabelas, relações, snapshots, seeders, imagens e comandos
 5. Os cards usam `components/store/product-card.blade.php`.
 6. O selo **Novo** aparece até 30 dias após `products.created_at`.
 
+### Galeria de imagens
+
+Cada produto possui uma relação `hasMany` com `ProductImage`: a primeira foto da galeria é usada nos cards e as demais ficam disponíveis na página de detalhes. O catálogo de demonstração cria três imagens por produto.
+
+No painel, a tela **Produtos → Detalhes** possui a seção **Substituir imagens do produto**. Administradores com permissão de gestão podem selecionar de 1 a 8 arquivos JPG, JPEG, PNG ou WebP de até 2 MB cada. Ao salvar, a galeria anterior e seus arquivos em `storage/app/public/products` são substituídos pelas imagens selecionadas.
+
 ### Slugs de categoria e produto
 
 `CategoryObserver` gera o slug da categoria quando ele não é informado. `ProductObserver` gera um slug único para cada produto. A página pública de produto usa `/produtos/{slug}`; links antigos por ID são redirecionados para a URL atual.
@@ -266,6 +272,7 @@ Cobertura atual:
 - webhook recebido baixa o estoque somente uma vez e limpa o carrinho.
 - rotas de cliente exigem autenticação e pedidos não podem ser acessados por outro usuário.
 - catálogo filtra busca/categoria e oculta produtos inativos ou sem estoque.
+- galeria de produto substitui imagens antigas sem manter arquivos órfãos.
 - slugs de categorias e produtos são únicos e as URLs antigas de produto redirecionam corretamente;
 - status de envio do provedor é convertido em um único ponto de mapeamento.
 

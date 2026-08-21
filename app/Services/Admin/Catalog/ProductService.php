@@ -68,7 +68,10 @@ class ProductService
         }
     }
 
-    private function replaceImages(Product $product, array $images): void
+    /**
+     * Substitui a galeria completa e remove os arquivos antigos do storage.
+     */
+    public function replaceImages(Product $product, array $images): void
     {
         foreach ($product->images as $img) {
             Storage::disk('public')->delete('products/'.$img->image);

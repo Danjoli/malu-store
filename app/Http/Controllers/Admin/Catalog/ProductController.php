@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin\Catalog;
 use App\Enums\ClothingSize;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Catalog\Products\StoreProductRequest;
+use App\Http\Requests\Admin\Catalog\Products\UpdateProductImagesRequest;
 use App\Http\Requests\Admin\Catalog\Products\UpdateProductRequest;
 use App\Models\Category;
 use App\Models\Product;
@@ -78,6 +79,15 @@ class ProductController extends Controller
         return redirect()
             ->route('admin.products.index')
             ->with('success', 'Produto atualizado!');
+    }
+
+    public function updateImages(UpdateProductImagesRequest $request, Product $product)
+    {
+        $this->service->replaceImages($product, $request->validated('images'));
+
+        return redirect()
+            ->route('admin.products.show', $product)
+            ->with('success', 'Galeria de imagens atualizada!');
     }
 
     public function destroy(Product $product)

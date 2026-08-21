@@ -37,3 +37,7 @@ Route::resource('products', ProductController::class)
 Route::resource('products', ProductController::class)
     ->only(['create', 'store', 'edit'])
     ->middleware("admin.role:{$superAdmin}");
+
+Route::put('products/{product}/images', [ProductController::class, 'updateImages'])
+    ->middleware($managementRoles)
+    ->name('products.images.update');

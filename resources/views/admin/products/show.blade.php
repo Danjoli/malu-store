@@ -82,9 +82,16 @@
 
         {{-- Imagens --}}
         <div>
-            <p class="mb-2 text-sm text-gray-500">
-                Imagens
-            </p>
+            <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <p class="text-sm text-gray-500">Imagens</p>
+
+                <a
+                    href="#atualizar-imagens"
+                    class="rounded bg-rose-600 px-3 py-2 text-sm font-medium text-white hover:bg-rose-700"
+                >
+                    Alterar galeria
+                </a>
+            </div>
 
             @if ($product->images->count())
                 <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
@@ -101,6 +108,53 @@
                     Nenhuma imagem cadastrada
                 </p>
             @endif
+
+            <form
+                id="atualizar-imagens"
+                action="{{ route('admin.products.images.update', $product) }}"
+                method="POST"
+                enctype="multipart/form-data"
+                class="mt-5 rounded-lg border border-rose-100 bg-rose-50 p-4"
+            >
+                @csrf
+                @method('PUT')
+
+                <label
+                    for="product-images"
+                    class="block text-sm font-semibold text-gray-800"
+                >
+                    Substituir imagens do produto
+                </label>
+
+                <p class="mt-1 text-sm text-gray-600">
+                    Selecione de 1 a 8 imagens. Ao salvar, a galeria atual será substituída.
+                </p>
+
+                <input
+                    id="product-images"
+                    type="file"
+                    name="images[]"
+                    accept="image/jpeg,image/png,image/webp"
+                    multiple
+                    required
+                    class="mt-3 block w-full rounded border border-rose-200 bg-white p-2 text-sm"
+                >
+
+                @error('images')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+
+                @error('images.*')
+                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+
+                <button
+                    type="submit"
+                    class="mt-4 rounded bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700"
+                >
+                    Salvar nova galeria
+                </button>
+            </form>
         </div>
 
         {{-- Variações --}}

@@ -18,87 +18,87 @@ class StoreCatalogSeeder extends Seeder
                 'category' => 'Vestidos',
                 'name' => 'Vestido Midi Floral',
                 'price' => 109.90,
-                'image' => 'catalogo-vestido-floral.png',
-                'description' => 'Vestido midi leve, com caimento delicado e estampa floral para ocasiões especiais.'
+                'images' => ['catalogo-vestido-floral.png', 'catalogo-conjunto-areia.png', 'catalogo-blusa-oliva.png'],
+                'description' => 'Vestido midi leve, com caimento delicado e estampa floral para ocasiões especiais.',
             ],
             [
                 'category' => 'Vestidos',
                 'name' => 'Vestido Aurora',
                 'price' => 119.90,
-                'image' => 'catalogo-vestido-floral.png',
-                'description' => 'Vestido feminino elegante, pensado para acompanhar você do dia à noite.'
+                'images' => ['catalogo-vestido-floral.png', 'catalogo-blusa-oliva.png', 'catalogo-conjunto-areia.png'],
+                'description' => 'Vestido feminino elegante, pensado para acompanhar você do dia à noite.',
             ],
             [
                 'category' => 'Conjuntos',
                 'name' => 'Conjunto Linho',
                 'price' => 129.90,
-                'image' => 'catalogo-conjunto-linho.png',
-                'description' => 'Conjunto em tecido leve, com modelagem confortável e acabamento sofisticado.'
+                'images' => ['catalogo-conjunto-linho.png', 'catalogo-conjunto-areia.png', 'catalogo-blusa-oliva.png'],
+                'description' => 'Conjunto em tecido leve, com modelagem confortável e acabamento sofisticado.',
             ],
             [
                 'category' => 'Conjuntos',
                 'name' => 'Conjunto Alfaiataria',
                 'price' => 159.90,
-                'image' => 'catalogo-conjunto-linho.png',
-                'description' => 'Alfaiataria moderna para um visual marcante e versátil.'
+                'images' => ['catalogo-conjunto-areia.png', 'catalogo-conjunto-linho.png', 'catalogo-macacao-preto.png'],
+                'description' => 'Alfaiataria moderna para um visual marcante e versátil.',
             ],
             [
                 'category' => 'Blusas',
                 'name' => 'Blusa Decote V',
                 'price' => 69.90,
-                'image' => 'catalogo-blusa-decote-v.png',
-                'description' => 'Blusa de caimento fluido e decote V, essencial para combinações elegantes.'
+                'images' => ['catalogo-blusa-decote-v.png', 'catalogo-blusa-oliva.png', 'catalogo-conjunto-areia.png'],
+                'description' => 'Blusa de caimento fluido e decote V, essencial para combinações elegantes.',
             ],
             [
                 'category' => 'Blusas',
                 'name' => 'Blusa Manga Bufante',
                 'price' => 79.90,
-                'image' => 'catalogo-blusa-decote-v.png',
-                'description' => 'Blusa com mangas volumosas e acabamento romântico.'
+                'images' => ['catalogo-blusa-oliva.png', 'catalogo-blusa-decote-v.png', 'catalogo-conjunto-linho.png'],
+                'description' => 'Blusa com mangas volumosas e acabamento romântico.',
             ],
             [
                 'category' => 'Calças',
                 'name' => 'Calça Wide Leg Jeans',
                 'price' => 119.90,
-                'image' => 'catalogo-calca-wide-leg.png',
-                'description' => 'Calça jeans wide leg de cintura alta e modelagem confortável.'
+                'images' => ['catalogo-calca-wide-leg.png', 'catalogo-conjunto-areia.png', 'catalogo-blusa-oliva.png'],
+                'description' => 'Calça jeans wide leg de cintura alta e modelagem confortável.',
             ],
             [
                 'category' => 'Calças',
                 'name' => 'Calça Pantalona',
                 'price' => 129.90,
-                'image' => 'catalogo-calca-wide-leg.png',
-                'description' => 'Pantalona de corte amplo e elegante, ideal para composições atemporais.'
+                'images' => ['catalogo-calca-wide-leg.png', 'catalogo-macacao-preto.png', 'catalogo-conjunto-areia.png'],
+                'description' => 'Pantalona de corte amplo e elegante, ideal para composições atemporais.',
             ],
             [
                 'category' => 'Saias',
                 'name' => 'Saia Midi Floral',
                 'price' => 89.90,
-                'image' => 'catalogo-vestido-floral.png',
-                'description' => 'Saia midi floral de caimento leve, perfeita para produções românticas e elegantes.'
+                'images' => ['catalogo-vestido-floral.png', 'catalogo-blusa-oliva.png', 'catalogo-conjunto-areia.png'],
+                'description' => 'Saia midi floral de caimento leve, perfeita para produções românticas e elegantes.',
             ],
             [
                 'category' => 'Acessórios',
                 'name' => 'Cinto Elegance',
                 'price' => 59.90,
-                'image' => 'catalogo-conjunto-linho.png',
-                'description' => 'Cinto versátil para finalizar produções com um toque de sofisticação.'
+                'images' => ['catalogo-macacao-preto.png', 'catalogo-conjunto-linho.png', 'catalogo-conjunto-areia.png'],
+                'description' => 'Cinto versátil para finalizar produções com um toque de sofisticação.',
             ],
         ];
 
         foreach ($catalog as $item) {
             $category = Category::updateOrCreate(
                 [
-                    'name' => $item['category']
+                    'name' => $item['category'],
                 ],
                 [
-                    'slug' => Str::slug($item['category'])
+                    'slug' => Str::slug($item['category']),
                 ]
             );
 
             $product = Product::updateOrCreate(
                 [
-                    'name' => $item['name']
+                    'name' => $item['name'],
                 ],
                 [
                     'category_id' => $category->id,
@@ -109,22 +109,23 @@ class StoreCatalogSeeder extends Seeder
                 ]
             );
 
-            ProductImage::updateOrCreate(
-                [
+            // A galeria de demonstração tem três fotos por produto.
+            foreach ($item['images'] as $image) {
+                ProductImage::updateOrCreate([
                     'product_id' => $product->id,
-                    'image' => $item['image']
-                ]
-            );
+                    'image' => $image,
+                ]);
+            }
 
             foreach (['P', 'M', 'G'] as $size) {
                 ProductVariant::updateOrCreate(
                     [
                         'product_id' => $product->id,
                         'color' => 'Off-white',
-                        'size' => $size
+                        'size' => $size,
                     ],
                     [
-                        'stock' => $size === 'M' ? 12 : 8
+                        'stock' => $size === 'M' ? 12 : 8,
                     ]
                 );
             }
