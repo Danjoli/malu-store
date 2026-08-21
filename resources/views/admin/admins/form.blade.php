@@ -45,6 +45,8 @@
     <input
         type="password"
         name="password"
+        minlength="8"
+        placeholder="8+ caracteres, maiúscula, número e símbolo"
         class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 outline-none focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
     >
 

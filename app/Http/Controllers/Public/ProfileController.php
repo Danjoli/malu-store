@@ -23,11 +23,11 @@ class ProfileController extends Controller
     */
     public function edit()
     {
-        $user = Auth::user();
+        $user = Auth::user()->loadCount(['orders', 'favorites']);
 
         return view('public.profile.edit', [
             'user' => $user,
-            'addresses' => $user->addresses,
+            'addresses' => $user->addresses()->latest()->get(),
         ]);
     }
 
@@ -85,7 +85,8 @@ class ProfileController extends Controller
     */
     public function orders()
     {
-        $orders = Order::where('user_id', Auth::id())
+        $orders = Order::with('shipment')
+            ->where('user_id', Auth::id())
             ->latest()
             ->get();
 
@@ -99,7 +100,6 @@ class ProfileController extends Controller
     {
         $order = Order::where('user_id', Auth::id())
             ->with([
-                'user.addresses',
                 'items',
                 'items.variant.product',
                 'shipment',

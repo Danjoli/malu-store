@@ -98,8 +98,8 @@
                         type="password"
                         name="password"
                         autocomplete="new-password"
-                        minlength="6"
-                        placeholder="Mínimo de 6 caracteres"
+                        minlength="8"
+                        placeholder="8+ caracteres, maiúscula, número e símbolo"
                         class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none transition focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
                         required
                     >

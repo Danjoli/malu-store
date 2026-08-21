@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
     {
         User::updateOrCreate(
             ['email' => 'test@example.com'],
-            ['name' => 'Test User', 'password' => Hash::make('password')]
+            ['name' => 'Test User', 'password' => Hash::make('Senha@2026')]
         );
 
         $this->call(StoreCatalogSeeder::class);

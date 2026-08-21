@@ -153,6 +153,14 @@ O modelo completo de tabelas, relações, snapshots, seeders, imagens e comandos
 
 ## Carrinho e favoritos
 
+## Perfil do cliente
+
+A página `/perfil` reúne os dados de conta, troca de senha e endereços. O topo apresenta um resumo com total de pedidos, favoritos e endereços, além de atalhos para pedidos e favoritos.
+
+Cada cliente pode manter até 10 endereços. Ao atingir esse limite, o formulário de inclusão é substituído por uma orientação para remover um endereço existente.
+
+Na página de um pedido, o endereço exibido é o snapshot salvo no próprio pedido. Assim, a alteração posterior do cadastro de endereço não muda o histórico da compra.
+
 ### Carrinho
 
 `CartService` encontra ou cria um carrinho ativo do usuário. Ao adicionar uma variante já existente, a quantidade é incrementada; caso contrário, um `cart_item` é criado com snapshots do produto.
@@ -234,8 +242,8 @@ Credenciais locais de demonstração:
 
 | Perfil | E-mail | Senha |
 |---|---|---|
-| Cliente | `test@gmail.com` | `123456` |
-| Administrador | `admin@malustore.test` | `123456` |
+| Cliente | `test@gmail.com` | `Senha@2026` |
+| Administrador | `admin@malustore.test` | `Senha@2026` |
 
 Essas credenciais são apenas para ambiente local.
 

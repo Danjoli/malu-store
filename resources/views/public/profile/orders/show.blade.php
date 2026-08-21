@@ -138,34 +138,21 @@
                         d="M12 11c-4.418 0-8 4-8 8h16c0-4-3.582-8-8-8z" />
                 </svg>
 
-                @php
-                    $address = $order->user->addresses->first();
-                @endphp
-
                 <div>
                     <strong>Endereço de Entrega:</strong><br>
+                    <span>Destinatário: {{ $order->recipient_name }}</span><br>
+                    <span>Telefone: {{ $order->phone }}</span>
 
-                    @if ($address)
-                        <span>Destinatário: {{ $address->recipient_name ?? '-' }}</span><br>
-                        <span>Telefone: {{ $address->phone ?? '-' }}</span>
+                    <br><br>
 
-                        <br><br>
+                    {{ $order->street }}, {{ $order->number }}<br>
 
-                        {{ $address->street ?? '-' }}, {{ $address->number ?? '-' }}<br>
-
-                        @if ($address->complement)
-                            {{ $address->complement }}<br>
-                        @endif
-
-                        {{ $address->neighborhood ?? '-' }} -
-                        {{ $address->city ?? '-' }}/{{ $address->state ?? '-' }}<br>
-
-                        CEP: {{ $address->cep ?? '-' }}
-                    @else
-                        <span class="text-gray-500">
-                            Nenhum endereço cadastrado.
-                        </span>
+                    @if ($order->complement)
+                        {{ $order->complement }}<br>
                     @endif
+
+                    {{ $order->neighborhood }} - {{ $order->city }}/{{ $order->state }}<br>
+                    CEP: {{ $order->cep }}
                 </div>
             </div>
         </div>

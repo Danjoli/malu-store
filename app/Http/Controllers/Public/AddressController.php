@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Public\Address\AddressRequest;
 use App\Models\Address;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class AddressController extends Controller
 {
+    private const MAX_ADDRESSES_PER_USER = 10;
+
     /**
      * Cria um novo endereço.
      */
@@ -16,6 +19,16 @@ class AddressController extends Controller
     {
         $user = Auth::user();
         $data = $request->validated();
+
+        if ($user->addresses()->count() >= self::MAX_ADDRESSES_PER_USER) {
+            $message = 'Você pode cadastrar no máximo '.self::MAX_ADDRESSES_PER_USER.' endereços. Remova um endereço para adicionar outro.';
+
+            if ($request->expectsJson()) {
+                throw ValidationException::withMessages(['address' => $message]);
+            }
+
+            return back()->withErrors(['address' => $message]);
+        }
 
         $address = new Address;
         $address->fill($data);

@@ -55,6 +55,8 @@ O `DatabaseSeeder` chama dois seeders:
 | `StoreCatalogSeeder` | Categorias, produtos, imagens e variantes. |
 | `StoreDemoDataSeeder` | Cliente, administrador, endereços, pedidos, envios e carrinho de exemplo. |
 
+Para testes de Feature, use `User::factory()->withStoreData()->create()` quando o cenário precisar de um cliente completo. Esse estado cria dois endereços, um favorito, um pedido com item e um envio, sem alterar o comportamento padrão de `User::factory()`.
+
 Em ambiente local ou de demonstração, para recriar tudo do zero:
 
 ```bash

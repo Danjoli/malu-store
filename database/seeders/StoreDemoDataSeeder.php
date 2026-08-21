@@ -6,6 +6,7 @@ use App\Models\Address;
 use App\Models\Admin;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\Favorite;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -25,7 +26,7 @@ class StoreDemoDataSeeder extends Seeder
             [
                 'name' => 'test',
                 'phone' => '(11) 99999-9999',
-                'password' => Hash::make('123456')
+                'password' => Hash::make('Senha@2026')
             ]
         );
 
@@ -35,7 +36,7 @@ class StoreDemoDataSeeder extends Seeder
             ],
             [
                 'name' => 'Administrador Malu Store',
-                'password' => Hash::make('123456'),
+                'password' => Hash::make('Senha@2026'),
                 'role' => 'superadmin',
                 'is_active' => true
             ]
@@ -60,6 +61,11 @@ class StoreDemoDataSeeder extends Seeder
             ]
         );
 
+        Address::updateOrCreate(
+            ['user_id' => $user->id, 'label' => 'Trabalho'],
+            ['recipient_name' => 'test', 'phone' => '(11) 99999-9999', 'street' => 'Avenida Paulista', 'number' => '1000', 'neighborhood' => 'Bela Vista', 'city' => 'São Paulo', 'state' => 'SP', 'cep' => '01310-100', 'is_default' => false]
+        );
+
         $products = Product::with(['images', 'variants'])
             ->where('active', true)
             ->take(4)
@@ -67,6 +73,10 @@ class StoreDemoDataSeeder extends Seeder
 
         if ($products->isEmpty()) {
             return;
+        }
+
+        foreach ($products->take(3) as $product) {
+            Favorite::firstOrCreate(['user_id' => $user->id, 'product_id' => $product->id]);
         }
 
         $statuses = [
