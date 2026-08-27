@@ -42,6 +42,12 @@ resources/views/
 ├── layouts/                 Cabeçalho, rodapé e layouts
 ├── admin/                   Telas do painel administrativo
 └── public/                  Telas da loja
+routes/
+├── public/                  Vitrine, autenticação, cliente e pagamentos
+├── admin/                   Login, dashboard, gestão e operações do painel
+├── api/                     Endpoints de integrações externas
+├── web.php                  Carregador das rotas web por área
+└── api.php                  Carregador das rotas de API por área
 tests/Feature/               Testes dos fluxos de negócio
 ```
 
@@ -54,6 +60,23 @@ tests/Feature/               Testes dos fluxos de negócio
 - **Model:** representa a tabela e seus relacionamentos.
 - **Policy:** centraliza a autorização sobre uma entidade, como pedido ou endereço.
 - **Observer:** aplica regra de persistência automática, como a geração de slugs.
+
+### Rotas
+
+- `routes/web.php` apenas carrega os grupos de rotas da loja e do painel.
+- `routes/public/` concentra vitrine, autenticação do cliente, perfil/carrinho e pagamento.
+- `routes/admin/` concentra autenticação, dashboard, gestão e operações administrativas.
+- `routes/api/` concentra os webhooks de serviços externos.
+
+Os caminhos e nomes de rota permanecem iguais; a divisão organiza somente os arquivos-fonte.
+
+### Front-end e componentes
+
+- `resources/js/app.js` contém apenas inicialização global (Alpine, alertas e bootstrap).
+- Scripts de checkout, produto, dashboard, formulário de produto e pagamentos são entradas Vite próprias e são carregados apenas pelas telas que os utilizam.
+- Pix e boleto compartilham o módulo de consulta de status em `resources/js/payments/shared/`.
+- Componentes Blade encapsulam padrões repetidos, como métricas administrativas e blocos da página de produto.
+- Código JavaScript é ligado por atributos `data-*`; comportamentos novos não dependem de `onclick` nem de funções globais na view.
 
 Não há uma dependência extra para Actions ou DTOs: são classes nativas PHP/Laravel, carregadas pelo autoload `App\`.
 

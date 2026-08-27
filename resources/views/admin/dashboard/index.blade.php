@@ -26,90 +26,26 @@
         </a>
     </div>
 
+    @php
+        $metrics = [
+            ['label' => 'Vendas totais', 'value' => 'R$ ' . number_format($totalSalesOverall, 2, ',', '.'), 'caption' => 'Faturamento geral', 'tone' => 'rose'],
+            ['label' => 'Vendas deste mês', 'value' => 'R$ ' . number_format($salesThisMonth, 2, ',', '.'), 'caption' => now()->locale('pt_BR')->translatedFormat('F')],
+            ['label' => 'Pedidos', 'value' => $totalOrders, 'caption' => 'Todos os pedidos'],
+            ['label' => 'Clientes', 'value' => $totalClients, 'caption' => 'Cadastros ativos'],
+            ['label' => 'Produtos', 'value' => $totalProducts, 'caption' => 'No catálogo'],
+            ['label' => 'Envios realizados', 'value' => $totalShipped, 'caption' => 'Em trânsito ou enviados'],
+        ];
+    @endphp
+
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <article class="rounded-2xl border border-[#eaded9] bg-white p-5 shadow-[0_8px_24px_rgba(76,50,47,0.05)]">
-            <p class="text-sm font-medium text-[#746b68]">
-                Vendas totais
-            </p>
-
-            <p class="mt-3 text-2xl font-bold tracking-tight text-[#2d2928]">
-                R$ {{ number_format($totalSalesOverall, 2, ',', '.') }}
-            </p>
-
-            <span class="mt-4 inline-flex rounded-full bg-[#fdf0f3] px-2.5 py-1 text-xs font-semibold text-[#b85d70]">
-                Faturamento geral
-            </span>
-        </article>
-
-        <article class="rounded-2xl border border-[#eaded9] bg-white p-5 shadow-[0_8px_24px_rgba(76,50,47,0.05)]">
-            <p class="text-sm font-medium text-[#746b68]">
-                Vendas deste mês
-            </p>
-
-            <p class="mt-3 text-2xl font-bold tracking-tight text-[#2d2928]">
-                R$ {{ number_format($salesThisMonth, 2, ',', '.') }}
-            </p>
-
-            <span class="mt-4 inline-flex rounded-full bg-[#f8f3f1] px-2.5 py-1 text-xs font-semibold text-[#746b68]">
-                {{ now()->locale('pt_BR')->translatedFormat('F') }}
-            </span>
-        </article>
-
-        <article class="rounded-2xl border border-[#eaded9] bg-white p-5 shadow-[0_8px_24px_rgba(76,50,47,0.05)]">
-            <p class="text-sm font-medium text-[#746b68]">
-                Pedidos
-            </p>
-
-            <p class="mt-3 text-2xl font-bold tracking-tight text-[#2d2928]">
-                {{ $totalOrders }}
-            </p>
-
-            <span class="mt-4 inline-flex rounded-full bg-[#f8f3f1] px-2.5 py-1 text-xs font-semibold text-[#746b68]">
-                Todos os pedidos
-            </span>
-        </article>
-
-        <article class="rounded-2xl border border-[#eaded9] bg-white p-5 shadow-[0_8px_24px_rgba(76,50,47,0.05)]">
-            <p class="text-sm font-medium text-[#746b68]">
-                Clientes
-            </p>
-
-            <p class="mt-3 text-2xl font-bold tracking-tight text-[#2d2928]">
-                {{ $totalClients }}
-            </p>
-
-            <span class="mt-4 inline-flex rounded-full bg-[#f8f3f1] px-2.5 py-1 text-xs font-semibold text-[#746b68]">
-                Cadastros ativos
-            </span>
-        </article>
-
-        <article class="rounded-2xl border border-[#eaded9] bg-white p-5 shadow-[0_8px_24px_rgba(76,50,47,0.05)]">
-            <p class="text-sm font-medium text-[#746b68]">
-                Produtos
-            </p>
-
-            <p class="mt-3 text-2xl font-bold tracking-tight text-[#2d2928]">
-                {{ $totalProducts }}
-            </p>
-
-            <span class="mt-4 inline-flex rounded-full bg-[#f8f3f1] px-2.5 py-1 text-xs font-semibold text-[#746b68]">
-                No catálogo
-            </span>
-        </article>
-
-        <article class="rounded-2xl border border-[#eaded9] bg-white p-5 shadow-[0_8px_24px_rgba(76,50,47,0.05)]">
-            <p class="text-sm font-medium text-[#746b68]">
-                Envios realizados
-            </p>
-
-            <p class="mt-3 text-2xl font-bold tracking-tight text-[#2d2928]">
-                {{ $totalShipped }}
-            </p>
-
-            <span class="mt-4 inline-flex rounded-full bg-[#f8f3f1] px-2.5 py-1 text-xs font-semibold text-[#746b68]">
-                Em trânsito ou enviados
-            </span>
-        </article>
+        @foreach ($metrics as $metric)
+            <x-admin.metric-card
+                :label="$metric['label']"
+                :value="$metric['value']"
+                :caption="$metric['caption']"
+                :tone="$metric['tone'] ?? 'neutral'"
+            />
+        @endforeach
     </div>
 
     <div class="mt-4 grid gap-4 sm:grid-cols-3">
@@ -239,4 +175,6 @@
             sales: @json($sales),
         };
     </script>
+
+    @vite('resources/js/dashboard/index.js')
 @endsection

@@ -1,108 +1,38 @@
 export function initPixCopy() {
+    const codeElement = document.getElementById('pixCode');
+    const button = document.querySelector('[data-copy-pix]');
 
-    const pixCodeElement =
-        document.getElementById('pixCode');
+    if (!codeElement || !button) {
+        return;
+    }
 
-    window.copiarPix = async function () {
+    button.addEventListener('click', async () => {
+        const code = codeElement.value.trim();
 
-        if (!pixCodeElement) {
-
-            alert(
-                'Código PIX não encontrado.'
-            );
-
-            return;
-        }
-
-        const pixCode =
-            pixCodeElement.value.trim();
-
-        if (!pixCode) {
-
-            alert(
-                'Código PIX não encontrado.'
-            );
-
+        if (!code) {
+            window.alert('Código Pix não encontrado.');
             return;
         }
 
         try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(code);
+            } else {
+                codeElement.focus();
+                codeElement.select();
+                codeElement.setSelectionRange(0, code.length);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Clipboard API
-            |--------------------------------------------------------------------------
-            */
-
-            if (
-                navigator.clipboard &&
-                window.isSecureContext
-            ) {
-
-                await navigator.clipboard.writeText(
-                    pixCode
-                );
-
-                alert(
-                    'Código PIX copiado!'
-                );
-
-                return;
+                if (!document.execCommand('copy')) {
+                    throw new Error('Não foi possível copiar o código Pix.');
+                }
             }
 
-            /*
-            |--------------------------------------------------------------------------
-            | Fallback
-            |--------------------------------------------------------------------------
-            */
-
-            pixCodeElement.focus();
-
-            pixCodeElement.select();
-
-            pixCodeElement.setSelectionRange(
-                0,
-                pixCode.length
-            );
-
-            const copied =
-                document.execCommand('copy');
-
-            if (!copied) {
-
-                throw new Error(
-                    'Não foi possível copiar o código PIX.'
-                );
-
-            }
-
-            alert(
-                'Código PIX copiado!'
-            );
-
+            window.alert('Código Pix copiado.');
         } catch (error) {
-
-            console.error(
-                'Erro ao copiar código PIX:',
-                error
-            );
-
-            pixCodeElement.focus();
-
-            pixCodeElement.select();
-
-            pixCodeElement.setSelectionRange(
-                0,
-                pixCodeElement.value.length
-            );
-
-            alert(
-                'Não foi possível copiar automaticamente. ' +
-                'O código PIX foi selecionado. ' +
-                'Pressione Ctrl+C para copiar.'
-            );
-
+            console.error('Não foi possível copiar o código Pix.', error);
+            codeElement.focus();
+            codeElement.select();
+            window.alert('Não foi possível copiar automaticamente. Pressione Ctrl+C para copiar.');
         }
-
-    };
+    });
 }
