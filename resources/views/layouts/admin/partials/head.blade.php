@@ -11,7 +11,7 @@
     <link
         rel="alternate icon"
         type="image/x-icon"
-        href="{{ asset('favicon.ico') }}?v=2"
+        href="{{ asset('favicon.ico') }}?v=3"
     >
 
     <title>@yield('title') | Admin</title>
