@@ -8,6 +8,7 @@ Checklist para publicar uma cópia de demonstração ou uma versão de produçã
 - Instale dependências PHP com `composer install --no-dev --optimize-autoloader`.
 - Envie os arquivos compilados de `public/build` ou execute `npm run build` antes do deploy.
 - Envie também `storage/app/public/products` para preservar as fotos do catálogo.
+- Configure o domínio da hospedagem para servir a pasta `public`, nunca a raiz inteira do projeto.
 
 ## Banco de demonstração
 
@@ -21,13 +22,24 @@ php artisan optimize:clear
 
 O comando cria a estrutura e insere categorias, produtos, imagens cadastradas, contas e pedidos de demonstração. As imagens continuam dependendo dos arquivos enviados para `storage/app/public/products`.
 
+## Arquivos públicos e SEO
+
+- Mantenha `public/build` junto do deploy (ou execute `npm run build` antes de enviar os arquivos).
+- O link `public/storage` é criado pelo `storage:link`; ele deve apontar para `storage/app/public`. Se o projeto for movido de pasta ou de servidor, recrie esse link com esse comando.
+- O ícone público da loja é `public/favicon.svg`; ele é carregado pelos layouts público, de pagamento e administrativo.
+- Não envie `public/hot` para produção. Esse arquivo é criado somente pelo Vite em desenvolvimento e faz o Laravel procurar os assets no servidor local.
+- Após cadastrar ou alterar o catálogo em produção, gere o sitemap com `php artisan sitemap:generate`. O comando usa o `APP_URL` do ambiente, por isso essa variável deve conter o domínio HTTPS definitivo antes de executá-lo.
+
 ## Atualização de produção com dados reais
 
 Não use `migrate:fresh`. Execute apenas migrations novas:
 
 ```bash
 php artisan migrate --force
+php artisan storage:link
 php artisan optimize:clear
+php artisan config:cache
+php artisan sitemap:generate
 ```
 
 ## Fila e webhooks

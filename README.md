@@ -9,7 +9,7 @@ O projeto foi desenvolvido utilizando Laravel seguindo boas práticas de organiz
 
 ## Documentação técnica
 
-O funcionamento do catálogo, carrinho, checkout, pagamentos, webhooks, banco de dados, dados de demonstração e testes está documentado em [docs/ARQUITETURA.md](docs/ARQUITETURA.md). Consulte também [autenticação](docs/AUTENTICACAO.md) e [implantação](docs/IMPLANTACAO.md).
+O funcionamento do catálogo, carrinho, checkout, pagamentos, webhooks, banco de dados, dados de demonstração e testes está documentado em [docs/ARQUITETURA.md](docs/ARQUITETURA.md). Consulte o [índice da documentação](docs/README.md) para escolher o guia certo para cada tarefa.
 
 ## Funcionalidades
 
@@ -63,7 +63,7 @@ O funcionamento do catálogo, carrinho, checkout, pagamentos, webhooks, banco de
 ## Estrutura do Projeto
 
 ```text
-malu_store/
+malu-store/
 ├── app/
 ├── bootstrap/
 ├── config/
@@ -93,13 +93,13 @@ malu_store/
 Clone o projeto:
 
 ```bash
-git clone https://github.com/Danjoli/malu_store
+git clone https://github.com/Danjoli/malu-store.git
 ```
 
 Entre na pasta do projeto:
 
 ```bash
-cd malu_store
+cd malu-store
 ```
 
 Instale as dependências PHP:
