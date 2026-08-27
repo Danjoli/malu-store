@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Admin\Shipments;
 
+use App\Enums\ShipmentStatus;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateShipmentRequest extends FormRequest
 {
@@ -15,7 +17,7 @@ class UpdateShipmentRequest extends FormRequest
     {
         return [
             'tracking_code' => ['nullable', 'string', 'max:255'],
-            'status' => ['required', 'string', 'max:50'],
+            'status' => ['required', Rule::enum(ShipmentStatus::class)],
         ];
     }
 

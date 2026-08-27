@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\OrderStatus;
+use App\Enums\ShipmentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -19,30 +20,27 @@ class DashboardController extends Controller
 
         // Total de envios realizados
         $totalShipped = Order::whereHas('shipment', function ($query) {
-            $query->where('status', 'shipped');
+            $query->where('status', ShipmentStatus::Shipped->value);
         })->count();
 
         // Total geral de vendas
         $totalSalesOverall = Order::sum('total');
 
-        $salesThisMonth = Order::where('status', 'paid')
+        $salesThisMonth = Order::where('status', OrderStatus::Paid->value)
             ->whereYear('created_at', now()->year)
             ->whereMonth('created_at', now()->month)
             ->sum('total');
 
-        $pendingOrders = Order::whereIn('status', ['pending', 'pending_payment'])->count();
-        $paidOrders = Order::where('status', 'paid')->count();
+        $pendingOrders = Order::whereIn('status', [OrderStatus::Pending->value, OrderStatus::PendingPayment->value])->count();
+        $paidOrders = Order::where('status', OrderStatus::Paid->value)->count();
         $lowStockProducts = Product::whereHas('variants', fn ($query) => $query->where('stock', '<=', 5))->count();
 
         // Vendas mensais (últimos 12 meses)
-        $salesData = Order::select(
-            DB::raw('MONTH(created_at) as month'),
-            DB::raw('SUM(total) as total')
-        )
+        $salesData = Order::query()
             ->whereYear('created_at', now()->year)
-            ->groupBy('month')
-            ->orderBy('month')
-            ->pluck('total', 'month');
+            ->get(['created_at', 'total'])
+            ->groupBy(fn (Order $order) => $order->created_at->month)
+            ->map(fn ($orders) => $orders->sum('total'));
 
         $months = [];
         $sales = [];

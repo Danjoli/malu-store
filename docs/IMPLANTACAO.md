@@ -68,10 +68,15 @@ php artisan sitemap:generate
 Como o webhook do Asaas e a geração de etiquetas são colocados na fila `database`, mantenha um worker ativo:
 
 ```bash
-php artisan queue:work --tries=3
+php artisan queue:work --tries=3 --timeout=120 --sleep=3
 ```
 
-Configure esse processo pelo recurso de processos/cron da hospedagem de acordo com o plano contratado. Sem worker, webhooks entram na tabela `jobs`, mas não são processados.
+Configure esse processo pelo recurso de processos/cron da hospedagem de acordo com o plano contratado. O worker usa até três tentativas e 120 segundos por Job. Sem worker, webhooks e etiquetas entram na tabela `jobs`, mas não são processados. Consulte e repita trabalhos que falharam somente depois de investigar:
+
+```bash
+php artisan queue:failed
+php artisan queue:retry all
+```
 
 ## Ambientes das APIs: sandbox e produção
 

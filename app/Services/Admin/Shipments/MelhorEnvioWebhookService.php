@@ -28,7 +28,7 @@ class MelhorEnvioWebhookService
         }
 
         $shipment->update([
-            'status' => $this->statusMapper->fromProvider($data['status'] ?? null) ?? $shipment->status,
+            'status' => $this->statusMapper->fromProvider($data['status'] ?? null)?->value ?? $shipment->status,
             'tracking_code' => $data['tracking'] ?? $shipment->tracking_code,
             'label_url' => $data['label'] ?? $shipment->label_url,
             'last_update' => json_encode($data),
