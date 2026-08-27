@@ -22,7 +22,7 @@ class PaymentService
      */
     public function method(int $orderId)
     {
-        $order = Order::findOrFail($orderId);
+        $order = $this->ownedOrder($orderId);
 
         return view('public.payments.index', compact('order'));
     }
@@ -32,7 +32,7 @@ class PaymentService
      */
     public function pix(int $orderId)
     {
-        $order = Order::findOrFail($orderId);
+        $order = $this->ownedOrder($orderId);
 
         $result = $this->createPixPayment->execute($order);
 
@@ -50,7 +50,7 @@ class PaymentService
      */
     public function boleto(int $orderId)
     {
-        $order = Order::findOrFail($orderId);
+        $order = $this->ownedOrder($orderId);
 
         $payment = $this->createBoletoPayment->execute($order);
 
@@ -76,7 +76,7 @@ class PaymentService
      */
     public function cardView(int $orderId)
     {
-        $order = Order::findOrFail($orderId);
+        $order = $this->ownedOrder($orderId);
 
         return view('public.payments.methods.card.index', compact('order'));
     }
@@ -86,7 +86,7 @@ class PaymentService
      */
     public function card(ProcessCardPaymentRequest $request, int $orderId)
     {
-        $order = Order::findOrFail($orderId);
+        $order = $this->ownedOrder($orderId);
 
         try {
 
@@ -131,7 +131,7 @@ class PaymentService
      */
     public function success(int $orderId)
     {
-        $order = Order::findOrFail($orderId);
+        $order = $this->ownedOrder($orderId);
 
         return view('public.payments.result.success', compact('order'));
     }
@@ -141,7 +141,7 @@ class PaymentService
      */
     public function error(int $orderId)
     {
-        $order = Order::findOrFail($orderId);
+        $order = $this->ownedOrder($orderId);
 
         return view('public.payments.result.error', compact('order'));
     }
@@ -151,11 +151,21 @@ class PaymentService
      */
     public function status(int $orderId)
     {
-        $order = Order::findOrFail($orderId);
+        $order = $this->ownedOrder($orderId);
 
         return response()->json([
             'status' => $order->status,
             'gateway_status' => $order->gateway_status,
         ]);
+    }
+
+    /**
+     * Resolve um pedido somente quando ele pertence ao cliente autenticado.
+     */
+    private function ownedOrder(int $orderId): Order
+    {
+        return Order::query()
+            ->where('user_id', auth()->id())
+            ->findOrFail($orderId);
     }
 }

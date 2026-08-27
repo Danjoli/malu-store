@@ -6,6 +6,7 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class CartService
 {
@@ -39,6 +40,14 @@ class CartService
             ->where('product_variant_id', $variant->id)
             ->first();
 
+        $requestedQuantity = ($item?->quantity ?? 0) + $quantity;
+
+        if ($requestedQuantity > $variant->stock) {
+            throw ValidationException::withMessages([
+                'quantity' => 'A quantidade solicitada não está disponível em estoque.',
+            ]);
+        }
+
         if ($item) {
             $item->increment('quantity', $quantity);
 
@@ -64,6 +73,14 @@ class CartService
         $cart = $this->getCart();
 
         $item = $cart->items()->where('id', $itemId)->firstOrFail();
+
+        $item->loadMissing('variant');
+
+        if (! $item->variant || $quantity > $item->variant->stock) {
+            throw ValidationException::withMessages([
+                'quantity' => 'A quantidade solicitada não está disponível em estoque.',
+            ]);
+        }
 
         $item->update([
             'quantity' => $quantity,

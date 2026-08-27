@@ -23,20 +23,20 @@ Route::resource('clients', ClientController::class)
     ->middleware("admin.role:{$superAdmin}");
 
 Route::resource('categories', CategoryController::class)
-    ->only(['index', 'show', 'update', 'destroy'])
-    ->middleware($managementRoles);
+    ->only(['create', 'store', 'edit'])
+    ->middleware("admin.role:{$superAdmin}");
 
 Route::resource('categories', CategoryController::class)
-    ->only(['create', 'store', 'edit'])
-    ->middleware("admin.role:{$superAdmin}");
-
-Route::resource('products', ProductController::class)
     ->only(['index', 'show', 'update', 'destroy'])
     ->middleware($managementRoles);
 
 Route::resource('products', ProductController::class)
     ->only(['create', 'store', 'edit'])
     ->middleware("admin.role:{$superAdmin}");
+
+Route::resource('products', ProductController::class)
+    ->only(['index', 'show', 'update', 'destroy'])
+    ->middleware($managementRoles);
 
 Route::put('products/{product}/images', [ProductController::class, 'updateImages'])
     ->middleware($managementRoles)

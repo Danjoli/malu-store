@@ -34,9 +34,10 @@ class AppServiceProvider extends ServiceProvider
             $cartItemCount = 0;
             $favoritesCount = 0;
 
-            if (Auth::check()) {
+            // O cabeçalho público sempre usa o guard do cliente, inclusive nas páginas de erro.
+            if (Auth::guard('web')->check()) {
                 /** @var User $user */
-                $user = Auth::user();
+                $user = Auth::guard('web')->user();
 
                 $cartItemCount = (int) Cart::where('user_id', $user->id)
                     ->where('status', 'active')

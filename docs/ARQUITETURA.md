@@ -284,13 +284,20 @@ Cobertura atual:
 - home responde corretamente;
 - checkout cria endereço, pedido, itens e envio;
 - carrinho adiciona, atualiza e remove item;
+- carrinho bloqueia quantidade superior ao estoque e alterações em itens de outro cliente;
 - favoritos adicionam e removem produto;
 - webhook recebido baixa o estoque somente uma vez e limpa o carrinho.
 - rotas de cliente exigem autenticação e pedidos não podem ser acessados por outro usuário.
+- rotas de pagamento pertencem exclusivamente ao cliente do pedido, inclusive status e resultado;
+- cadastro e tentativa de login inválida de cliente são validados;
+- o painel administrativo exige autenticação e respeita os papéis de suporte e super administrador;
 - catálogo filtra busca/categoria e oculta produtos inativos ou sem estoque.
 - galeria de produto substitui imagens antigas sem manter arquivos órfãos.
 - slugs de categorias e produtos são únicos e as URLs antigas de produto redirecionam corretamente;
 - status de envio do provedor é convertido em um único ponto de mapeamento.
+
+Os testes de unidade ficam reservados para regras puras e rápidas, como o mapeamento de
+status de envio. Os testes de integração e interface HTTP permanecem em `tests/Feature`.
 
 ## Observabilidade
 
