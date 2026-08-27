@@ -118,12 +118,6 @@ export function initCardPayment() {
                     await response.json();
 
 
-                console.log(
-                    'Resposta do servidor:',
-                    data
-                );
-
-
                 /*
                 |--------------------------------------------------------------------------
                 | ERROS HTTP

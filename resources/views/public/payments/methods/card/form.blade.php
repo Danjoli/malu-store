@@ -16,6 +16,8 @@
             id="card_number"
             name="card_number"
             maxlength="19"
+            inputmode="numeric"
+            autocomplete="cc-number"
             placeholder="0000 0000 0000 0000"
             class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
             required
@@ -32,24 +34,8 @@
             type="text"
             id="holder_name"
             name="holder_name"
+            autocomplete="cc-name"
             placeholder="Nome como aparece no cartão"
-            class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
-            required
-        >
-    </div>
-
-    {{-- CPF --}}
-    <div class="mb-4">
-        <label for="cpf" class="mb-2 block text-sm font-semibold text-[#443d3b]">
-            CPF do titular
-        </label>
-
-        <input
-            type="text"
-            id="cpf"
-            name="cpf"
-            maxlength="14"
-            placeholder="000.000.000-00"
             class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
             required
         >
@@ -65,6 +51,7 @@
             <select
                 id="expiration_month"
                 name="expiration_month"
+                autocomplete="cc-exp-month"
                 class="w-full rounded-xl border border-[#ded4d0] bg-white px-4 py-3 text-sm outline-none focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
                 required
             >
@@ -86,6 +73,7 @@
             <select
                 id="expiration_year"
                 name="expiration_year"
+                autocomplete="cc-exp-year"
                 class="w-full rounded-xl border border-[#ded4d0] bg-white px-4 py-3 text-sm outline-none focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
                 required
             >
@@ -111,6 +99,8 @@
             id="ccv"
             name="ccv"
             maxlength="4"
+            inputmode="numeric"
+            autocomplete="cc-csc"
             placeholder="123"
             class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
             required

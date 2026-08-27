@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\AdminRole;
+use App\Http\Middleware\RedirectAuthenticatedUser;
+use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -25,9 +28,12 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $middleware->alias([
-            'admin.role' => \App\Http\Middleware\AdminRole::class,
-            'redirect.authenticated' => \App\Http\Middleware\RedirectAuthenticatedUser::class,
+            'admin.role' => AdminRole::class,
+            'redirect.authenticated' => RedirectAuthenticatedUser::class,
         ]);
+
+        $middleware->appendToGroup('web', SecurityHeaders::class);
+        $middleware->appendToGroup('api', SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {

@@ -82,6 +82,7 @@ return [
         'environment' => $melhorEnvioEnvironment,
         ...$melhorEnvioProfiles[$melhorEnvioEnvironment],
         'origin_zip' => env('MELHOR_ENVIO_ORIGIN_ZIP'),
+        'webhook_secret' => env('MELHOR_ENVIO_WEBHOOK_SECRET'),
         'sender' => [
             'name' => env('MELHOR_ENVIO_SENDER_NAME'),
             'phone' => env('MELHOR_ENVIO_SENDER_PHONE'),

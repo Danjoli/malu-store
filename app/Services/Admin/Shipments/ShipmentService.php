@@ -14,6 +14,7 @@ use App\Exceptions\Domain\ShippingServiceNotFoundException;
 use App\Models\Shipment;
 use App\Services\Shipping\MelhorEnvioService;
 use App\Services\Shipping\ShipmentStatusMapper;
+use Illuminate\Support\Arr;
 
 class ShipmentService
 {
@@ -80,7 +81,7 @@ class ShipmentService
             'tracking_code' => $trackingData['tracking'] ?? null,
             'label_url' => $print['url'] ?? null,
             'status' => ShipmentStatus::WaitingPost->value,
-            'last_update' => json_encode($trackingData),
+            'last_update' => $this->snapshot($trackingData),
         ]);
     }
 
@@ -103,7 +104,7 @@ class ShipmentService
             'label_url' => $shipment->label_url,
             'shipped_at' => $apiStatus === 'posted' ? now() : $shipment->shipped_at,
             'delivered_at' => $apiStatus === 'delivered' ? now() : $shipment->delivered_at,
-            'last_update' => json_encode($trackingData),
+            'last_update' => $this->snapshot($trackingData),
         ]);
     }
 
@@ -182,5 +183,17 @@ class ShipmentService
             'state_abbr' => strtoupper($sender['state_abbr']),
             'postal_code' => preg_replace('/\D/', '', $postalCode),
         ];
+    }
+
+    /** @param array<string, mixed> $data */
+    private function snapshot(array $data): ?string
+    {
+        return json_encode(Arr::only($data, [
+            'id',
+            'status',
+            'tracking',
+            'label',
+            'updated_at',
+        ])) ?: null;
     }
 }
