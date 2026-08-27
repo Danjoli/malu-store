@@ -1,0 +1,21 @@
+{
+    "files.associations": {
+        "*.blade.php": "blade"
+    },
+    "editor.rulers": [
+        120
+    ],
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "files.exclude": {
+        "**/.phpunit.result.cache": true,
+        "**/bootstrap/cache/*.php": true,
+        "**/storage/framework/views": true
+    },
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/vendor": true,
+        "**/public/build": true,
+        "**/storage/framework": true
+    }
+}
