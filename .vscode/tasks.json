@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Malu Store: iniciar ambiente",
+            "type": "shell",
+            "command": "composer dev",
+            "isBackground": true,
+            "problemMatcher": []
+        },
+        {
+            "label": "Malu Store: testes",
+            "type": "shell",
+            "command": "composer test",
+            "group": "test",
+            "problemMatcher": []
+        },
+        {
+            "label": "Malu Store: formatar PHP",
+            "type": "shell",
+            "command": "vendor/bin/pint",
+            "problemMatcher": []
+        }
+    ]
+}

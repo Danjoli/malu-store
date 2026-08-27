@@ -47,7 +47,7 @@ O comando cria a estrutura e insere categorias, produtos, imagens cadastradas, c
 
 - Mantenha `public/build` junto do deploy (ou execute `npm run build` antes de enviar os arquivos).
 - O link `public/storage` é criado pelo `storage:link`; ele deve apontar para `storage/app/public`. Se o projeto for movido de pasta ou de servidor, recrie esse link com esse comando.
-- O ícone público da loja é `public/favicon.svg`; ele é carregado pelos layouts público, de pagamento e administrativo.
+- O ícone público principal é `public/favicon.svg`; `public/favicon.ico` é o fallback de compatibilidade para navegadores e atalhos antigos. Ambos são carregados pelos layouts público, de pagamento e administrativo.
 - Não envie `public/hot` para produção. Esse arquivo é criado somente pelo Vite em desenvolvimento e faz o Laravel procurar os assets no servidor local.
 - Após cadastrar ou alterar o catálogo em produção, gere o sitemap com `php artisan sitemap:generate`. O comando usa o `APP_URL` do ambiente, por isso essa variável deve conter o domínio HTTPS definitivo antes de executá-lo.
 

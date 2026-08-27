@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "bmewburn.vscode-intelephense-client",
+        "xdebug.php-debug",
+        "onecentlin.laravel-blade",
+        "shufo.vscode-blade-formatter",
+        "mikestead.dotenv"
+    ]
+}

@@ -9,6 +9,11 @@
         type="image/svg+xml"
         href="{{ asset('favicon.svg') }}?v=2"
     >
+    <link
+        rel="alternate icon"
+        type="image/x-icon"
+        href="{{ asset('favicon.ico') }}?v=3"
+    >
 
     <title>@yield('title') - Malu Store</title>
 

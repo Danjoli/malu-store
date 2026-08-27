@@ -22,7 +22,7 @@
         ];
     }
 
-    $validationErrors = $errors?->any()
+    $validationErrors = isset($errors) && $errors->any()
         ? $errors->all()
         : [];
 @endphp
