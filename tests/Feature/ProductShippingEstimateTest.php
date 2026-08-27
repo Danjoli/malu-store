@@ -16,9 +16,9 @@ class ProductShippingEstimateTest extends TestCase
         $product = Product::factory()->create(['price' => 129.90]);
 
         config([
-            'shipping.origin_zip' => '01001000',
             'services.melhor_envio.url' => 'https://shipping.example/',
             'services.melhor_envio.token' => 'test-token',
+            'services.melhor_envio.origin_zip' => '01001000',
         ]);
         Http::fake([
             'https://shipping.example/shipment/calculate' => Http::response([
@@ -38,5 +38,7 @@ class ProductShippingEstimateTest extends TestCase
             ->assertOk()
             ->assertJsonPath('0.name', 'PAC')
             ->assertJsonPath('0.price', 19.90);
+
+        Http::assertSent(fn ($request) => $request['from']['postal_code'] === '01001000');
     }
 }

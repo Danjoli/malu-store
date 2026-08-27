@@ -216,6 +216,12 @@ Detalhes:
 
 Os dados sensíveis e URL da API devem permanecer no `.env`; nunca devem ser enviados ao repositório público.
 
+### Ambientes das integrações
+
+Asaas e Melhor Envio usam uma configuração por perfil. O ambiente ativo é definido independentemente por `ASAAS_ENV` e `MELHOR_ENVIO_ENV`, aceitando somente `sandbox` ou `production`. Cada perfil possui credenciais e URL próprias; assim, mudar de ambiente não exige comentar ou descomentar variáveis.
+
+`MELHOR_ENVIO_ORIGIN_ZIP` é o CEP de origem usado nas cotações e pertence à configuração do Melhor Envio. A aplicação também envia `User-Agent` configurável para Asaas e Melhor Envio, como exigido pelas integrações.
+
 ## Webhook do Asaas e estoque
 
 O endpoint recebe eventos em `routes/api.php`. A estrutura é:
@@ -266,6 +272,12 @@ Execute todos os testes:
 ```bash
 php artisan test
 ```
+
+O `phpunit.xml` define um ambiente isolado para a suíte: banco SQLite em memória,
+fila, cache e sessão em memória e e-mails simulados. A classe-base dos testes reforça
+o SQLite mesmo que exista um `config:cache` local, portanto os testes não usam nem
+alteram o banco de desenvolvimento. Avisos e testes considerados arriscados também
+fazem a suíte falhar para evitar falsos positivos.
 
 Cobertura atual:
 

@@ -40,6 +40,40 @@ php artisan queue:work --tries=3
 
 Configure esse processo pelo recurso de processos/cron da hospedagem de acordo com o plano contratado. Sem worker, webhooks entram na tabela `jobs`, mas não são processados.
 
+## Ambientes das APIs: sandbox e produção
+
+As integrações não usam mais uma URL que precisa ser comentada e trocada manualmente. Cada serviço possui um seletor de ambiente e credenciais próprias. Defina os dois seletores como `sandbox` durante os testes e, somente após homologar todos os fluxos, altere ambos para `production`.
+
+```env
+ASAAS_ENV=sandbox
+MELHOR_ENVIO_ENV=sandbox
+MELHOR_ENVIO_ORIGIN_ZIP=01001000
+```
+
+Preencha as chaves do ambiente correspondente no `.env`, sem versioná-las:
+
+```env
+ASAAS_SANDBOX_API_KEY=
+ASAAS_SANDBOX_WEBHOOK_TOKEN=
+ASAAS_PRODUCTION_API_KEY=
+ASAAS_PRODUCTION_WEBHOOK_TOKEN=
+
+MELHOR_ENVIO_SANDBOX_TOKEN=
+MELHOR_ENVIO_PRODUCTION_TOKEN=
+MELHOR_ENVIO_USER_AGENT="Malu Store (suporte@sua-loja.com)"
+```
+
+As URLs padrão já são fornecidas pelo `config/services.php`: Asaas usa `https://api-sandbox.asaas.com/v3` no sandbox e `https://api.asaas.com/v3` em produção; Melhor Envio usa o endpoint `/api/v2/me/` correspondente ao ambiente. Só altere as variáveis `*_BASE_URL` se a documentação oficial do fornecedor mudar.
+
+Antes de mudar para produção, configure os webhooks e os tokens de produção nos dois fornecedores. Depois da alteração, recrie o cache de configuração:
+
+```bash
+php artisan optimize:clear
+php artisan config:cache
+```
+
+> Não misture chave sandbox com URL de produção, nem chave de produção com URL sandbox. O Asaas mantém credenciais e dados totalmente separados por ambiente; o Melhor Envio também utiliza tokens distintos.
+
 ## Alertas por e-mail (opcional)
 
 O projeto já registra falhas críticas de checkout, pagamentos, frete e webhook em `storage/logs/laravel.log`. O envio de alertas por e-mail não é ativado automaticamente: essa decisão depende do e-mail remetente e do destinatário aprovados para produção.

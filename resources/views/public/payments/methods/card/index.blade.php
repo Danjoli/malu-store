@@ -26,3 +26,13 @@
         </div>
     </div>
 @endsection
+
+@push('payment-scripts')
+    <script>
+        window.CARD_PAYMENT_URL = @json(route('payment.card.process', $order->id));
+        window.CARD_SUCCESS_URL = @json(route('payment.success', $order->id));
+        window.CARD_ERROR_URL = @json(route('payment.error', $order->id));
+    </script>
+
+    @vite('resources/js/payments/card/index.js')
+@endpush
