@@ -2,6 +2,7 @@
 
 namespace App\Actions\Payment;
 
+use App\Exceptions\Domain\PaymentGatewayException;
 use App\Models\Order;
 use App\Services\OperationalAlertService;
 use App\Services\Public\Payment\AsaasService;
@@ -26,8 +27,8 @@ class ProcessCardPaymentAction
 
             return $payment;
         } catch (Throwable $exception) {
-            // Recusa do cartão é uma resposta esperada, não um alerta operacional.
-            if (! str_contains($exception->getMessage(), 'invalid_action')) {
+            // Recusa de cartão é esperada; indisponibilidade do gateway merece alerta operacional.
+            if (! $exception instanceof PaymentGatewayException || $exception->isOperational) {
                 $this->alerts->critical('Falha ao processar pagamento com cartão.', [
                     'Pedido' => $order->id,
                     'Tipo de erro' => $exception::class,

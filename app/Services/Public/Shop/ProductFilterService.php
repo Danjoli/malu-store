@@ -3,11 +3,17 @@
 namespace App\Services\Public\Shop;
 
 use App\Models\Product;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class ProductFilterService
 {
-    public function filter(Request $request)
+    /**
+     * Centraliza os filtros usados pela home e pelo catálogo público.
+     *
+     * @return Builder<Product>
+     */
+    public function query(Request $request): Builder
     {
         $query = Product::with(['category', 'images', 'variants'])
             ->where('active', 1)
@@ -52,6 +58,11 @@ class ProductFilterService
             });
         }
 
-        return $query->get();
+        return $query;
+    }
+
+    public function filter(Request $request)
+    {
+        return $this->query($request)->get();
     }
 }

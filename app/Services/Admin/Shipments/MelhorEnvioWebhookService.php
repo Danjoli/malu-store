@@ -12,7 +12,10 @@ class MelhorEnvioWebhookService
 
     public function handleMelhorEnvio(array $data): void
     {
-        Log::info('Webhook Melhor Envio', $data);
+        Log::info('Webhook Melhor Envio recebido.', [
+            'shipment_id' => $data['id'] ?? null,
+            'status' => $data['status'] ?? null,
+        ]);
 
         if (! isset($data['id'])) {
             return;

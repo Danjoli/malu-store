@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OrderItem extends Model
 {
@@ -26,30 +27,24 @@ class OrderItem extends Model
     |--------------------------------------------------------------------------
     */
 
-    // Item pertence a um pedido
-    public function order()
+    protected function casts(): array
+    {
+        return [
+            'price' => 'decimal:2',
+        ];
+    }
+
+    public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
     }
 
-    // Item pertence a uma variante de produto
-    public function variant()
+    public function variant(): BelongsTo
     {
         return $this->belongsTo(ProductVariant::class, 'product_variant_id');
     }
 
-    public function product()
-    {
-        return $this->belongsTo(Product::class);
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Acessor
-    |--------------------------------------------------------------------------
-    */
-
-    public function getTotalAttribute()
+    public function getTotalAttribute(): float
     {
         return $this->price * $this->quantity;
     }

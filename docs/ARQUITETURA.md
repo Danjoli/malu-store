@@ -63,6 +63,16 @@ tests/Feature/               Testes dos fluxos de negócio
 - **Policy:** centraliza a autorização sobre uma entidade, como pedido ou endereço.
 - **Observer:** aplica regra de persistência automática, como a geração de slugs.
 
+### Padronização interna
+
+- Modelos usam retornos tipados nos relacionamentos e casts para valores monetários, booleanos e datas.
+- A consulta de produtos fica centralizada em `ProductFilterService`; home e catálogo aplicam a mesma regra de produto ativo e com estoque.
+- Controllers administrativos recebem apenas Form Requests validados; o envio deixou de aceitar dados brutos no `update`.
+- As integrações com Asaas e Melhor Envio registram somente operação e status HTTP. Corpo de resposta de provedores, cartões e dados de clientes não são incluídos em exceções ou logs.
+- O payload de etiqueta usa o snapshot do endereço no pedido, preservando a consistência mesmo que o cliente altere ou remova seu endereço depois da compra.
+
+As rotas `resource` do painel são declaradas somente para métodos realmente implementados nos respectivos controllers. Isso evita endpoints que apontariam para ações inexistentes.
+
 ### Rotas
 
 - `routes/web.php` apenas carrega os grupos de rotas da loja e do painel.

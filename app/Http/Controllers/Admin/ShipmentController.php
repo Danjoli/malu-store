@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Shipments\UpdateShipmentRequest;
 use App\Models\Shipment;
 use App\Services\Admin\Shipments\ShipmentService;
-use Illuminate\Http\Request;
 
 class ShipmentController extends Controller
 {
@@ -27,9 +27,9 @@ class ShipmentController extends Controller
         return view('admin.shipments.edit', compact('shipment'));
     }
 
-    public function update(Request $request, Shipment $shipment)
+    public function update(UpdateShipmentRequest $request, Shipment $shipment)
     {
-        $this->shipmentService->updateShipment($shipment, $request->all());
+        $this->shipmentService->updateShipment($shipment, $request->validated());
 
         return redirect()
             ->route('admin.shipments.index')

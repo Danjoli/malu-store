@@ -4,7 +4,10 @@ namespace App\Services\Public\Payment;
 
 use App\Exceptions\Domain\PaymentGatewayException;
 use App\Models\Order;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class AsaasService
 {
@@ -21,7 +24,7 @@ class AsaasService
     /**
      * Cliente HTTP padrão do Asaas.
      */
-    protected function http()
+    protected function http(): PendingRequest
     {
         return Http::withHeaders([
             'accept' => 'application/json',
@@ -60,12 +63,7 @@ class AsaasService
             ]
         );
 
-        if ($response->failed()) {
-            throw new PaymentGatewayException(
-                'Erro ao criar cliente no Asaas: '.
-                $response->body()
-            );
-        }
+        $this->ensureSuccessful($response, 'customers');
 
         return $response->json();
     }
@@ -125,12 +123,7 @@ class AsaasService
             ]
         );
 
-        if ($response->failed()) {
-            throw new PaymentGatewayException(
-                'Erro ao criar cobrança Pix no Asaas: '.
-                $response->body()
-            );
-        }
+        $this->ensureSuccessful($response, 'payments/pix');
 
         return $response->json();
     }
@@ -144,12 +137,7 @@ class AsaasService
             $this->baseUrl."/payments/{$paymentId}/pixQrCode"
         );
 
-        if ($response->failed()) {
-            throw new PaymentGatewayException(
-                'Erro ao obter QR Code do Pix: '.
-                $response->body()
-            );
-        }
+        $this->ensureSuccessful($response, 'payments/pix-qr-code');
 
         return $response->json();
     }
@@ -173,12 +161,7 @@ class AsaasService
             ]
         );
 
-        if ($response->failed()) {
-            throw new PaymentGatewayException(
-                'Erro ao criar boleto no Asaas: '.
-                $response->body()
-            );
-        }
+        $this->ensureSuccessful($response, 'payments/boleto');
 
         return $response->json();
     }
@@ -274,14 +257,7 @@ class AsaasService
             ]
         );
 
-        if ($response->failed()) {
-
-            throw new PaymentGatewayException(
-                'Erro ao criar pagamento com cartão no Asaas: '.
-                $response->body()
-            );
-
-        }
+        $this->ensureSuccessful($response, 'payments/card');
 
         return $response->json();
     }
@@ -292,14 +268,7 @@ class AsaasService
             $this->baseUrl.'/payments/'.$paymentId
         );
 
-        if ($response->failed()) {
-
-            throw new PaymentGatewayException(
-                'Erro ao consultar pagamento no Asaas: '.
-                $response->body()
-            );
-
-        }
+        $this->ensureSuccessful($response, 'payments/get');
 
         return $response->json();
     }
@@ -310,15 +279,25 @@ class AsaasService
             $this->baseUrl.'/payments/'.$paymentId
         );
 
-        if ($response->failed()) {
-
-            throw new PaymentGatewayException(
-                'Erro ao cancelar pagamento no Asaas: '.
-                $response->body()
-            );
-
-        }
+        $this->ensureSuccessful($response, 'payments/cancel');
 
         return $response->json();
+    }
+
+    private function ensureSuccessful(Response $response, string $operation): void
+    {
+        if ($response->successful()) {
+            return;
+        }
+
+        Log::warning('Falha na comunicação com Asaas.', [
+            'operation' => $operation,
+            'http_status' => $response->status(),
+        ]);
+
+        throw new PaymentGatewayException(
+            'Não foi possível comunicar com o provedor de pagamentos.',
+            ! in_array($response->status(), [400, 402, 422], true),
+        );
     }
 }

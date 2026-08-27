@@ -19,7 +19,7 @@ class ShipmentService
         protected ShipmentStatusMapper $statusMapper,
     ) {}
 
-    public function updateShipment(Shipment $shipment, array $data)
+    public function updateShipment(Shipment $shipment, array $data): void
     {
         if (in_array($shipment->status, ['delivered', 'cancelled'])) {
             throw new ShipmentFinalizedException;
@@ -31,9 +31,9 @@ class ShipmentService
         ]);
     }
 
-    public function generateLabel(int $id)
+    public function generateLabel(int $id): void
     {
-        $shipment = Shipment::with(['order.items', 'order.address', 'order.user'])
+        $shipment = Shipment::with(['order.items', 'order.user'])
             ->findOrFail($id);
 
         if ($shipment->shipment_id) {
@@ -81,7 +81,7 @@ class ShipmentService
         ]);
     }
 
-    public function syncStatus(int $id)
+    public function syncStatus(int $id): void
     {
         $shipment = Shipment::findOrFail($id);
 
@@ -106,6 +106,8 @@ class ShipmentService
 
     private function buildPayload(Shipment $shipment): array
     {
+        $order = $shipment->order;
+
         return [
             'service' => (int) $shipment->service_id,
 
@@ -123,19 +125,20 @@ class ShipmentService
             ],
 
             'to' => [
-                'name' => $shipment->order->address->recipient_name,
-                'phone' => $shipment->order->address->phone,
-                'email' => $shipment->order->user->email,
-                'document' => preg_replace('/\D/', '', $shipment->order->address->cpf),
-                'address' => $shipment->order->address->street,
-                'number' => $shipment->order->address->number,
-                'district' => $shipment->order->address->neighborhood,
-                'city' => $shipment->order->address->city,
-                'state_abbr' => strtoupper($shipment->order->address->state),
-                'postal_code' => preg_replace('/\D/', '', $shipment->order->address->cep),
+                // O pedido guarda um snapshot do endereço para não depender de alterações posteriores.
+                'name' => $order->recipient_name,
+                'phone' => $order->phone,
+                'email' => $order->user->email,
+                'document' => preg_replace('/\D/', '', $order->cpf),
+                'address' => $order->street,
+                'number' => $order->number,
+                'district' => $order->neighborhood,
+                'city' => $order->city,
+                'state_abbr' => strtoupper($order->state),
+                'postal_code' => preg_replace('/\D/', '', $order->cep),
             ],
 
-            'products' => $shipment->order->items->map(function ($item) {
+            'products' => $order->items->map(function ($item) {
                 return [
                     'name' => $item->name_snapshot,
                     'quantity' => $item->quantity,
