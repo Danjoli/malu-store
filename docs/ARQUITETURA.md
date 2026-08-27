@@ -321,6 +321,8 @@ Cobertura atual:
 - galeria de produto substitui imagens antigas sem manter arquivos órfãos.
 - slugs de categorias e produtos são únicos e as URLs antigas de produto redirecionam corretamente;
 - status de envio do provedor é convertido em um único ponto de mapeamento.
+- combinações de variante, ID de cobrança e envio por pedido têm proteção de unicidade no banco;
+- ao remover uma variante, o item de pedido mantém os snapshots do histórico.
 
 Os testes de unidade ficam reservados para regras puras e rápidas, como o mapeamento de
 status de envio. Os testes de integração e interface HTTP permanecem em `tests/Feature`.

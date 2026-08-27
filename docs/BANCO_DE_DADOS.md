@@ -46,6 +46,14 @@ Pedidos armazenam os dados necessários para preservar o histórico: nome, preç
 
 O estoque está em `product_variants.stock`. Ele é baixado apenas quando o webhook confirma o pagamento pela primeira vez.
 
+### Regras de integridade
+
+- Uma variante é única por combinação de `product_id`, `color` e `size`.
+- Um pedido pode ter somente um registro em `shipments`.
+- Um identificador de cobrança do gateway só pode pertencer a um pedido.
+- Se uma variante for removida, itens de pedidos antigos preservam seus snapshots e ficam com `product_variant_id` nulo; o histórico não é apagado.
+- Itens de carrinho continuam ligados à variante e impedem a remoção acidental de uma variante que ainda esteja em um carrinho.
+
 ## Dados de demonstração
 
 O `DatabaseSeeder` chama dois seeders:
@@ -55,7 +63,7 @@ O `DatabaseSeeder` chama dois seeders:
 | `StoreCatalogSeeder` | Categorias, produtos, imagens e variantes. |
 | `StoreDemoDataSeeder` | Cliente, administrador, endereços, pedidos, envios e carrinho de exemplo. |
 
-Para testes de Feature, use `User::factory()->withStoreData()->create()` quando o cenário precisar de um cliente completo. Esse estado cria dois endereços, um favorito, um pedido com item e um envio, sem alterar o comportamento padrão de `User::factory()`.
+Para testes de Feature, use `User::factory()->withStoreData()->create()` quando o cenário precisar de um cliente completo. Esse estado cria dois endereços, um favorito, um produto com galeria, um pedido com item e um envio, sem alterar o comportamento padrão de `User::factory()`.
 
 Em ambiente local ou de demonstração, para recriar tudo do zero:
 

@@ -58,7 +58,7 @@ class UserFactory extends Factory
             $address = Address::factory()->for($user)->create(['is_default' => true]);
             Address::factory()->for($user)->create(['is_default' => false]);
 
-            $product = Product::factory()->create();
+            $product = Product::factory()->withGallery()->create();
             $variant = ProductVariant::factory()->for($product)->create();
 
             Favorite::firstOrCreate(['user_id' => $user->id, 'product_id' => $product->id]);
@@ -88,7 +88,7 @@ class UserFactory extends Factory
                 'order_id' => $order->id,
                 'product_variant_id' => $variant->id,
                 'name_snapshot' => $product->name,
-                'image_snapshot' => '',
+                'image_snapshot' => $product->images->first()->image,
                 'color_snapshot' => $variant->color,
                 'size_snapshot' => $variant->size,
                 'price' => $product->price,
