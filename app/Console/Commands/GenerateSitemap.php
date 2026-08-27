@@ -28,47 +28,48 @@ class GenerateSitemap extends Command
      */
     public function handle()
     {
-        // URLs fixas do site
+        // Mantém somente rotas públicas que existem na aplicação.
         $urls = [
-            url('/'),
-            url('/produtos'),
-            url('/categorias'),
-            url('/sobre'),
-            url('/contato'),
-            url('/policy'),
-            url('/terms'),
-            url('/privacy'),
+            ['loc' => route('home'), 'lastmod' => now()],
+            ['loc' => route('catalog.index'), 'lastmod' => now()],
+            ['loc' => route('policy'), 'lastmod' => now()],
+            ['loc' => route('terms'), 'lastmod' => now()],
+            ['loc' => route('privacy'), 'lastmod' => now()],
         ];
 
-        // CATEGORIAS (tem slug ✔)
-        $categories = Category::all();
+        $categories = Category::query()->get();
 
         foreach ($categories as $category) {
-            $urls[] = url("/categoria/{$category->slug}");
+            $urls[] = [
+                'loc' => route('catalog.index', ['category' => $category->slug]),
+                'lastmod' => $category->updated_at,
+            ];
         }
 
-        // PRODUTOS (SEM SLUG → usa ID)
-        $products = Product::where('active', 1)->get();
+        $products = Product::query()->where('active', true)->get();
 
         foreach ($products as $product) {
-            $urls[] = url("/produto/{$product->id}");
+            $urls[] = [
+                'loc' => route('product.show', $product),
+                'lastmod' => $product->updated_at,
+            ];
         }
 
-        // Início do XML
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>';
-        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+        $xml = [
+            '<?xml version="1.0" encoding="UTF-8"?>',
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+        ];
 
-        // Monta URLs
         foreach ($urls as $url) {
-            $xml .= '<url>';
-            $xml .= '<loc>'.htmlspecialchars($url, ENT_XML1, 'UTF-8').'</loc>';
-            $xml .= '<lastmod>'.now()->toDateString().'</lastmod>';
-            $xml .= '</url>';
+            $xml[] = '    <url>';
+            $xml[] = '        <loc>'.htmlspecialchars($url['loc'], ENT_XML1, 'UTF-8').'</loc>';
+            $xml[] = '        <lastmod>'.$url['lastmod']->toDateString().'</lastmod>';
+            $xml[] = '    </url>';
         }
 
-        $xml .= '</urlset>';
+        $xml[] = '</urlset>';
 
-        File::put(public_path('sitemap.xml'), $xml);
+        File::put(public_path('sitemap.xml'), implode(PHP_EOL, $xml).PHP_EOL);
 
         $this->info('Sitemap gerado com sucesso!');
     }

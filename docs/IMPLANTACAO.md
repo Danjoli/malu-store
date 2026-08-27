@@ -21,6 +21,13 @@ php artisan optimize:clear
 
 O comando cria a estrutura e insere categorias, produtos, imagens cadastradas, contas e pedidos de demonstração. As imagens continuam dependendo dos arquivos enviados para `storage/app/public/products`.
 
+## Arquivos públicos e SEO
+
+- Mantenha `public/build` junto do deploy (ou execute `npm run build` antes de enviar os arquivos).
+- O link `public/storage` é criado pelo `storage:link`; ele deve apontar para `storage/app/public`. Se o projeto for movido de pasta ou de servidor, recrie esse link com esse comando.
+- O ícone público da loja é `public/favicon.svg`; ele é carregado pelos layouts público, de pagamento e administrativo.
+- Após cadastrar ou alterar o catálogo em produção, gere o sitemap com `php artisan sitemap:generate`. O comando usa o `APP_URL` do ambiente, por isso essa variável deve conter o domínio HTTPS definitivo antes de executá-lo.
+
 ## Atualização de produção com dados reais
 
 Não use `migrate:fresh`. Execute apenas migrations novas:
