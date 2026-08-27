@@ -2,16 +2,18 @@
 
 namespace App\Services\Public\Profile;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
 class ProfileService
 {
-    public function updateUser($user, array $data)
+    /** @param array{name: string, email: string, phone?: string|null} $data */
+    public function updateUser(User $user, array $data): void
     {
         $user->update($data);
     }
 
-    public function updatePassword($user, string $newPassword)
+    public function updatePassword(User $user, string $newPassword): void
     {
         $user->update([
             'password' => Hash::make($newPassword),

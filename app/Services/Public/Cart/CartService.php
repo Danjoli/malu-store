@@ -10,7 +10,7 @@ use Illuminate\Validation\ValidationException;
 
 class CartService
 {
-    public function getCart()
+    public function getCart(): Cart
     {
         $userId = Auth::id();
 
@@ -29,7 +29,7 @@ class CartService
         return $cart->load('items');
     }
 
-    public function addItem($variantId, $quantity)
+    public function addItem(int $variantId, int $quantity): CartItem
     {
         $cart = $this->getCart();
 
@@ -68,7 +68,7 @@ class CartService
         ]);
     }
 
-    public function updateItem($itemId, $quantity)
+    public function updateItem(int $itemId, int $quantity): CartItem
     {
         $cart = $this->getCart();
 
@@ -89,7 +89,7 @@ class CartService
         return $item;
     }
 
-    public function removeItem($itemId)
+    public function removeItem(int $itemId): bool
     {
         $cart = $this->getCart();
 

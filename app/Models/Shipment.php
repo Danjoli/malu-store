@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Shipment extends Model
 {
@@ -20,20 +21,13 @@ class Shipment extends Model
         'delivered_at',
     ];
 
-    /*
-    |----------------------------------------------------------------------
-    | LIBERAR MASS ASSIGNMENT
-    |----------------------------------------------------------------------
-    */
-    protected $guarded = [];
-
     protected $casts = [
         'shipping_cost' => 'decimal:2',
         'shipped_at' => 'datetime',
         'delivered_at' => 'datetime',
     ];
 
-    public function order()
+    public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
     }

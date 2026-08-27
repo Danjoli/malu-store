@@ -3,13 +3,16 @@
 namespace App\Services\Shipping;
 
 use App\Exceptions\Domain\ShippingProviderException;
+use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class MelhorEnvioService
 {
-    private $baseUrl;
+    private string $baseUrl;
 
-    private $token;
+    private string $token;
 
     public function __construct()
     {
@@ -17,68 +20,76 @@ class MelhorEnvioService
         $this->token = config('services.melhor_envio.token');
     }
 
-    private function request($endpoint, $data = [], $method = 'POST')
+    private function http(): PendingRequest
     {
-        $http = Http::withToken($this->token)
+        return Http::withToken($this->token)
             ->acceptJson()
             ->withUserAgent(config('services.melhor_envio.user_agent'));
+    }
+
+    private function request(string $endpoint, array $data = [], string $method = 'POST'): array
+    {
+        $http = $this->http();
 
         $url = $this->baseUrl.$endpoint;
 
-        if ($method === 'GET') {
-            $response = $http->get($url, $data);
-        } else {
-            $response = $http->post($url, $data);
-        }
+        $response = $method === 'GET'
+            ? $http->get($url, $data)
+            : $http->post($url, $data);
 
-        if (! $response->successful()) {
-            throw new ShippingProviderException(
-                "Erro Melhor Envio ({$response->status()}): ".$response->body()
-            );
-        }
+        $this->ensureSuccessful($response, $endpoint);
 
         return $response->json();
     }
 
-    public function calcularFrete($dados)
+    private function ensureSuccessful(Response $response, string $endpoint): void
+    {
+        if ($response->successful()) {
+            return;
+        }
+
+        Log::warning('Falha na comunicação com Melhor Envio.', [
+            'endpoint' => $endpoint,
+            'http_status' => $response->status(),
+        ]);
+
+        throw new ShippingProviderException('Não foi possível comunicar com a Melhor Envio.');
+    }
+
+    public function calcularFrete(array $dados): array
     {
         return $this->request('shipment/calculate', $dados);
     }
 
-    public function adicionarAoCarrinho($data)
+    public function adicionarAoCarrinho(array $data): array
     {
         return $this->request('cart', $data);
     }
 
-    public function comprarEtiqueta($data)
+    public function comprarEtiqueta(array $data): array
     {
         return $this->request('shipment/checkout', $data);
     }
 
-    public function gerarEtiqueta($data)
+    public function gerarEtiqueta(array $data): array
     {
         return $this->request('shipment/generate', $data);
     }
 
-    public function consultarPedido($shipmentId)
+    public function consultarPedido(string $shipmentId): array
     {
-        $response = Http::withToken($this->token)
-            ->acceptJson()
+        $response = $this->http()
             ->post($this->baseUrl.'shipment/tracking', [
                 'orders' => [$shipmentId],
             ]);
 
-        // dd([
-        //     'url' => $this->baseUrl . "shipment/tracking",
-        //     'status' => $response->status(),
-        //     'body' => $response->body(),
-        //     'json' => $response->json(),
-        // ]);
+        $this->ensureSuccessful($response, 'shipment/tracking');
 
         return $response->json();
     }
 
-    public function imprimirEtiqueta($ids)
+    /** @param array<int, string> $ids */
+    public function imprimirEtiqueta(array $ids): array
     {
         return $this->request(
             'shipment/print',

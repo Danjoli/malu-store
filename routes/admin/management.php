@@ -18,10 +18,6 @@ Route::resource('clients', ClientController::class)
     ->only(['index', 'show'])
     ->middleware($managementRoles);
 
-Route::resource('clients', ClientController::class)
-    ->except(['index', 'show'])
-    ->middleware("admin.role:{$superAdmin}");
-
 Route::resource('categories', CategoryController::class)
     ->only(['create', 'store', 'edit'])
     ->middleware("admin.role:{$superAdmin}");

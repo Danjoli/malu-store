@@ -5,13 +5,13 @@ namespace App\Services\Public\Payment;
 use App\Actions\Payment\CreateBoletoPaymentAction;
 use App\Actions\Payment\CreatePixPaymentAction;
 use App\Actions\Payment\ProcessCardPaymentAction;
+use App\Exceptions\Domain\PaymentException;
 use App\Http\Requests\Public\Payments\ProcessCardPaymentRequest;
 use App\Models\Order;
 
 class PaymentService
 {
     public function __construct(
-        protected AsaasService $asaasService,
         private CreatePixPaymentAction $createPixPayment,
         private CreateBoletoPaymentAction $createBoletoPayment,
         private ProcessCardPaymentAction $processCardPayment,
@@ -90,27 +90,19 @@ class PaymentService
 
         try {
 
-            $payment = $this->processCardPayment->execute($order, $request->all());
-
-            // Retorna sucesso
+            $payment = $this->processCardPayment->execute($order, $request->validated());
 
             return response()->json([
                 'success' => true,
                 'payment' => $payment,
             ]);
-        } catch (\RuntimeException $e) {
-
-            $message = $e->getMessage();
-
-            // Transação não autorizada
-            if (str_contains($message, 'invalid_action')) {
-                return response()->json([
-                    'success' => false,
-                    'payment_failed' => true,
-                    'error_type' => 'authorization',
-                    'message' => 'Transação não autorizada. Verifique os dados do cartão e tente novamente.',
-                ], 422);
-            }
+        } catch (PaymentException) {
+            return response()->json([
+                'success' => false,
+                'payment_failed' => true,
+                'error_type' => 'authorization',
+                'message' => 'Não foi possível autorizar o cartão. Confira os dados e tente novamente.',
+            ], 422);
         }
     }
 

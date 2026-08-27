@@ -7,6 +7,7 @@ use App\Exceptions\Domain\OrderNotPaidException;
 use App\Exceptions\Domain\ShipmentFinalizedException;
 use App\Exceptions\Domain\ShipmentNotRegisteredException;
 use App\Exceptions\Domain\ShippingProviderException;
+use App\Exceptions\Domain\ShippingSenderConfigurationException;
 use App\Exceptions\Domain\ShippingServiceNotFoundException;
 use App\Models\Shipment;
 use App\Services\Shipping\MelhorEnvioService;
@@ -19,7 +20,7 @@ class ShipmentService
         protected ShipmentStatusMapper $statusMapper,
     ) {}
 
-    public function updateShipment(Shipment $shipment, array $data)
+    public function updateShipment(Shipment $shipment, array $data): void
     {
         if (in_array($shipment->status, ['delivered', 'cancelled'])) {
             throw new ShipmentFinalizedException;
@@ -31,9 +32,9 @@ class ShipmentService
         ]);
     }
 
-    public function generateLabel(int $id)
+    public function generateLabel(int $id): void
     {
-        $shipment = Shipment::with(['order.items', 'order.address', 'order.user'])
+        $shipment = Shipment::with(['order.items', 'order.user'])
             ->findOrFail($id);
 
         if ($shipment->shipment_id) {
@@ -81,7 +82,7 @@ class ShipmentService
         ]);
     }
 
-    public function syncStatus(int $id)
+    public function syncStatus(int $id): void
     {
         $shipment = Shipment::findOrFail($id);
 
@@ -106,36 +107,31 @@ class ShipmentService
 
     private function buildPayload(Shipment $shipment): array
     {
+        $order = $shipment->order;
+        $sender = $this->sender();
+
         return [
             'service' => (int) $shipment->service_id,
 
             'from' => [
-                'name' => 'Malu Store',
-                'phone' => '11954598885',
-                'email' => 'store@email.com',
-                'document' => '00000000000',
-                'address' => 'Rua Exemplo',
-                'number' => '100',
-                'district' => 'Centro',
-                'city' => 'São Paulo',
-                'state_abbr' => 'SP',
-                'postal_code' => '00000000',
+                ...$sender,
             ],
 
             'to' => [
-                'name' => $shipment->order->address->recipient_name,
-                'phone' => $shipment->order->address->phone,
-                'email' => $shipment->order->user->email,
-                'document' => preg_replace('/\D/', '', $shipment->order->address->cpf),
-                'address' => $shipment->order->address->street,
-                'number' => $shipment->order->address->number,
-                'district' => $shipment->order->address->neighborhood,
-                'city' => $shipment->order->address->city,
-                'state_abbr' => strtoupper($shipment->order->address->state),
-                'postal_code' => preg_replace('/\D/', '', $shipment->order->address->cep),
+                // O pedido guarda um snapshot do endereço para não depender de alterações posteriores.
+                'name' => $order->recipient_name,
+                'phone' => $order->phone,
+                'email' => $order->user->email,
+                'document' => preg_replace('/\D/', '', $order->cpf),
+                'address' => $order->street,
+                'number' => $order->number,
+                'district' => $order->neighborhood,
+                'city' => $order->city,
+                'state_abbr' => strtoupper($order->state),
+                'postal_code' => preg_replace('/\D/', '', $order->cep),
             ],
 
-            'products' => $shipment->order->items->map(function ($item) {
+            'products' => $order->items->map(function ($item) {
                 return [
                     'name' => $item->name_snapshot,
                     'quantity' => $item->quantity,
@@ -151,6 +147,38 @@ class ShipmentService
                     'length' => 25,
                 ],
             ],
+        ];
+    }
+
+    /** @return array<string, string> */
+    private function sender(): array
+    {
+        $sender = config('services.melhor_envio.sender', []);
+        $requiredFields = ['name', 'phone', 'email', 'document', 'address', 'number', 'district', 'city', 'state_abbr'];
+
+        foreach ($requiredFields as $field) {
+            if (blank($sender[$field] ?? null)) {
+                throw new ShippingSenderConfigurationException;
+            }
+        }
+
+        $postalCode = config('services.melhor_envio.origin_zip');
+
+        if (blank($postalCode)) {
+            throw new ShippingSenderConfigurationException;
+        }
+
+        return [
+            'name' => $sender['name'],
+            'phone' => preg_replace('/\D/', '', $sender['phone']),
+            'email' => $sender['email'],
+            'document' => preg_replace('/\D/', '', $sender['document']),
+            'address' => $sender['address'],
+            'number' => $sender['number'],
+            'district' => $sender['district'],
+            'city' => $sender['city'],
+            'state_abbr' => strtoupper($sender['state_abbr']),
+            'postal_code' => preg_replace('/\D/', '', $postalCode),
         ];
     }
 }

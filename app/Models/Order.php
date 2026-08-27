@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
@@ -37,6 +40,9 @@ class Order extends Model
     protected $casts = [
         'expires_at' => 'datetime',
         'paid_at' => 'datetime',
+        'subtotal' => 'decimal:2',
+        'shipping' => 'decimal:2',
+        'total' => 'decimal:2',
     ];
 
     /*
@@ -45,20 +51,17 @@ class Order extends Model
     |--------------------------------------------------------------------------
     */
 
-    // Pedido pertence a um usuário
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    // Pedido possui vários itens
-    public function items()
+    public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
     }
 
-    // Pedido pertence a um envio
-    public function shipment()
+    public function shipment(): HasOne
     {
         return $this->hasOne(Shipment::class);
     }

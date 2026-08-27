@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProductVariant extends Model
 {
@@ -16,7 +17,14 @@ class ProductVariant extends Model
         'stock',
     ];
 
-    public function product()
+    protected function casts(): array
+    {
+        return [
+            'stock' => 'integer',
+        ];
+    }
+
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }

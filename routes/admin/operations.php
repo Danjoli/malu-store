@@ -15,25 +15,13 @@ Route::resource('orders', OrdersController::class)
     ->only(['index', 'show'])
     ->middleware($operationsRoles);
 
-Route::resource('orders', OrdersController::class)
-    ->only(['update'])
-    ->middleware($managementRoles);
-
-Route::resource('orders', OrdersController::class)
-    ->only(['create', 'store', 'edit', 'destroy'])
-    ->middleware("admin.role:{$superAdmin}");
-
 Route::resource('shipments', ShipmentController::class)
-    ->only(['index', 'show', 'edit'])
+    ->only(['index', 'edit'])
     ->middleware($operationsRoles);
 
 Route::resource('shipments', ShipmentController::class)
-    ->only(['update', 'destroy'])
+    ->only(['update'])
     ->middleware($managementRoles);
-
-Route::resource('shipments', ShipmentController::class)
-    ->only(['create', 'store'])
-    ->middleware("admin.role:{$superAdmin}");
 
 Route::post('shipments/{id}/gerar-etiqueta', [ShipmentController::class, 'gerarEtiqueta'])
     ->middleware("admin.role:{$superAdmin}")

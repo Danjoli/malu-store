@@ -18,7 +18,7 @@ class CategoryService
         return $category;
     }
 
-    public function delete(Category $category): void
+    public function delete(Category $category): bool
     {
         $category->delete();
     }

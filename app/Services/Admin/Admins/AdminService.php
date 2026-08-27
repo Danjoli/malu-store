@@ -30,7 +30,7 @@ class AdminService
         return $admin;
     }
 
-    public function delete(Admin $admin): void
+    public function delete(Admin $admin): bool
     {
         $admin->delete();
     }
