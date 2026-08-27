@@ -82,6 +82,17 @@ return [
         'environment' => $melhorEnvioEnvironment,
         ...$melhorEnvioProfiles[$melhorEnvioEnvironment],
         'origin_zip' => env('MELHOR_ENVIO_ORIGIN_ZIP'),
+        'sender' => [
+            'name' => env('MELHOR_ENVIO_SENDER_NAME'),
+            'phone' => env('MELHOR_ENVIO_SENDER_PHONE'),
+            'email' => env('MELHOR_ENVIO_SENDER_EMAIL', env('MAIL_FROM_ADDRESS')),
+            'document' => env('MELHOR_ENVIO_SENDER_DOCUMENT'),
+            'address' => env('MELHOR_ENVIO_SENDER_ADDRESS'),
+            'number' => env('MELHOR_ENVIO_SENDER_NUMBER'),
+            'district' => env('MELHOR_ENVIO_SENDER_DISTRICT'),
+            'city' => env('MELHOR_ENVIO_SENDER_CITY'),
+            'state_abbr' => env('MELHOR_ENVIO_SENDER_STATE'),
+        ],
         'user_agent' => env(
             'MELHOR_ENVIO_USER_AGENT',
             env('APP_NAME', 'Malu Store').' ('.env('MAIL_FROM_ADDRESS', 'suporte@example.com').')'

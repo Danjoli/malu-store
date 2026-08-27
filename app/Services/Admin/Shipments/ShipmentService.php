@@ -7,6 +7,7 @@ use App\Exceptions\Domain\OrderNotPaidException;
 use App\Exceptions\Domain\ShipmentFinalizedException;
 use App\Exceptions\Domain\ShipmentNotRegisteredException;
 use App\Exceptions\Domain\ShippingProviderException;
+use App\Exceptions\Domain\ShippingSenderConfigurationException;
 use App\Exceptions\Domain\ShippingServiceNotFoundException;
 use App\Models\Shipment;
 use App\Services\Shipping\MelhorEnvioService;
@@ -107,21 +108,13 @@ class ShipmentService
     private function buildPayload(Shipment $shipment): array
     {
         $order = $shipment->order;
+        $sender = $this->sender();
 
         return [
             'service' => (int) $shipment->service_id,
 
             'from' => [
-                'name' => 'Malu Store',
-                'phone' => '11954598885',
-                'email' => 'store@email.com',
-                'document' => '00000000000',
-                'address' => 'Rua Exemplo',
-                'number' => '100',
-                'district' => 'Centro',
-                'city' => 'São Paulo',
-                'state_abbr' => 'SP',
-                'postal_code' => '00000000',
+                ...$sender,
             ],
 
             'to' => [
@@ -154,6 +147,38 @@ class ShipmentService
                     'length' => 25,
                 ],
             ],
+        ];
+    }
+
+    /** @return array<string, string> */
+    private function sender(): array
+    {
+        $sender = config('services.melhor_envio.sender', []);
+        $requiredFields = ['name', 'phone', 'email', 'document', 'address', 'number', 'district', 'city', 'state_abbr'];
+
+        foreach ($requiredFields as $field) {
+            if (blank($sender[$field] ?? null)) {
+                throw new ShippingSenderConfigurationException;
+            }
+        }
+
+        $postalCode = config('services.melhor_envio.origin_zip');
+
+        if (blank($postalCode)) {
+            throw new ShippingSenderConfigurationException;
+        }
+
+        return [
+            'name' => $sender['name'],
+            'phone' => preg_replace('/\D/', '', $sender['phone']),
+            'email' => $sender['email'],
+            'document' => preg_replace('/\D/', '', $sender['document']),
+            'address' => $sender['address'],
+            'number' => $sender['number'],
+            'district' => $sender['district'],
+            'city' => $sender['city'],
+            'state_abbr' => strtoupper($sender['state_abbr']),
+            'postal_code' => preg_replace('/\D/', '', $postalCode),
         ];
     }
 }

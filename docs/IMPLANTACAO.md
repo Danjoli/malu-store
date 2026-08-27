@@ -65,7 +65,7 @@ php artisan sitemap:generate
 
 ## Fila e webhooks
 
-Como o webhook do Asaas é colocado na fila `database`, mantenha um worker ativo:
+Como o webhook do Asaas e a geração de etiquetas são colocados na fila `database`, mantenha um worker ativo:
 
 ```bash
 php artisan queue:work --tries=3
@@ -93,8 +93,20 @@ ASAAS_PRODUCTION_WEBHOOK_TOKEN=
 
 MELHOR_ENVIO_SANDBOX_TOKEN=
 MELHOR_ENVIO_PRODUCTION_TOKEN=
+MELHOR_ENVIO_ORIGIN_ZIP=
+MELHOR_ENVIO_SENDER_NAME=
+MELHOR_ENVIO_SENDER_PHONE=
+MELHOR_ENVIO_SENDER_EMAIL=
+MELHOR_ENVIO_SENDER_DOCUMENT=
+MELHOR_ENVIO_SENDER_ADDRESS=
+MELHOR_ENVIO_SENDER_NUMBER=
+MELHOR_ENVIO_SENDER_DISTRICT=
+MELHOR_ENVIO_SENDER_CITY=
+MELHOR_ENVIO_SENDER_STATE=SP
 MELHOR_ENVIO_USER_AGENT="Malu Store (suporte@sua-loja.com)"
 ```
+
+Os dados `MELHOR_ENVIO_SENDER_*` são exigidos somente para emitir etiquetas e identificam o remetente real da loja. Preencha-os exclusivamente no `.env` do servidor; não use dados de exemplo em produção.
 
 As URLs padrão já são fornecidas pelo `config/services.php`: Asaas usa `https://api-sandbox.asaas.com/v3` no sandbox e `https://api.asaas.com/v3` em produção; Melhor Envio usa o endpoint `/api/v2/me/` correspondente ao ambiente. Só altere as variáveis `*_BASE_URL` se a documentação oficial do fornecedor mudar.
 

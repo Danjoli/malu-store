@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Shipments\UpdateShipmentRequest;
+use App\Jobs\GenerateShipmentLabel;
 use App\Models\Shipment;
 use App\Services\Admin\Shipments\ShipmentService;
 
@@ -38,9 +39,9 @@ class ShipmentController extends Controller
 
     public function gerarEtiqueta($id)
     {
-        $this->shipmentService->generateLabel($id);
+        GenerateShipmentLabel::dispatch((int) $id);
 
-        return back()->with('success', 'Etiqueta gerada com sucesso!');
+        return back()->with('success', 'A geração da etiqueta foi enviada para processamento.');
     }
 
     public function atualizarStatus($id)

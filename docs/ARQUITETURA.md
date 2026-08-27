@@ -262,7 +262,9 @@ Os dados sensíveis e URL da API devem permanecer no `.env`; nunca devem ser env
 
 Asaas e Melhor Envio usam uma configuração por perfil. O ambiente ativo é definido independentemente por `ASAAS_ENV` e `MELHOR_ENVIO_ENV`, aceitando somente `sandbox` ou `production`. Cada perfil possui credenciais e URL próprias; assim, mudar de ambiente não exige comentar ou descomentar variáveis.
 
-`MELHOR_ENVIO_ORIGIN_ZIP` é o CEP de origem usado nas cotações e pertence à configuração do Melhor Envio. A aplicação também envia `User-Agent` configurável para Asaas e Melhor Envio, como exigido pelas integrações.
+`MELHOR_ENVIO_ORIGIN_ZIP` é o CEP de origem usado nas cotações e etiquetas. Para emitir etiquetas, também são obrigatórios os dados do remetente: `MELHOR_ENVIO_SENDER_NAME`, `PHONE`, `EMAIL`, `DOCUMENT`, `ADDRESS`, `NUMBER`, `DISTRICT`, `CITY` e `STATE`. Eles pertencem ao `.env` e nunca devem ficar no código ou no Git.
+
+A solicitação de etiqueta enviada pelo painel cria a Job `GenerateShipmentLabel`. Ela executa as chamadas ao Melhor Envio na fila `database`, tenta até três vezes e registra/alerta uma falha definitiva. Assim, o painel administrativo não fica aguardando a integração externa.
 
 ## Webhook do Asaas e estoque
 
@@ -370,7 +372,6 @@ php artisan optimize:clear
 ## Próximas melhorias recomendadas
 
 1. Criar testes específicos para os fluxos administrativos mais usados, como criação de produto, atualização de envio e gestão de administradores.
-2. Ampliar a integração de frete para geração e sincronização de etiquetas, mantendo chamadas externas em fila.
-3. Monitorar a fila de produção, especialmente `failed_jobs`, e definir uma rotina de reprocessamento segura.
-4. Validar Pix, boleto, cartão e webhooks no sandbox antes de ativar as credenciais de produção.
-5. Manter o canal de alertas por e-mail configurado e, se a operação crescer, avaliar um serviço centralizado de monitoramento.
+2. Monitorar a fila de produção, especialmente `failed_jobs`, e definir uma rotina de reprocessamento segura.
+3. Validar Pix, boleto, cartão e webhooks no sandbox antes de ativar as credenciais de produção.
+4. Manter o canal de alertas por e-mail configurado e, se a operação crescer, avaliar um serviço centralizado de monitoramento.

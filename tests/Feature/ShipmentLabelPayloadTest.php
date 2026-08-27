@@ -2,6 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Enums\AdminRole;
+use App\Jobs\GenerateShipmentLabel;
+use App\Models\Admin;
 use App\Models\Order;
 use App\Models\Shipment;
 use App\Models\User;
@@ -9,6 +12,8 @@ use App\Services\Admin\Shipments\ShipmentService;
 use App\Services\Shipping\MelhorEnvioService;
 use App\Services\Shipping\ShipmentStatusMapper;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Queue;
 use Mockery;
 use Tests\TestCase;
 
@@ -16,8 +21,44 @@ class ShipmentLabelPayloadTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_admin_request_queues_label_generation_without_waiting_for_provider(): void
+    {
+        $admin = Admin::create([
+            'name' => 'Super Admin',
+            'email' => 'admin@example.test',
+            'password' => Hash::make('Senha@2026'),
+            'is_active' => true,
+            'role' => AdminRole::SuperAdmin,
+        ]);
+
+        Queue::fake();
+
+        $this->actingAs($admin, 'admin')
+            ->post(route('admin.shipments.gerar', 999))
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        Queue::assertPushed(
+            GenerateShipmentLabel::class,
+            fn (GenerateShipmentLabel $job): bool => $job->shipmentId === 999,
+        );
+    }
+
     public function test_label_generation_uses_the_order_address_snapshot(): void
     {
+        config()->set('services.melhor_envio.origin_zip', '01001000');
+        config()->set('services.melhor_envio.sender', [
+            'name' => 'Malu Store',
+            'phone' => '11999999999',
+            'email' => 'remetente@example.test',
+            'document' => '12345678000190',
+            'address' => 'Rua da Loja',
+            'number' => '10',
+            'district' => 'Centro',
+            'city' => 'São Paulo',
+            'state_abbr' => 'SP',
+        ]);
+
         $user = User::factory()->create();
         $order = Order::create([
             'user_id' => $user->id,
