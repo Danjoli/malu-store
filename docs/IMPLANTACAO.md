@@ -68,10 +68,41 @@ php artisan sitemap:generate
 Como o webhook do Asaas e a geração de etiquetas são colocados na fila `database`, mantenha um worker ativo:
 
 ```bash
-php artisan queue:work --tries=3
+php artisan queue:work --tries=3 --timeout=120 --sleep=3
 ```
 
-Configure esse processo pelo recurso de processos/cron da hospedagem de acordo com o plano contratado. Sem worker, webhooks entram na tabela `jobs`, mas não são processados.
+Configure esse processo pelo recurso de processos/cron da hospedagem de acordo com o plano contratado. O worker usa até três tentativas e 120 segundos por Job. Sem worker, webhooks e etiquetas entram na tabela `jobs`, mas não são processados. Consulte e repita trabalhos que falharam somente depois de investigar:
+
+```bash
+php artisan queue:failed
+php artisan queue:retry all
+```
+
+## Segurança de produção
+
+No `.env` da hospedagem, use HTTPS e mantenha estas configurações:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+LOG_LEVEL=warning
+SESSION_SECURE_COOKIE=true
+SESSION_SAME_SITE=lax
+SECURITY_HSTS=true
+```
+
+`SESSION_SAME_SITE` já é lida nativamente por `config/session.php`; a variável não precisa existir em outro arquivo de configuração. `lax` preserva os fluxos normais da loja e reduz o risco de requisições cross-site. Os cabeçalhos HTTP de proteção são aplicados automaticamente pela aplicação; HSTS só é enviado quando a requisição já usa HTTPS.
+
+### Assinaturas dos webhooks
+
+- Asaas: configure um token longo no painel do Asaas e use o mesmo valor em `ASAAS_PRODUCTION_WEBHOOK_TOKEN`. A aplicação valida o cabeçalho `asaas-access-token` antes de enfileirar o evento.
+- Melhor Envio: copie o *secret* do aplicativo para `MELHOR_ENVIO_WEBHOOK_SECRET`. A aplicação valida o cabeçalho `X-ME-Signature` via HMAC-SHA256 no corpo original da requisição.
+
+Não use chaves de API como tokens de webhook. Depois de alterar variáveis, execute `php artisan optimize:clear` e `php artisan config:cache`.
+
+### Cartão de crédito
+
+O checkout não salva nem registra números de cartão ou CVV. A loja exige HTTPS para esse fluxo. Para reduzir ainda mais o escopo de dados sensíveis, habilite a tokenização de cartão na conta Asaas e planeje migrar o checkout para `creditCardToken`; essa habilitação depende de aprovação do Asaas em produção.
 
 ## Ambientes das APIs: sandbox e produção
 

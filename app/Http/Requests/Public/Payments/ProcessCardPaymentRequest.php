@@ -20,12 +20,11 @@ class ProcessCardPaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'card_number' => 'required|string',
-            'holder_name' => 'required|string',
-            'cpf' => 'required|string',
-            'expiration_month' => 'required|string',
-            'expiration_year' => 'required|string',
-            'ccv' => 'required|string',
+            'card_number' => ['required', 'string', 'min:13', 'max:23', 'regex:/^[0-9 ]+$/'],
+            'holder_name' => ['required', 'string', 'min:3', 'max:100'],
+            'expiration_month' => ['required', 'integer', 'between:1,12'],
+            'expiration_year' => ['required', 'integer', 'between:'.now()->year.','.now()->addYears(15)->year],
+            'ccv' => ['required', 'digits_between:3,4'],
         ];
     }
 
@@ -41,14 +40,11 @@ class ProcessCardPaymentRequest extends FormRequest
             'holder_name.required' => 'Informe o nome do titular do cartão.',
             'holder_name.string' => 'O nome do titular informado é inválido.',
 
-            'cpf.required' => 'Informe o CPF do titular do cartão.',
-            'cpf.string' => 'O CPF informado é inválido.',
-
             'expiration_month.required' => 'Informe o mês de validade do cartão.',
-            'expiration_month.string' => 'O mês de validade informado é inválido.',
+            'expiration_month.between' => 'Informe um mês de validade válido.',
 
             'expiration_year.required' => 'Informe o ano de validade do cartão.',
-            'expiration_year.string' => 'O ano de validade informado é inválido.',
+            'expiration_year.between' => 'Informe um ano de validade válido.',
 
             'ccv.required' => 'Informe o código de segurança do cartão.',
             'ccv.string' => 'O código de segurança informado é inválido.',
@@ -63,7 +59,6 @@ class ProcessCardPaymentRequest extends FormRequest
         return [
             'card_number' => 'número do cartão',
             'holder_name' => 'nome do titular',
-            'cpf' => 'CPF',
             'expiration_month' => 'mês de validade',
             'expiration_year' => 'ano de validade',
             'ccv' => 'código de segurança',

@@ -2,18 +2,20 @@
 
 namespace App\Services\Shipping;
 
+use App\Enums\ShipmentStatus;
+
 class ShipmentStatusMapper
 {
-    public function fromProvider(?string $status): ?string
+    public function fromProvider(?string $status): ?ShipmentStatus
     {
         return [
-            'created' => 'pending',
-            'released' => 'waiting_post',
-            'generated' => 'waiting_post',
-            'posted' => 'in_transit',
-            'in_transit' => 'in_transit',
-            'delivered' => 'delivered',
-            'cancelled' => 'cancelled',
+            'created' => ShipmentStatus::Pending,
+            'released' => ShipmentStatus::WaitingPost,
+            'generated' => ShipmentStatus::WaitingPost,
+            'posted' => ShipmentStatus::InTransit,
+            'in_transit' => ShipmentStatus::InTransit,
+            'delivered' => ShipmentStatus::Delivered,
+            'cancelled' => ShipmentStatus::Cancelled,
         ][$status] ?? null;
     }
 }

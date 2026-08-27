@@ -24,7 +24,8 @@ Route::get('/register', [AuthController::class, 'showRegister'])
     ->middleware('redirect.authenticated:web')
     ->name('register');
 
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/register', [AuthController::class, 'register'])
+    ->middleware('throttle:5,1');
 
 Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout');

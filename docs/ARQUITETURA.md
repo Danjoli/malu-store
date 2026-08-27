@@ -66,6 +66,8 @@ tests/Feature/               Testes dos fluxos de negócio
 ### Padronização interna
 
 - Modelos usam retornos tipados nos relacionamentos e casts para valores monetários, booleanos e datas.
+- `OrderStatus` e `ShipmentStatus` centralizam os valores permitidos, rótulos em português e regras de finalização de pedidos/envios.
+- Webhooks são autenticados antes do processamento: token do Asaas e assinatura HMAC-SHA256 do Melhor Envio. Dados de rastreio persistidos são reduzidos aos campos operacionais necessários.
 - A consulta de produtos fica centralizada em `ProductFilterService`; home e catálogo aplicam a mesma regra de produto ativo e com estoque.
 - Controllers administrativos recebem apenas Form Requests validados; o envio deixou de aceitar dados brutos no `update`.
 - As integrações com Asaas e Melhor Envio registram somente operação e status HTTP. Corpo de resposta de provedores, cartões e dados de clientes não são incluídos em exceções ou logs.

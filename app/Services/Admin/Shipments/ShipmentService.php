@@ -2,6 +2,8 @@
 
 namespace App\Services\Admin\Shipments;
 
+use App\Enums\OrderStatus;
+use App\Enums\ShipmentStatus;
 use App\Exceptions\Domain\LabelAlreadyGeneratedException;
 use App\Exceptions\Domain\OrderNotPaidException;
 use App\Exceptions\Domain\ShipmentFinalizedException;
@@ -12,6 +14,7 @@ use App\Exceptions\Domain\ShippingServiceNotFoundException;
 use App\Models\Shipment;
 use App\Services\Shipping\MelhorEnvioService;
 use App\Services\Shipping\ShipmentStatusMapper;
+use Illuminate\Support\Arr;
 
 class ShipmentService
 {
@@ -22,7 +25,7 @@ class ShipmentService
 
     public function updateShipment(Shipment $shipment, array $data): void
     {
-        if (in_array($shipment->status, ['delivered', 'cancelled'])) {
+        if (ShipmentStatus::tryFrom($shipment->status)?->isFinal()) {
             throw new ShipmentFinalizedException;
         }
 
@@ -41,7 +44,7 @@ class ShipmentService
             throw new LabelAlreadyGeneratedException;
         }
 
-        if ($shipment->order->status !== 'paid') {
+        if ($shipment->order->status !== OrderStatus::Paid->value) {
             throw new OrderNotPaidException;
         }
 
@@ -77,8 +80,8 @@ class ShipmentService
             'shipment_id' => $cart['id'],
             'tracking_code' => $trackingData['tracking'] ?? null,
             'label_url' => $print['url'] ?? null,
-            'status' => 'waiting_post',
-            'last_update' => json_encode($trackingData),
+            'status' => ShipmentStatus::WaitingPost->value,
+            'last_update' => $this->snapshot($trackingData),
         ]);
     }
 
@@ -96,12 +99,12 @@ class ShipmentService
         $apiStatus = $trackingData['status'] ?? null;
 
         $shipment->update([
-            'status' => $this->statusMapper->fromProvider($apiStatus) ?? $shipment->status,
+            'status' => $this->statusMapper->fromProvider($apiStatus)?->value ?? $shipment->status,
             'tracking_code' => $trackingData['tracking'] ?? $shipment->tracking_code,
             'label_url' => $shipment->label_url,
             'shipped_at' => $apiStatus === 'posted' ? now() : $shipment->shipped_at,
             'delivered_at' => $apiStatus === 'delivered' ? now() : $shipment->delivered_at,
-            'last_update' => json_encode($trackingData),
+            'last_update' => $this->snapshot($trackingData),
         ]);
     }
 
@@ -180,5 +183,17 @@ class ShipmentService
             'state_abbr' => strtoupper($sender['state_abbr']),
             'postal_code' => preg_replace('/\D/', '', $postalCode),
         ];
+    }
+
+    /** @param array<string, mixed> $data */
+    private function snapshot(array $data): ?string
+    {
+        return json_encode(Arr::only($data, [
+            'id',
+            'status',
+            'tracking',
+            'label',
+            'updated_at',
+        ])) ?: null;
     }
 }

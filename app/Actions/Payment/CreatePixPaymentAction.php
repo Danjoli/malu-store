@@ -2,6 +2,7 @@
 
 namespace App\Actions\Payment;
 
+use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Services\OperationalAlertService;
 use App\Services\Public\Payment\AsaasService;
@@ -25,7 +26,7 @@ class CreatePixPaymentAction
             $order->update([
                 'gateway_payment_id' => $payment['id'] ?? null,
                 'gateway_status' => $payment['status'] ?? 'PENDING',
-                'status' => 'pending',
+                'status' => OrderStatus::Pending->value,
                 'payment_method' => 'pix',
                 'expires_at' => now()->addMinutes(30),
             ]);
