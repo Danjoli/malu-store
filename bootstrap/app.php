@@ -16,55 +16,40 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-
-        /*
-        |--------------------------------------------------------------------------
-        | LIBERAR CSRF PARA WEBHOOK
-        |--------------------------------------------------------------------------
-        */
-        $middleware->validateCsrfTokens(except: [
-            'webhook/mercadopago',
-            'webhook/melhor-envio',
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | REDIRECIONAMENTO DE NÃO AUTENTICADOS
-        |--------------------------------------------------------------------------
-        */
         $middleware->redirectGuestsTo(function (Request $request) {
-
-            // se tentar acessar /admin
             if ($request->is('admin') || $request->is('admin/*')) {
                 return route('admin.login');
             }
 
-            // login normal de cliente
             return route('login');
         });
 
-        /*
-        |--------------------------------------------------------------------------
-        | MIDDLEWARES CUSTOM
-        |--------------------------------------------------------------------------
-        */
         $middleware->alias([
             'admin.role' => \App\Http\Middleware\AdminRole::class,
             'redirect.authenticated' => \App\Http\Middleware\RedirectAuthenticatedUser::class,
         ]);
-
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return null;
+            }
+
             return response()->view('errors.404', [], 404);
         });
 
         $exceptions->render(function (AuthorizationException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return null;
+            }
+
             return response()->view('errors.403', [], 403);
         });
 
         $exceptions->render(function (AuthenticationException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return null;
+            }
 
             if ($request->is('admin') || $request->is('admin/*')) {
                 return redirect()->route('admin.login');
@@ -72,6 +57,5 @@ return Application::configure(basePath: dirname(__DIR__))
 
             return redirect()->route('login');
         });
-
     })
     ->create();

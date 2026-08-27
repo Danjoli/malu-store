@@ -72,6 +72,10 @@ tests/Feature/               Testes dos fluxos de negócio
 
 Os caminhos e nomes de rota permanecem iguais; a divisão organiza somente os arquivos-fonte.
 
+### Inicialização da aplicação
+
+`bootstrap/app.php` concentra o carregamento de rotas, aliases de middleware, redirecionamento de visitantes e renderização de exceções. Páginas HTML exibem as views próprias de erro 403 e 404; chamadas que esperam JSON mantêm a resposta padrão da API. Webhooks pertencem ao grupo `api`, validam a origem por token próprio e não exigem exceção de CSRF no grupo web.
+
 ### Front-end e componentes
 
 - `resources/js/app.js` contém apenas inicialização global (Alpine, alertas e bootstrap).
