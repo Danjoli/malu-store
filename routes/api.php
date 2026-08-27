@@ -1,16 +1,9 @@
 <?php
 
-use App\Http\Controllers\Webhooks\WebhookController;
-use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
-| WEBHOOKS
+| PONTO DE ENTRADA DAS ROTAS DE API
 |--------------------------------------------------------------------------
 */
 
-Route::post('/webhooks/asaas', [WebhookController::class, 'asaas'])
-    ->name('api.webhooks.asaas');
-
-Route::post('/webhooks/melhor-envio', [WebhookController::class, 'melhorEnvio'])
-    ->name('api.webhooks.melhor-envio');
+require __DIR__.'/api/webhooks.php';
