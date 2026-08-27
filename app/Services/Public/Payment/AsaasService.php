@@ -27,6 +27,7 @@ class AsaasService
             'accept' => 'application/json',
             'content-type' => 'application/json',
             'access_token' => $this->apiKey,
+            'User-Agent' => config('services.asaas.user_agent'),
         ]);
     }
 

@@ -1,5 +1,42 @@
 <?php
 
+$asaasEnvironment = env('ASAAS_ENV', 'sandbox');
+$melhorEnvioEnvironment = env('MELHOR_ENVIO_ENV', 'sandbox');
+
+$asaasProfiles = [
+    'sandbox' => [
+        // Mantém compatibilidade com a chave local existente durante a migração.
+        'api_key' => env('ASAAS_SANDBOX_API_KEY') ?: env('ASAAS_API_KEY'),
+        'base_url' => env('ASAAS_SANDBOX_BASE_URL', 'https://api-sandbox.asaas.com/v3'),
+        'webhook_token' => env('ASAAS_SANDBOX_WEBHOOK_TOKEN') ?: env('ASAAS_WEBHOOK_TOKEN'),
+    ],
+    'production' => [
+        'api_key' => env('ASAAS_PRODUCTION_API_KEY'),
+        'base_url' => env('ASAAS_PRODUCTION_BASE_URL', 'https://api.asaas.com/v3'),
+        'webhook_token' => env('ASAAS_PRODUCTION_WEBHOOK_TOKEN'),
+    ],
+];
+
+$melhorEnvioProfiles = [
+    'sandbox' => [
+        // Mantém compatibilidade com o token local existente durante a migração.
+        'token' => env('MELHOR_ENVIO_SANDBOX_TOKEN') ?: env('MELHOR_ENVIO_TOKEN'),
+        'url' => env('MELHOR_ENVIO_SANDBOX_BASE_URL', 'https://sandbox.melhorenvio.com.br/api/v2/me/'),
+    ],
+    'production' => [
+        'token' => env('MELHOR_ENVIO_PRODUCTION_TOKEN'),
+        'url' => env('MELHOR_ENVIO_PRODUCTION_BASE_URL', 'https://melhorenvio.com.br/api/v2/me/'),
+    ],
+];
+
+if (! isset($asaasProfiles[$asaasEnvironment])) {
+    throw new InvalidArgumentException('ASAAS_ENV deve ser sandbox ou production.');
+}
+
+if (! isset($melhorEnvioProfiles[$melhorEnvioEnvironment])) {
+    throw new InvalidArgumentException('MELHOR_ENVIO_ENV deve ser sandbox ou production.');
+}
+
 return [
 
     /*
@@ -36,14 +73,19 @@ return [
     ],
 
     'asaas' => [
-        'api_key' => env('ASAAS_API_KEY'),
-        'base_url' => env('ASAAS_BASE_URL'),
-        'webhook_token' => env('ASAAS_WEBHOOK_TOKEN'),
+        'environment' => $asaasEnvironment,
+        ...$asaasProfiles[$asaasEnvironment],
+        'user_agent' => env('ASAAS_USER_AGENT', env('APP_NAME', 'Malu Store')."/1.0 ({$asaasEnvironment})"),
     ],
 
     'melhor_envio' => [
-        'token' => env('MELHOR_ENVIO_TOKEN'),
-        'url' => env('MELHOR_ENVIO_URL'),
+        'environment' => $melhorEnvioEnvironment,
+        ...$melhorEnvioProfiles[$melhorEnvioEnvironment],
+        'origin_zip' => env('MELHOR_ENVIO_ORIGIN_ZIP'),
+        'user_agent' => env(
+            'MELHOR_ENVIO_USER_AGENT',
+            env('APP_NAME', 'Malu Store').' ('.env('MAIL_FROM_ADDRESS', 'suporte@example.com').')'
+        ),
     ],
 
 ];

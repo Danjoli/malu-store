@@ -216,6 +216,12 @@ Detalhes:
 
 Os dados sensíveis e URL da API devem permanecer no `.env`; nunca devem ser enviados ao repositório público.
 
+### Ambientes das integrações
+
+Asaas e Melhor Envio usam uma configuração por perfil. O ambiente ativo é definido independentemente por `ASAAS_ENV` e `MELHOR_ENVIO_ENV`, aceitando somente `sandbox` ou `production`. Cada perfil possui credenciais e URL próprias; assim, mudar de ambiente não exige comentar ou descomentar variáveis.
+
+`MELHOR_ENVIO_ORIGIN_ZIP` é o CEP de origem usado nas cotações e pertence à configuração do Melhor Envio. A aplicação também envia `User-Agent` configurável para Asaas e Melhor Envio, como exigido pelas integrações.
+
 ## Webhook do Asaas e estoque
 
 O endpoint recebe eventos em `routes/api.php`. A estrutura é:
@@ -267,18 +273,31 @@ Execute todos os testes:
 php artisan test
 ```
 
+O `phpunit.xml` define um ambiente isolado para a suíte: banco SQLite em memória,
+fila, cache e sessão em memória e e-mails simulados. A classe-base dos testes reforça
+o SQLite mesmo que exista um `config:cache` local, portanto os testes não usam nem
+alteram o banco de desenvolvimento. Avisos e testes considerados arriscados também
+fazem a suíte falhar para evitar falsos positivos.
+
 Cobertura atual:
 
 - home responde corretamente;
 - checkout cria endereço, pedido, itens e envio;
 - carrinho adiciona, atualiza e remove item;
+- carrinho bloqueia quantidade superior ao estoque e alterações em itens de outro cliente;
 - favoritos adicionam e removem produto;
 - webhook recebido baixa o estoque somente uma vez e limpa o carrinho.
 - rotas de cliente exigem autenticação e pedidos não podem ser acessados por outro usuário.
+- rotas de pagamento pertencem exclusivamente ao cliente do pedido, inclusive status e resultado;
+- cadastro e tentativa de login inválida de cliente são validados;
+- o painel administrativo exige autenticação e respeita os papéis de suporte e super administrador;
 - catálogo filtra busca/categoria e oculta produtos inativos ou sem estoque.
 - galeria de produto substitui imagens antigas sem manter arquivos órfãos.
 - slugs de categorias e produtos são únicos e as URLs antigas de produto redirecionam corretamente;
 - status de envio do provedor é convertido em um único ponto de mapeamento.
+
+Os testes de unidade ficam reservados para regras puras e rápidas, como o mapeamento de
+status de envio. Os testes de integração e interface HTTP permanecem em `tests/Feature`.
 
 ## Observabilidade
 

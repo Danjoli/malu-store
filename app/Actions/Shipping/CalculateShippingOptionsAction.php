@@ -15,7 +15,7 @@ class CalculateShippingOptionsAction
         $declaredValue = $product?->price ?? 100;
 
         $result = $this->melhorEnvio->calcularFrete([
-            'from' => ['postal_code' => config('shipping.origin_zip')],
+            'from' => ['postal_code' => config('services.melhor_envio.origin_zip')],
             'to' => ['postal_code' => $destinationZip],
             'products' => [[
                 'id' => '1',

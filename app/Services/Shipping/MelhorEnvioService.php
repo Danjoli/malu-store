@@ -20,7 +20,8 @@ class MelhorEnvioService
     private function request($endpoint, $data = [], $method = 'POST')
     {
         $http = Http::withToken($this->token)
-            ->acceptJson();
+            ->acceptJson()
+            ->withUserAgent(config('services.melhor_envio.user_agent'));
 
         $url = $this->baseUrl.$endpoint;
 
