@@ -16,8 +16,10 @@ class UserFactoryStoreDataTest extends TestCase
 
         $this->assertCount(2, $user->addresses);
         $this->assertDatabaseCount('favorites', 1);
+        $this->assertDatabaseCount('product_images', 3);
         $this->assertDatabaseCount('orders', 1);
         $this->assertDatabaseCount('order_items', 1);
         $this->assertDatabaseCount('shipments', 1);
+        $this->assertNotEmpty($user->orders()->first()->items()->first()->image_snapshot);
     }
 }

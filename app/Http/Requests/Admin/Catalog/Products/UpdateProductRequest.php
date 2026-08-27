@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin\Catalog\Products;
 
 use App\Enums\ClothingSize;
+use App\Rules\DistinctProductVariantCombinations;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -30,7 +31,7 @@ class UpdateProductRequest extends FormRequest
                 'max:2048',
             ],
 
-            'variants' => ['required', 'array', 'min:1'],
+            'variants' => ['required', 'array', 'min:1', new DistinctProductVariantCombinations],
 
             'variants.*.color' => ['required', 'string', 'max:50'],
             'variants.*.size' => ['required', 'string', Rule::enum(ClothingSize::class)],

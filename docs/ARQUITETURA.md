@@ -14,6 +14,8 @@ Tecnologias principais:
 - Asaas para Pix, boleto e cartão;
 - Melhor Envio para serviços de frete e acompanhamento de envio.
 
+Os defaults de `config/` e do `.env.example` seguem a operação da loja: `pt_BR`, fuso `America/Sao_Paulo`, MySQL, disco `public` para uploads e fila/cache configuráveis por ambiente. Os testes continuam isolados em SQLite em memória, independentemente do MySQL local ou de produção.
+
 ## Organização de código
 
 ```text
@@ -321,6 +323,8 @@ Cobertura atual:
 - galeria de produto substitui imagens antigas sem manter arquivos órfãos.
 - slugs de categorias e produtos são únicos e as URLs antigas de produto redirecionam corretamente;
 - status de envio do provedor é convertido em um único ponto de mapeamento.
+- combinações de variante, ID de cobrança e envio por pedido têm proteção de unicidade no banco;
+- ao remover uma variante, o item de pedido mantém os snapshots do histórico.
 
 Os testes de unidade ficam reservados para regras puras e rápidas, como o mapeamento de
 status de envio. Os testes de integração e interface HTTP permanecem em `tests/Feature`.
