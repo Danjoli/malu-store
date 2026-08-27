@@ -10,6 +10,27 @@ Checklist para publicar uma cópia de demonstração ou uma versão de produçã
 - Envie também `storage/app/public/products` para preservar as fotos do catálogo.
 - Configure o domínio da hospedagem para servir a pasta `public`, nunca a raiz inteira do projeto.
 
+### Base recomendada para produção
+
+O `.env.example` já traz os padrões locais do Malu Store: português do Brasil, MySQL, disco público para uploads e logs diários. No servidor, confirme pelo menos estes valores e nunca versione senhas ou chaves:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://seu-dominio.com
+APP_TIMEZONE=America/Sao_Paulo
+APP_LOCALE=pt_BR
+
+DB_CONNECTION=mysql
+FILESYSTEM_DISK=public
+SESSION_SECURE_COOKIE=true
+LOG_STACK=daily
+LOG_LEVEL=info
+LOG_DAILY_DAYS=14
+```
+
+`LOG_LEVEL=info` preserva os registros operacionais de checkout e pagamentos. Caso o volume de logs fique alto, altere para `warning`, sabendo que os registros informativos deixam de ser gravados.
+
 ## Banco de demonstração
 
 Somente em um banco que pode ser apagado, rode por SSH na pasta que contém `artisan`:
