@@ -21,13 +21,14 @@
 
         <div class="grid gap-9 lg:grid-cols-[1.05fr_.95fr] lg:gap-12">
             {{-- Galeria --}}
-            <div class="flex gap-3">
+            <div data-product-gallery class="flex gap-3">
                 <div class="hidden w-16 shrink-0 space-y-2 sm:block">
                     @foreach ($product->images as $image)
                         <button
                             type="button"
                             class="block h-20 w-16 overflow-hidden rounded-sm border border-[#eadfdd]"
-                            onclick="document.getElementById('mainImage').src=this.querySelector('img').src"
+                            data-product-gallery-thumbnail="{{ asset('storage/products/' . $image->image) }}"
+                            data-product-gallery-alt="{{ $product->name }}"
                         >
                             <img
                                 src="{{ asset('storage/products/' . $image->image) }}"
@@ -41,7 +42,7 @@
                 <div class="min-w-0 flex-1 bg-[#f7efe9]">
                     @if ($product->images->isNotEmpty())
                         <img
-                            id="mainImage"
+                            data-product-gallery-main
                             src="{{ asset('storage/products/' . $product->images->first()->image) }}"
                             alt="{{ $product->name }}"
                             class="aspect-[3/4] w-full object-cover"
@@ -75,7 +76,15 @@
                     {{ $product->description }}
                 </p>
 
-                <form action="{{ route('cart.add') }}" method="POST" class="mt-6">
+                <form
+                    action="{{ route('cart.add') }}"
+                    method="POST"
+                    class="mt-6"
+                    data-product-variant-form
+                    data-product-variants='@json($availableVariants->map(fn ($variant) => ["id" => $variant->id, "color" => $variant->color, "size" => $variant->size])->values())'
+                    data-product-initial-color="{{ $colors->first() }}"
+                    data-product-initial-size="{{ $sizes->first() }}"
+                >
                     @csrf
 
                     <p class="mb-2 text-xs font-bold text-stone-700">
@@ -87,10 +96,13 @@
 
                     <div class="mb-5 flex gap-2">
                         @foreach ($colors as $color)
-                            <span
+                            <button
+                                type="button"
                                 title="{{ $color }}"
+                                data-product-color="{{ $color }}"
                                 class="h-5 w-5 rounded-full border border-stone-300 bg-[#e9d5cc]"
-                            ></span>
+                                aria-label="Selecionar cor {{ $color }}"
+                            ></button>
                         @endforeach
                     </div>
 
@@ -101,23 +113,22 @@
 
                         <div class="mb-3 flex flex-wrap gap-2">
                             @foreach ($sizes as $size)
-                                <label>
-                                    <input
-                                        type="radio"
-                                        name="variant_id"
-                                        value="{{ $availableVariants->firstWhere('size', $size)->id }}"
-                                        class="peer sr-only"
-                                        @checked($loop->first)
-                                        required
-                                    >
-
-                                    <span class="flex h-8 min-w-9 items-center justify-center rounded-sm border border-[#eadfdd] px-2 text-xs peer-checked:border-[#d66f7c] peer-checked:bg-[#fff1ef]">
-                                        {{ $size }}
-                                    </span>
-                                </label>
+                                <button
+                                    type="button"
+                                    data-product-size="{{ $size }}"
+                                    class="flex h-8 min-w-9 items-center justify-center rounded-sm border border-[#eadfdd] px-2 text-xs transition"
+                                >
+                                    {{ $size }}
+                                </button>
                             @endforeach
                         </div>
                     @endif
+
+                    <input
+                        type="hidden"
+                        name="variant_id"
+                        value="{{ $availableVariants->first()?->id }}"
+                    >
 
                     <a href="#descricao" class="text-xs font-semibold underline underline-offset-4">
                         Guia de medidas
@@ -224,46 +235,8 @@
             </div>
         </div>
 
-        {{-- Benefícios --}}
-        <section class="mt-6 grid gap-4 rounded-md border border-[#eee6e4] bg-white p-5 text-center text-[10px] sm:grid-cols-4">
-            <div>
-                ▱
-                <p class="mt-1 font-bold">Envio rápido</p>
-                <span class="text-stone-500">para todo o Brasil</span>
-            </div>
-
-            <div>
-                ↺
-                <p class="mt-1 font-bold">Troca fácil</p>
-                <span class="text-stone-500">até 7 dias</span>
-            </div>
-
-            <div>
-                ♢
-                <p class="mt-1 font-bold">Compra segura</p>
-                <span class="text-stone-500">dados protegidos</span>
-            </div>
-
-            <div>
-                ▤
-                <p class="mt-1 font-bold">Parcele em até 6x</p>
-                <span class="text-stone-500">sem juros</span>
-            </div>
-        </section>
-
-        {{-- Descrição --}}
-        <section id="descricao" class="mt-8 border-t border-[#eee6e4] pt-5">
-            <div class="flex gap-6 border-b border-[#eee6e4] text-[10px] font-bold uppercase tracking-wide text-stone-700">
-                <span class="border-b-2 border-[#d66f7c] pb-3">Descrição</span>
-                <span class="pb-3 text-stone-400">Detalhes</span>
-                <span class="pb-3 text-stone-400">Composição</span>
-                <span class="pb-3 text-stone-400">Avaliações (48)</span>
-            </div>
-
-            <p class="max-w-2xl py-5 text-xs leading-6 text-stone-600">
-                {{ $product->description }}
-            </p>
-        </section>
+        <x-public.product.benefits />
+        <x-public.product.details :product="$product" />
 
         {{-- Produtos relacionados --}}
         @if ($relatedProducts->isNotEmpty())
@@ -281,3 +254,7 @@
         @endif
     </div>
 @endsection
+
+@push('scripts')
+    @vite('resources/js/products/show.js')
+@endpush

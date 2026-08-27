@@ -70,6 +70,14 @@ tests/Feature/               Testes dos fluxos de negócio
 
 Os caminhos e nomes de rota permanecem iguais; a divisão organiza somente os arquivos-fonte.
 
+### Front-end e componentes
+
+- `resources/js/app.js` contém apenas inicialização global (Alpine, alertas e bootstrap).
+- Scripts de checkout, produto, dashboard, formulário de produto e pagamentos são entradas Vite próprias e são carregados apenas pelas telas que os utilizam.
+- Pix e boleto compartilham o módulo de consulta de status em `resources/js/payments/shared/`.
+- Componentes Blade encapsulam padrões repetidos, como métricas administrativas e blocos da página de produto.
+- Código JavaScript é ligado por atributos `data-*`; comportamentos novos não dependem de `onclick` nem de funções globais na view.
+
 Não há uma dependência extra para Actions ou DTOs: são classes nativas PHP/Laravel, carregadas pelo autoload `App\`.
 
 ### Autorização

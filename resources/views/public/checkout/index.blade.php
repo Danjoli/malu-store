@@ -35,4 +35,6 @@
         window.CSRF_TOKEN = @json(csrf_token());
         window.CHECKOUT_ADDRESSES = @json($addresses ?? []);
     </script>
+
+    @vite('resources/js/checkout/index.js')
 @endpush

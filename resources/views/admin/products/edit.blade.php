@@ -29,4 +29,6 @@
         };
         window.CLOTHING_SIZES = @json(array_map(fn ($size) => $size->value, $sizes));
     </script>
+
+    @vite('resources/js/admin/products/form.js')
 @endpush

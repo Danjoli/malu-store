@@ -42,7 +42,7 @@
 
             <button
                 type="button"
-                onclick="copiarPix()"
+                data-copy-pix
                 class="mt-3 w-full rounded-xl bg-[#cf7184] py-3 text-sm font-bold text-white hover:bg-[#b85d70]"
             >
                 Copiar código Pix

@@ -8,6 +8,10 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
+                'resources/js/checkout/index.js',
+                'resources/js/dashboard/index.js',
+                'resources/js/admin/products/form.js',
+                'resources/js/products/show.js',
                 'resources/js/payments/card/index.js',
                 'resources/js/payments/pix/index.js',
                 'resources/js/payments/boleto/index.js',
