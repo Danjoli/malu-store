@@ -75,7 +75,7 @@ Os caminhos e nomes de rota permanecem iguais; a divisão organiza somente os ar
 - `resources/js/app.js` contém apenas inicialização global (Alpine, alertas e bootstrap).
 - Scripts de checkout, produto, dashboard, formulário de produto e pagamentos são entradas Vite próprias e são carregados apenas pelas telas que os utilizam.
 - Pix e boleto compartilham o módulo de consulta de status em `resources/js/payments/shared/`.
-- Componentes Blade encapsulam padrões repetidos, como métricas administrativas e blocos da página de produto.
+- Componentes Blade encapsulam padrões repetidos, como métricas administrativas, etapas de checkout, formulários de perfil e blocos da página de produto.
 - Código JavaScript é ligado por atributos `data-*`; comportamentos novos não dependem de `onclick` nem de funções globais na view.
 
 Não há uma dependência extra para Actions ou DTOs: são classes nativas PHP/Laravel, carregadas pelo autoload `App\`.
@@ -142,8 +142,11 @@ Componentes administrativos já criados em `resources/views/components/admin/`:
 |---|---|
 | `<x-admin.page-header>` | Eyebrow, título, descrição e área opcional de ações da página. |
 | `<x-admin.table-card>` | Contêiner visual da tabela com borda, sombra e rolagem horizontal. |
+| `<x-admin.metric-card>` | Indicador numérico do dashboard com rótulo, cor e ícone. |
 
-As páginas de **Produtos** e **Categorias** já utilizam esses componentes. Novas telas devem seguir o mesmo critério: extrair um componente quando o mesmo bloco tiver uso real em mais de uma página, sem transformar conteúdo específico em componente desnecessário.
+As páginas de **Produtos** e **Categorias** já utilizam esses componentes. As páginas públicas usam os componentes em `components/public/` para checkout e perfil, além dos componentes de produto em `components/store/` e `components/public/product/`.
+
+As views administrativas usam `@extends('layouts.admin.app')` e `@section('content')`; as públicas usam os respectivos layouts públicos. Em ambos os casos, novos componentes só devem ser extraídos quando o mesmo bloco tiver uso real em mais de uma tela, sem transformar conteúdo específico em componente desnecessário.
 
 ## Páginas legais
 
@@ -348,8 +351,8 @@ php artisan optimize:clear
 
 ## Próximas melhorias recomendadas
 
-1. Criar testes com `Http::fake()` para Pix, boleto e cartão, sem chamar a API real.
-2. Criar testes de autorização para impedir que um usuário consulte pedido, carrinho ou favorito de outro.
-3. Ampliar as Actions de frete para a geração e sincronização de etiquetas.
-4. Colocar também a sincronização de etiquetas e outros serviços externos em fila.
-5. Definir e configurar um canal de alertas de produção para os logs críticos.
+1. Criar testes específicos para os fluxos administrativos mais usados, como criação de produto, atualização de envio e gestão de administradores.
+2. Ampliar a integração de frete para geração e sincronização de etiquetas, mantendo chamadas externas em fila.
+3. Monitorar a fila de produção, especialmente `failed_jobs`, e definir uma rotina de reprocessamento segura.
+4. Validar Pix, boleto, cartão e webhooks no sandbox antes de ativar as credenciais de produção.
+5. Manter o canal de alertas por e-mail configurado e, se a operação crescer, avaliar um serviço centralizado de monitoramento.
