@@ -55,7 +55,22 @@ jobs:
         run: vendor/bin/pint --test
 
       - name: Executar testes
-        run: php artisan test
+        id: tests
+        shell: bash
+        run: |
+          set -o pipefail
+          php artisan test 2>&1 | tee test-output.log
+
+      - name: Publicar diagnostico dos testes
+        if: failure() && steps.tests.outcome == 'failure'
+        shell: bash
+        run: |
+          {
+            echo '## Falha nos testes'
+            echo '```text'
+            tail -n 120 test-output.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Compilar frontend
         run: npm run build
