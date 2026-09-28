@@ -28,6 +28,12 @@
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
         <env name="MAIL_MAILER" value="array"/>
+        <env name="ASAAS_ENV" value="sandbox" force="true"/>
+        <env name="ASAAS_SANDBOX_API_KEY" value="test-api-key" force="true"/>
+        <env name="ASAAS_SANDBOX_WEBHOOK_TOKEN" value="test-webhook-token" force="true"/>
+        <env name="MELHOR_ENVIO_ENV" value="sandbox" force="true"/>
+        <env name="MELHOR_ENVIO_SANDBOX_TOKEN" value="test-api-token" force="true"/>
+        <env name="MELHOR_ENVIO_WEBHOOK_SECRET" value="test-webhook-secret" force="true"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
