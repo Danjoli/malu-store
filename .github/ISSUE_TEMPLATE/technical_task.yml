@@ -1,0 +1,29 @@
+name: Tarefa tecnica
+description: Registre refatoracoes, testes, manutencao ou divida tecnica.
+title: "[Tecnico]: "
+labels: [technical]
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objetivo
+      description: Explique o resultado tecnico esperado.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Escopo
+      description: Liste o que deve e o que nao deve fazer parte desta tarefa.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Criterios de conclusao
+      placeholder: |
+        - [ ] Implementacao concluida
+        - [ ] Testes atualizados
+        - [ ] Documentacao revisada
+    validations:
+      required: true

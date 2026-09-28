@@ -1,0 +1,42 @@
+name: Sugerir uma melhoria
+description: Proponha uma funcionalidade ou melhoria para a loja.
+title: "[Melhoria]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema ou oportunidade
+      description: Qual necessidade esta proposta atende?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Solucao proposta
+      description: Descreva o resultado desejado, sem limitar antecipadamente a implementacao.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Criterios de aceitacao
+      placeholder: |
+        - [ ] Criterio 1
+        - [ ] Criterio 2
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Loja publica
+        - Painel administrativo
+        - Pagamentos
+        - Frete
+        - Seguranca
+        - Infraestrutura e qualidade
+        - Documentacao
+    validations:
+      required: true
