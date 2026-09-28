@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Qualidade e testes
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Baixar o codigo
+        uses: actions/checkout@v7
+
+      - name: Preparar o PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, sqlite3
+          coverage: none
+          tools: composer:v2
+
+      - name: Preparar o Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependencias PHP
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Instalar dependencias JavaScript
+        run: npm ci
+
+      - name: Verificar vulnerabilidades PHP
+        run: composer audit
+
+      - name: Verificar formatacao PHP
+        run: vendor/bin/pint --test
+
+      - name: Executar testes
+        run: php artisan test
+
+      - name: Compilar frontend
+        run: npm run build
