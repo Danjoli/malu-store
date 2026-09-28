@@ -71,6 +71,9 @@ jobs:
             tail -n 120 test-output.log
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+          tail -n 40 test-output.log | while IFS= read -r line; do
+            echo "::error title=Teste no Linux::$line"
+          done
 
       - name: Compilar frontend
         run: npm run build
