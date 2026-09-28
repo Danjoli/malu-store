@@ -43,6 +43,11 @@ jobs:
       - name: Instalar dependencias JavaScript
         run: npm ci
 
+      - name: Preparar a aplicacao
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
       - name: Verificar vulnerabilidades PHP
         run: composer audit
 
