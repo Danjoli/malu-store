@@ -34,9 +34,6 @@ ln -s ../storage/app/public "$release/public/storage"
 cd "$release"
 "$php_bin" artisan optimize:clear
 "$php_bin" artisan migrate --force
-"$php_bin" artisan config:cache
-"$php_bin" artisan route:cache
-"$php_bin" artisan view:cache
 
 rm -rf "$previous"
 mkdir -p "$previous"
@@ -60,10 +57,25 @@ move_contents "$current" "$previous"
 move_contents "$release" "$current"
 
 rollback() {
-    mkdir -p "$release"
-    move_contents "$current" "$release"
+    local failed="$releases/$commit-failed"
+
+    rm -rf "$failed"
+    mkdir -p "$failed"
+    move_contents "$current" "$failed"
     move_contents "$previous" "$current"
 }
+
+# Laravel caches contain absolute paths. Build them only after the release is in
+# its final location, otherwise PHP-FPM writes to the now-empty staging folder.
+if ! (
+    cd "$current" &&
+    "$php_bin" artisan config:cache &&
+    "$php_bin" artisan route:cache &&
+    "$php_bin" artisan view:cache
+); then
+    rollback
+    exit 1
+fi
 
 healthy=false
 for attempt in {1..10}; do
