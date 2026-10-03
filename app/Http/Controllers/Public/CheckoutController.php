@@ -24,9 +24,7 @@ class CheckoutController extends Controller
         return match ($request->validated('payment_method')) {
             'pix' => $this->paymentService->pix($order->id),
             'boleto' => $this->paymentService->boleto($order->id),
-            'card' => $this->paymentService->cardFromData($order, $request->safe()->only([
-                'card_number', 'holder_name', 'cpf', 'expiration_month', 'expiration_year', 'ccv',
-            ])),
+            'card' => $this->paymentService->cardCheckout($order),
         };
     }
 

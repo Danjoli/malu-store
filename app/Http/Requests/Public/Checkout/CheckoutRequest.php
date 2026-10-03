@@ -42,11 +42,6 @@ class CheckoutRequest extends FormRequest
             'carrier' => 'required|string|max:100',
             'service' => 'required|string',
             'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
-            'card_number' => 'required_if:payment_method,card|nullable|string',
-            'holder_name' => 'required_if:payment_method,card|nullable|string',
-            'expiration_month' => 'required_if:payment_method,card|nullable|string',
-            'expiration_year' => 'required_if:payment_method,card|nullable|string',
-            'ccv' => 'required_if:payment_method,card|nullable|string',
         ];
     }
 
@@ -79,11 +74,6 @@ class CheckoutRequest extends FormRequest
             'carrier.required' => 'Selecione uma transportadora.',
             'service.required' => 'Selecione um serviço de entrega.',
             'payment_method.required' => 'Escolha uma forma de pagamento.',
-            'card_number.required_if' => 'Informe o número do cartão.',
-            'holder_name.required_if' => 'Informe o nome no cartão.',
-            'expiration_month.required_if' => 'Informe o mês de validade.',
-            'expiration_year.required_if' => 'Informe o ano de validade.',
-            'ccv.required_if' => 'Informe o código de segurança.',
         ];
     }
 

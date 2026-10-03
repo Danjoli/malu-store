@@ -183,11 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    const toggleCardFields = () => {
-        const isCard = form.querySelector('[name="payment_method"]:checked')?.value === 'card';
-        document.getElementById('card-fields').classList.toggle('hidden', !isCard);
-        ['card_number', 'holder_name', 'expiration_month', 'expiration_year', 'ccv'].forEach((name) => { input(name).required = isCard; });
-    };
     document.addEventListener('change', (event) => {
         if (event.target.name === 'frete_opcao') {
             const value = Number(event.target.value);
@@ -198,7 +193,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('valor-frete').textContent = money(value);
             document.getElementById('valor-total').textContent = money(Number(window.SUBTOTAL ?? 0) + value);
         }
-        if (event.target.name === 'payment_method') toggleCardFields();
     });
     form.addEventListener('submit', (event) => {
         if (!(Number(shippingCost.value) > 0) || !carrier.value || !service.value) {
@@ -211,5 +205,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     syncPreviews();
     invalidateShipping();
-    toggleCardFields();
 });
