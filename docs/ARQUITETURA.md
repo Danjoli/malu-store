@@ -4,11 +4,11 @@ Este documento descreve como a aplicação funciona hoje: estrutura, dados, comp
 
 ## Visão geral
 
-A Malu Store é um e-commerce em Laravel 12 para catálogo de moda, carrinho, checkout, pagamentos, pedidos, frete e painel administrativo.
+A Malu Store é um e-commerce em Laravel 13 para catálogo de moda, carrinho, checkout, pagamentos, pedidos, frete e painel administrativo.
 
 Tecnologias principais:
 
-- PHP 8.2 e Laravel 12;
+- PHP 8.4+ e Laravel 13;
 - MySQL em desenvolvimento/local;
 - Blade, Tailwind CSS 4, Vite e Alpine.js;
 - Asaas para Pix, boleto e cartão;

@@ -2,6 +2,8 @@
 
 Checklist para publicar uma cópia de demonstração ou uma versão de produção da Malu Store.
 
+> A aplicação requer PHP 8.4 ou 8.5 e Laravel 13. Confirme a versão do PHP usada pelo servidor web e pelo worker de filas antes do deploy.
+
 ## Antes de começar
 
 - Configure o `.env` com o banco MySQL correto, URL do site, `APP_ENV=production` e `APP_DEBUG=false`.

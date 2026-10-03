@@ -31,7 +31,7 @@ class AsaasService
             'content-type' => 'application/json',
             'access_token' => $this->apiKey,
             'User-Agent' => config('services.asaas.user_agent'),
-        ]);
+        ])->connectTimeout(5)->timeout(20);
     }
 
     /**

@@ -32,6 +32,6 @@ class AdminService
 
     public function delete(Admin $admin): bool
     {
-        $admin->delete();
+        return (bool) $admin->delete();
     }
 }

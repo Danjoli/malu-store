@@ -143,6 +143,8 @@ return [
     |
     */
 
+    'serialization' => env('SESSION_SERIALIZATION', 'json'),
+
     'path' => env('SESSION_PATH', '/'),
 
     /*
