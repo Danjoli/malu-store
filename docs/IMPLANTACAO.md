@@ -79,7 +79,7 @@ Secrets exigidos no Environment `production`:
 - `PRODUCTION_SSH_PRIVATE_KEY`
 - `PRODUCTION_SSH_KNOWN_HOSTS`
 
-O servidor mantém `.env` e `storage` em uma área compartilhada. Após a troca, o pipeline aguarda até 30 segundos pela atualização do servidor web da hospedagem. A release só é confirmada quando `/up` responde com sucesso e o arquivo `RELEASE_COMMIT` corresponde ao commit solicitado. Em caso de falha, o script restaura automaticamente a versão anterior. Nunca coloque senha, chave privada ou conteúdo do `.env` no workflow ou no repositório.
+Antes da troca, o servidor copia `.env` e `storage` da versão ativa para a nova release. Eles permanecem dentro de `public_html`, como exige o `open_basedir` do PHP web da Hostinger. Depois, o pipeline aguarda até 30 segundos pela atualização do servidor web. A release só é confirmada quando `/up` responde com sucesso e o arquivo `RELEASE_COMMIT` corresponde ao commit solicitado. Em caso de falha, o script restaura automaticamente a versão anterior. Nunca coloque senha, chave privada ou conteúdo do `.env` no workflow ou no repositório.
 
 ## Fila e webhooks
 
