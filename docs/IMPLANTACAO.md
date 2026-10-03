@@ -106,7 +106,9 @@ Não use chaves de API como tokens de webhook. Depois de alterar variáveis, exe
 
 ### Cartão de crédito
 
-O checkout não salva nem registra números de cartão ou CVV. A loja exige HTTPS para esse fluxo. Para reduzir ainda mais o escopo de dados sensíveis, habilite a tokenização de cartão na conta Asaas e planeje migrar o checkout para `creditCardToken`; essa habilitação depende de aprovação do Asaas em produção.
+O cartão usa o Asaas Checkout hospedado. Número, validade e CVV são informados exclusivamente no domínio HTTPS do Asaas; o navegador não os envia à Malu Store. A criação do Checkout apenas inicia a jornada: somente o evento `CHECKOUT_PAID`, autenticado e processado pela fila, confirma o pedido.
+
+No webhook do Asaas, habilite também `CHECKOUT_CREATED`, `CHECKOUT_PAID`, `CHECKOUT_CANCELED` e `CHECKOUT_EXPIRED`. Mantenha o mesmo token longo configurado em `ASAAS_PRODUCTION_WEBHOOK_TOKEN`.
 
 ## Ambientes das APIs: sandbox e produção
 

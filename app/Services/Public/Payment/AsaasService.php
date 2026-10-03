@@ -151,96 +151,45 @@ class AsaasService
         ), 'payments/boleto');
     }
 
-    /**
-     * Cria pagamento via cartão.
-     */
-    public function createCardPayment(
-        Order $order,
-        array $cardData
-    ): array {
-
+    /** Cria uma página de cartão hospedada pelo Asaas. */
+    public function createCardCheckout(Order $order): array
+    {
         $customer = $this->getOrCreateCustomer($order);
+        $order->loadMissing('items');
+        $items = $order->items->map(fn ($item): array => [
+            'externalReference' => (string) $item->id,
+            'name' => $item->name_snapshot,
+            'description' => collect([$item->color_snapshot, $item->size_snapshot])->filter()->implode(' / '),
+            'quantity' => $item->quantity,
+            'value' => (float) $item->price,
+        ])->values()->all();
 
-        $user = $order->user;
-
-        if (! $user) {
-            throw new PaymentGatewayException(
-                'Usuário não encontrado para o pedido.'
-            );
-        }
-
-        if (! $order->cep) {
-            throw new PaymentGatewayException(
-                'Endereço não encontrado no pedido.'
-            );
+        if ((float) $order->shipping > 0) {
+            $items[] = [
+                'externalReference' => 'shipping-'.$order->id,
+                'name' => 'Frete',
+                'description' => 'Entrega do pedido #'.$order->id,
+                'quantity' => 1,
+                'value' => (float) $order->shipping,
+            ];
         }
 
         return $this->request(fn (): Response => $this->http()->post(
-            $this->baseUrl.'/payments',
+            $this->baseUrl.'/checkouts',
             [
-
                 'customer' => $customer['id'],
-
-                'billingType' => 'CREDIT_CARD',
-
-                'value' => $order->total,
-
-                'dueDate' => now()->format('Y-m-d'),
-
-                'description' => 'Pedido #'.$order->id,
-
+                'billingTypes' => ['CREDIT_CARD'],
+                'chargeTypes' => ['DETACHED'],
+                'minutesToExpire' => 60,
                 'externalReference' => (string) $order->id,
-
-                'creditCard' => [
-
-                    'holderName' => $cardData['holder_name'],
-
-                    'number' => preg_replace(
-                        '/\D/',
-                        '',
-                        $cardData['card_number']
-                    ),
-
-                    'expiryMonth' => $cardData['expiration_month'],
-
-                    'expiryYear' => $cardData['expiration_year'],
-
-                    'ccv' => $cardData['ccv'],
-
+                'callback' => [
+                    'successUrl' => route('payment.success', $order),
+                    'cancelUrl' => route('payment.error', ['order' => $order, 'reason' => 'cancelled']),
+                    'expiredUrl' => route('payment.error', ['order' => $order, 'reason' => 'expired']),
                 ],
-
-                'creditCardHolderInfo' => [
-
-                    'name' => $cardData['holder_name'],
-
-                    'email' => $user->email,
-
-                    'cpfCnpj' => preg_replace(
-                        '/\D/',
-                        '',
-                        $order->cpf
-                    ),
-
-                    'postalCode' => preg_replace(
-                        '/\D/',
-                        '',
-                        $order->cep
-                    ),
-
-                    'addressNumber' => $order->number,
-
-                    'addressComplement' => $order->complement,
-
-                    'phone' => $order->phone,
-
-                    'mobilePhone' => $order->phone,
-
-                ],
-
-                'remoteIp' => request()->ip(),
-
+                'items' => $items,
             ]
-        ), 'payments/card');
+        ), 'checkouts/card');
     }
 
     public function getPayment(string $paymentId): array

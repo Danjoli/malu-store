@@ -21,7 +21,7 @@ enum PaymentMethod: string
     {
         return match ($this) {
             self::Pix => 'Confirmação rápida e segura.',
-            self::Card => 'Preencha os dados do cartão abaixo.',
+            self::Card => 'Pagamento seguro na página hospedada pelo Asaas.',
             self::Boleto => 'O boleto será gerado após a confirmação.',
         };
     }

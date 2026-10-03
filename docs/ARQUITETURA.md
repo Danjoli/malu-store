@@ -256,7 +256,7 @@ Detalhes:
 
 - `CreatePixPaymentAction`: cria cobrança Pix, busca QR Code e define expiração de 30 minutos.
 - `CreateBoletoPaymentAction`: cria boleto e guarda a data de vencimento.
-- `ProcessCardPaymentAction`: processa cartão e atualiza o pedido conforme a resposta.
+- `ProcessCardPaymentAction`: cria o Checkout hospedado do Asaas sem receber PAN ou CVV e deixa o pedido aguardando webhook.
 
 Os dados sensíveis e URL da API devem permanecer no `.env`; nunca devem ser enviados ao repositório público.
 

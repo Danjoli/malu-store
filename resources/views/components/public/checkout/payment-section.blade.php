@@ -17,13 +17,7 @@
         @endforeach
     </fieldset>
 
-    <div id="card-fields" class="mt-4 hidden rounded-md border border-[#f0e4e1] bg-[#fffaf9] p-4 sm:p-5">
-        <div class="grid gap-4 sm:grid-cols-2">
-            <div class="sm:col-span-2"><label for="card_number" class="mb-1.5 block text-xs font-semibold">Número do cartão</label><input class="store-input" id="card_number" name="card_number" maxlength="19" inputmode="numeric" autocomplete="cc-number" value="{{ old('card_number') }}"></div>
-            <div class="sm:col-span-2"><label for="holder_name" class="mb-1.5 block text-xs font-semibold">Nome no cartão</label><input class="store-input" id="holder_name" name="holder_name" autocomplete="cc-name" value="{{ old('holder_name') }}"></div>
-            <div><label for="expiration_month" class="mb-1.5 block text-xs font-semibold">Mês</label><input class="store-input" id="expiration_month" name="expiration_month" maxlength="2" inputmode="numeric" autocomplete="cc-exp-month" value="{{ old('expiration_month') }}"></div>
-            <div><label for="expiration_year" class="mb-1.5 block text-xs font-semibold">Ano</label><input class="store-input" id="expiration_year" name="expiration_year" maxlength="4" inputmode="numeric" autocomplete="cc-exp-year" value="{{ old('expiration_year') }}"></div>
-            <div><label for="ccv" class="mb-1.5 block text-xs font-semibold">CVV</label><input class="store-input" id="ccv" name="ccv" maxlength="4" inputmode="numeric" autocomplete="cc-csc" value="{{ old('ccv') }}"></div>
-        </div>
-    </div>
+    <p class="mt-4 rounded-md border border-[#f0e4e1] bg-[#fffaf9] p-4 text-xs leading-5 text-stone-600">
+        Ao escolher cartão, você será direcionado ao ambiente seguro do Asaas. A Malu Store não recebe nem armazena o número ou o código de segurança do cartão.
+    </p>
 </section>
