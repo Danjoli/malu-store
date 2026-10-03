@@ -39,13 +39,30 @@ cd "$release"
 "$php_bin" artisan view:cache
 
 rm -rf "$previous"
-mv "$current" "$previous"
-mv "$release" "$current"
+mkdir -p "$previous"
+
+move_contents() {
+    local source="$1"
+    local destination="$2"
+    local entries=()
+
+    shopt -s dotglob nullglob
+    entries=("$source"/*)
+    if (( ${#entries[@]} > 0 )); then
+        mv -- "${entries[@]}" "$destination/"
+    fi
+    shopt -u dotglob nullglob
+}
+
+# Hostinger associates the document root with the public_html directory itself.
+# Keep that directory (and its inode/ACLs) in place and only replace its contents.
+move_contents "$current" "$previous"
+move_contents "$release" "$current"
 
 rollback() {
-    rm -rf "$release"
-    mv "$current" "$release"
-    mv "$previous" "$current"
+    mkdir -p "$release"
+    move_contents "$current" "$release"
+    move_contents "$previous" "$current"
 }
 
 healthy=false
