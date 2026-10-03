@@ -13,7 +13,6 @@ home_dir="${HOME:?HOME ausente}"
 app_root="$home_dir/domains/malu-store.com"
 current="$app_root/public_html"
 releases="$app_root/releases"
-shared="$app_root/shared"
 release="$releases/$commit"
 previous="$app_root/previous-$commit"
 php_bin="/opt/alt/php85/usr/bin/php"
@@ -21,22 +20,14 @@ health_url="https://loja.malu-store.com/up"
 
 cd "$home_dir"
 sha256sum --check "$checksum_name"
-mkdir -p "$releases" "$shared"
-
-if [[ ! -f "$shared/.env" ]]; then
-    cp "$current/.env" "$shared/.env"
-fi
-
-if [[ ! -d "$shared/storage" ]]; then
-    cp -a "$current/storage" "$shared/storage"
-fi
+mkdir -p "$releases"
 
 rm -rf "$release"
 mkdir -p "$release"
 tar -xzf "$archive_name" -C "$release"
+cp "$current/.env" "$release/.env"
 rm -rf "$release/storage"
-ln -s "$shared/storage" "$release/storage"
-ln -s "$shared/.env" "$release/.env"
+cp -a "$current/storage" "$release/storage"
 rm -f "$release/public/storage"
 ln -s ../storage/app/public "$release/public/storage"
 
