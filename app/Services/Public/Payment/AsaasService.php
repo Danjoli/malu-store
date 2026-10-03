@@ -4,6 +4,7 @@ namespace App\Services\Public\Payment;
 
 use App\Exceptions\Domain\PaymentGatewayException;
 use App\Models\Order;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -49,7 +50,7 @@ class AsaasService
             throw new PaymentGatewayException('CPF não encontrado no pedido.');
         }
 
-        $response = $this->http()->post(
+        return $this->request(fn (): Response => $this->http()->post(
             $this->baseUrl.'/customers',
             [
                 'name' => $user->name,
@@ -61,11 +62,7 @@ class AsaasService
                 ),
                 'externalReference' => (string) $order->id,
             ]
-        );
-
-        $this->ensureSuccessful($response, 'customers');
-
-        return $response->json();
+        ), 'customers');
     }
 
     /**
@@ -111,7 +108,7 @@ class AsaasService
     {
         $customer = $this->getOrCreateCustomer($order);
 
-        $response = $this->http()->post(
+        return $this->request(fn (): Response => $this->http()->post(
             $this->baseUrl.'/payments',
             [
                 'customer' => $customer['id'],
@@ -121,11 +118,7 @@ class AsaasService
                 'description' => 'Pedido #'.$order->id,
                 'externalReference' => (string) $order->id,
             ]
-        );
-
-        $this->ensureSuccessful($response, 'payments/pix');
-
-        return $response->json();
+        ), 'payments/pix');
     }
 
     /**
@@ -133,13 +126,9 @@ class AsaasService
      */
     public function getPixQrCode(string $paymentId): array
     {
-        $response = $this->http()->get(
+        return $this->request(fn (): Response => $this->http()->get(
             $this->baseUrl."/payments/{$paymentId}/pixQrCode"
-        );
-
-        $this->ensureSuccessful($response, 'payments/pix-qr-code');
-
-        return $response->json();
+        ), 'payments/pix-qr-code');
     }
 
     /**
@@ -149,7 +138,7 @@ class AsaasService
     {
         $customer = $this->getOrCreateCustomer($order);
 
-        $response = $this->http()->post(
+        return $this->request(fn (): Response => $this->http()->post(
             $this->baseUrl.'/payments',
             [
                 'customer' => $customer['id'],
@@ -159,11 +148,7 @@ class AsaasService
                 'description' => 'Pedido #'.$order->id,
                 'externalReference' => (string) $order->id,
             ]
-        );
-
-        $this->ensureSuccessful($response, 'payments/boleto');
-
-        return $response->json();
+        ), 'payments/boleto');
     }
 
     /**
@@ -190,7 +175,7 @@ class AsaasService
             );
         }
 
-        $response = $this->http()->post(
+        return $this->request(fn (): Response => $this->http()->post(
             $this->baseUrl.'/payments',
             [
 
@@ -255,33 +240,44 @@ class AsaasService
                 'remoteIp' => request()->ip(),
 
             ]
-        );
-
-        $this->ensureSuccessful($response, 'payments/card');
-
-        return $response->json();
+        ), 'payments/card');
     }
 
     public function getPayment(string $paymentId): array
     {
-        $response = $this->http()->get(
+        return $this->request(fn (): Response => $this->http()->get(
             $this->baseUrl.'/payments/'.$paymentId
-        );
-
-        $this->ensureSuccessful($response, 'payments/get');
-
-        return $response->json();
+        ), 'payments/get');
     }
 
     public function cancelPayment(string $paymentId): array
     {
-        $response = $this->http()->delete(
+        return $this->request(fn (): Response => $this->http()->delete(
             $this->baseUrl.'/payments/'.$paymentId
-        );
+        ), 'payments/cancel');
+    }
 
-        $this->ensureSuccessful($response, 'payments/cancel');
+    /** @param callable(): Response $send */
+    private function request(callable $send, string $operation): array
+    {
+        try {
+            $response = $send();
+        } catch (ConnectionException) {
+            Log::warning('Timeout ou falha de conexão com Asaas.', ['operation' => $operation]);
 
-        return $response->json();
+            throw new PaymentGatewayException('Não foi possível comunicar com o provedor de pagamentos.', true);
+        }
+
+        $this->ensureSuccessful($response, $operation);
+        $payload = $response->json();
+
+        if (! is_array($payload)) {
+            Log::warning('Resposta inválida recebida do Asaas.', ['operation' => $operation]);
+
+            throw new PaymentGatewayException('O provedor de pagamentos retornou uma resposta inválida.', true);
+        }
+
+        return $payload;
     }
 
     private function ensureSuccessful(Response $response, string $operation): void

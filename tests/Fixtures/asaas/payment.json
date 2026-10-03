@@ -1,0 +1,7 @@
+{
+  "id": "pay_fixture_1",
+  "status": "PENDING",
+  "billingType": "PIX",
+  "externalReference": "1001",
+  "value": 100.0
+}
