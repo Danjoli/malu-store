@@ -3,6 +3,7 @@
 namespace App\Services\Shipping;
 
 use App\Exceptions\Domain\ShippingProviderException;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -35,13 +36,27 @@ class MelhorEnvioService
 
         $url = $this->baseUrl.$endpoint;
 
-        $response = $method === 'GET'
-            ? $http->get($url, $data)
-            : $http->post($url, $data);
+        try {
+            $response = $method === 'GET'
+                ? $http->get($url, $data)
+                : $http->post($url, $data);
+        } catch (ConnectionException) {
+            Log::warning('Timeout ou falha de conexão com Melhor Envio.', ['endpoint' => $endpoint]);
+
+            throw new ShippingProviderException('Não foi possível comunicar com a Melhor Envio.');
+        }
 
         $this->ensureSuccessful($response, $endpoint);
 
-        return $response->json();
+        $payload = $response->json();
+
+        if (! is_array($payload)) {
+            Log::warning('Resposta inválida recebida da Melhor Envio.', ['endpoint' => $endpoint]);
+
+            throw new ShippingProviderException('A Melhor Envio retornou uma resposta inválida.');
+        }
+
+        return $payload;
     }
 
     private function ensureSuccessful(Response $response, string $endpoint): void

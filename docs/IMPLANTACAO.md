@@ -8,7 +8,7 @@ Checklist para publicar uma cópia de demonstração ou uma versão de produçã
 
 - Configure o `.env` com o banco MySQL correto, URL do site, `APP_ENV=production` e `APP_DEBUG=false`.
 - Instale dependências PHP com `composer install --no-dev --optimize-autoloader`.
-- Envie os arquivos compilados de `public/build` ou execute `npm run build` antes do deploy.
+- Execute `npm ci && npm run build` no artefato de cada release antes do deploy.
 - Envie também `storage/app/public/products` para preservar as fotos do catálogo.
 - Configure o domínio da hospedagem para servir a pasta `public`, nunca a raiz inteira do projeto.
 
@@ -45,9 +45,11 @@ php artisan optimize:clear
 
 O comando cria a estrutura e insere categorias, produtos, imagens cadastradas, contas e pedidos de demonstração. As imagens continuam dependendo dos arquivos enviados para `storage/app/public/products`.
 
-## Arquivos públicos e SEO
+## Assets públicos e SEO
 
-- Mantenha `public/build` junto do deploy (ou execute `npm run build` antes de enviar os arquivos).
+- `public/build` é sempre gerado a partir de `resources`, `package-lock.json` e `vite.config.js`; ele não é versionado.
+- A CI compila os assets em todos os commits. O deploy deve executar `npm ci && npm run build` em uma pasta de release limpa, antes da troca atômica do diretório público.
+- O Vite limpa `public/build` antes de cada compilação, evitando arquivos com hash obsoleto. Não copie esse diretório entre releases.
 - O link `public/storage` é criado pelo `storage:link`; ele deve apontar para `storage/app/public`. Se o projeto for movido de pasta ou de servidor, recrie esse link com esse comando.
 - O ícone público principal é `public/favicon.svg`; `public/favicon.ico` é o fallback de compatibilidade para navegadores e atalhos antigos. Ambos são carregados pelos layouts público, de pagamento e administrativo.
 - Não envie `public/hot` para produção. Esse arquivo é criado somente pelo Vite em desenvolvimento e faz o Laravel procurar os assets no servidor local.
