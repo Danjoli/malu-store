@@ -206,3 +206,9 @@ php artisan alerts:test
 ```
 
 O comando solicita um e-mail de teste sem exigir uma falha real. Se o e-mail não chegar, consulte `storage/logs/laravel.log` para verificar um eventual erro de SMTP.
+
+## Monitoramento externo
+
+O workflow **Monitor de produção** consulta `/up` e `/produtos` a cada 15 minutos, com três novas tentativas para falhas transitórias. Se algum endpoint continuar indisponível, ele abre uma issue de prioridade alta no GitHub. Enquanto a primeira issue estiver aberta, novas execuções falhas não criam duplicatas.
+
+Também é possível executar o monitor manualmente pela aba Actions. Depois de resolver um incidente, valide os dois endpoints, registre a causa e a correção na issue e só então feche-a. A próxima indisponibilidade poderá criar uma nova ocorrência.
