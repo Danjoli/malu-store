@@ -64,6 +64,9 @@ jobs:
       - name: Executar analise estatica
         run: composer analyse
 
+      - name: Compilar frontend
+        run: npm run build
+
       - name: Executar testes
         id: tests
         shell: bash
@@ -87,5 +90,3 @@ jobs:
           diagnostic="${diagnostic//$'\n'/'%0A'}"
           echo "::error title=Teste no Linux::$diagnostic"
 
-      - name: Compilar frontend
-        run: npm run build
