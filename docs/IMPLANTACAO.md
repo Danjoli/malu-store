@@ -67,6 +67,20 @@ php artisan config:cache
 php artisan sitemap:generate
 ```
 
+## Pipeline protegido de produção
+
+O workflow **Deploy de produção** é iniciado manualmente no GitHub e aceita somente um commit contido em `main`. Ele repete testes, análise estática, auditorias e build; depois cria um arquivo com checksum, guarda o artefato por 30 dias e usa o Environment `production` para ativá-lo.
+
+Secrets exigidos no Environment `production`:
+
+- `PRODUCTION_SSH_HOST`
+- `PRODUCTION_SSH_PORT`
+- `PRODUCTION_SSH_USER`
+- `PRODUCTION_SSH_PRIVATE_KEY`
+- `PRODUCTION_SSH_KNOWN_HOSTS`
+
+O servidor mantém `.env` e `storage` em uma área compartilhada. A release só é confirmada após `/up` responder com sucesso e o arquivo `RELEASE_COMMIT` corresponder ao commit solicitado. Em caso de falha, o script restaura automaticamente a versão anterior. Nunca coloque senha, chave privada ou conteúdo do `.env` no workflow ou no repositório.
+
 ## Fila e webhooks
 
 Como o webhook do Asaas e a geração de etiquetas são colocados na fila `database`, mantenha um worker ativo:
