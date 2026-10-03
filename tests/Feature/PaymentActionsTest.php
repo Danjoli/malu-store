@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Actions\Payment\CreateBoletoPaymentAction;
 use App\Actions\Payment\CreatePixPaymentAction;
+use App\Actions\Payment\FinalizePaidOrderAction;
 use App\Actions\Payment\ProcessCardPaymentAction;
 use App\Models\Order;
 use App\Models\User;
@@ -109,7 +110,8 @@ class PaymentActionsTest extends TestCase
 
         (new ProcessCardPaymentAction(
             $asaas,
-            app(OperationalAlertService::class)
+            app(OperationalAlertService::class),
+            app(FinalizePaidOrderAction::class),
         ))->execute($order, [
             'holderName' => 'Teste',
         ]);

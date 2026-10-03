@@ -1,0 +1,10 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app
+        - routes
+    # Aumentar gradualmente conforme as relações Eloquent receberem tipos explícitos.
+    level: 0
+    tmpDir: storage/framework/cache/phpstan

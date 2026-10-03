@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Exceptions\Domain\InsufficientStockException;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Category;
@@ -90,5 +91,46 @@ class AsaasWebhookTest extends TestCase
         $this->assertSame(8, $variant->fresh()->stock);
 
         $this->assertDatabaseCount('cart_items', 0);
+    }
+
+    public function test_paid_webhook_does_not_mark_order_as_paid_when_stock_is_insufficient(): void
+    {
+        $user = User::factory()->create();
+        $product = Product::factory()->for(Category::factory())->create();
+        $variant = ProductVariant::factory()->for($product)->create(['stock' => 1]);
+        $order = Order::create([
+            'user_id' => $user->id,
+            'recipient_name' => 'Teste',
+            'street' => 'Rua A',
+            'number' => '1',
+            'city' => 'São Paulo',
+            'state' => 'SP',
+            'cep' => '01001000',
+            'subtotal' => 100,
+            'shipping' => 0,
+            'total' => 100,
+            'status' => 'pending',
+            'gateway_payment_id' => 'pay_without_stock',
+        ]);
+
+        OrderItem::create([
+            'order_id' => $order->id,
+            'product_variant_id' => $variant->id,
+            'name_snapshot' => $product->name,
+            'image_snapshot' => '',
+            'price' => 100,
+            'quantity' => 2,
+        ]);
+
+        try {
+            app(AsaasWebhookService::class)->handleAsaas([
+                'event' => 'PAYMENT_RECEIVED',
+                'payment' => ['id' => 'pay_without_stock', 'billingType' => 'PIX'],
+            ]);
+            $this->fail('A confirmação deveria falhar sem estoque suficiente.');
+        } catch (InsufficientStockException) {
+            $this->assertDatabaseHas('orders', ['id' => $order->id, 'status' => 'pending']);
+            $this->assertSame(1, $variant->fresh()->stock);
+        }
     }
 }

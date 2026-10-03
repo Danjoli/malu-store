@@ -4,14 +4,13 @@ namespace App\Http\Controllers\Webhooks;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessAsaasWebhook;
-use App\Services\Admin\Shipments\MelhorEnvioWebhookService;
+use App\Jobs\ProcessMelhorEnvioWebhook;
 use App\Services\Security\WebhookSignatureValidator;
 use Illuminate\Http\Request;
 
 class WebhookController extends Controller
 {
     public function __construct(
-        protected MelhorEnvioWebhookService $melhorEnvioWebhookService,
         protected WebhookSignatureValidator $signatureValidator,
     ) {}
 
@@ -24,9 +23,7 @@ class WebhookController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        $this->melhorEnvioWebhookService->handleMelhorEnvio(
-            $request->all()
-        );
+        ProcessMelhorEnvioWebhook::dispatch($request->all());
 
         return response()->json([
             'status' => 'ok',

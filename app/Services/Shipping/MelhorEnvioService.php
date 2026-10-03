@@ -24,7 +24,9 @@ class MelhorEnvioService
     {
         return Http::withToken($this->token)
             ->acceptJson()
-            ->withUserAgent(config('services.melhor_envio.user_agent'));
+            ->withUserAgent(config('services.melhor_envio.user_agent'))
+            ->connectTimeout(5)
+            ->timeout(20);
     }
 
     private function request(string $endpoint, array $data = [], string $method = 'POST'): array

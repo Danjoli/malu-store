@@ -29,7 +29,7 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/payment/pix/{order}', [PaymentController::class, 'pix'])
+    Route::post('/payment/pix/{order}', [PaymentController::class, 'pix'])
         ->name('payment.pix');
 
     /*
@@ -38,7 +38,7 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/payment/boleto/{order}', [PaymentController::class, 'boleto'])
+    Route::post('/payment/boleto/{order}', [PaymentController::class, 'boleto'])
         ->name('payment.boleto');
 
     /*
