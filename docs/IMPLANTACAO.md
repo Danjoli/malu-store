@@ -79,7 +79,7 @@ Secrets exigidos no Environment `production`:
 - `PRODUCTION_SSH_PRIVATE_KEY`
 - `PRODUCTION_SSH_KNOWN_HOSTS`
 
-O servidor mantém `.env` e `storage` em uma área compartilhada. A release só é confirmada após `/up` responder com sucesso e o arquivo `RELEASE_COMMIT` corresponder ao commit solicitado. Em caso de falha, o script restaura automaticamente a versão anterior. Nunca coloque senha, chave privada ou conteúdo do `.env` no workflow ou no repositório.
+O servidor mantém `.env` e `storage` em uma área compartilhada. Após a troca, o pipeline aguarda até 30 segundos pela atualização do servidor web da hospedagem. A release só é confirmada quando `/up` responde com sucesso e o arquivo `RELEASE_COMMIT` corresponde ao commit solicitado. Em caso de falha, o script restaura automaticamente a versão anterior. Nunca coloque senha, chave privada ou conteúdo do `.env` no workflow ou no repositório.
 
 ## Fila e webhooks
 

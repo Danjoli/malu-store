@@ -57,7 +57,18 @@ rollback() {
     mv "$previous" "$current"
 }
 
-if ! curl --fail --silent --show-error --max-time 20 "$health_url" >/dev/null; then
+healthy=false
+for attempt in {1..10}; do
+    if curl --fail --silent --max-time 10 "$health_url" >/dev/null; then
+        healthy=true
+        break
+    fi
+
+    printf 'Health check ainda indisponível (tentativa %s/10).\n' "$attempt"
+    sleep 3
+done
+
+if [[ "$healthy" != true ]]; then
     rollback
     exit 1
 fi
