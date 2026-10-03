@@ -1,0 +1,130 @@
+name: Deploy de produção
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: Commit de main a implantar
+        required: true
+        default: main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Validar e gerar release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      sha: ${{ steps.release-meta.outputs.sha }}
+    steps:
+      - name: Baixar o commit solicitado
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.commit }}
+          fetch-depth: 0
+
+      - name: Garantir que o commit pertence a main
+        shell: bash
+        run: |
+          git fetch origin main
+          git merge-base --is-ancestor HEAD origin/main
+
+      - name: Preparar PHP
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
+        with:
+          php-version: '8.5'
+          extensions: mbstring, pdo_sqlite, sqlite3, gd, fileinfo
+          coverage: none
+          tools: composer:v2
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar e validar
+        shell: bash
+        run: |
+          composer install --no-interaction --no-progress --prefer-dist
+          npm ci
+          cp .env.example .env
+          php artisan key:generate
+          composer audit
+          npm audit --audit-level=high
+          vendor/bin/pint --test
+          composer analyse
+          npm run build
+          php artisan test
+
+      - name: Preparar dependências de produção
+        id: release-meta
+        shell: bash
+        run: |
+          composer install --no-dev --no-interaction --no-progress --prefer-dist --optimize-autoloader
+          rm -f .env
+          release_sha="$(git rev-parse HEAD)"
+          printf '%s\n' "$release_sha" > RELEASE_COMMIT
+          printf 'sha=%s\n' "$release_sha" >> "$GITHUB_OUTPUT"
+          tar --exclude=.git --exclude=node_modules --exclude=.env --exclude='storage/logs/*' -czf "$RUNNER_TEMP/malu-store-${release_sha}.tar.gz" .
+          mkdir -p .release
+          mv "$RUNNER_TEMP/malu-store-${release_sha}.tar.gz" .release/
+          cd .release
+          sha256sum "malu-store-${release_sha}.tar.gz" > "malu-store-${release_sha}.sha256"
+
+      - name: Armazenar artefato imutável
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: production-${{ steps.release-meta.outputs.sha }}
+          path: |
+            .release/malu-store-${{ steps.release-meta.outputs.sha }}.tar.gz
+            .release/malu-store-${{ steps.release-meta.outputs.sha }}.sha256
+            scripts/deploy/activate-release.sh
+          retention-days: 30
+          if-no-files-found: error
+
+  deploy:
+    name: Implantar e verificar
+    needs: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: https://loja.malu-store.com
+    steps:
+      - name: Baixar artefato validado
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: production-${{ needs.release.outputs.sha }}
+
+      - name: Preparar acesso seguro
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.PRODUCTION_SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.PRODUCTION_SSH_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Enviar e ativar release
+        shell: bash
+        env:
+          DEPLOY_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
+          DEPLOY_PORT: ${{ secrets.PRODUCTION_SSH_PORT }}
+          DEPLOY_USER: ${{ secrets.PRODUCTION_SSH_USER }}
+        run: |
+          release_sha="${{ needs.release.outputs.sha }}"
+          archive="malu-store-${release_sha}.tar.gz"
+          checksum="malu-store-${release_sha}.sha256"
+          scp -P "$DEPLOY_PORT" ".release/$archive" ".release/$checksum" scripts/deploy/activate-release.sh "$DEPLOY_USER@$DEPLOY_HOST:~/"
+          ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "bash ~/activate-release.sh '$archive' '$checksum' '$release_sha'"
+
