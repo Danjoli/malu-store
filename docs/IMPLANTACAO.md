@@ -212,3 +212,24 @@ O comando solicita um e-mail de teste sem exigir uma falha real. Se o e-mail nã
 O workflow **Monitor de produção** consulta `/up` e `/produtos` a cada 15 minutos, com três novas tentativas para falhas transitórias. Se algum endpoint continuar indisponível, ele abre uma issue de prioridade alta no GitHub. Enquanto a primeira issue estiver aberta, novas execuções falhas não criam duplicatas.
 
 Também é possível executar o monitor manualmente pela aba Actions. Depois de resolver um incidente, valide os dois endpoints, registre a causa e a correção na issue e só então feche-a. A próxima indisponibilidade poderá criar uma nova ocorrência.
+
+## Backup e recuperação
+
+O backup diário reúne um dump consistente do MySQL e `storage/app/public`, criptografa o pacote com AES-256 e grava um checksum SHA-256. A retenção padrão é de 14 cópias. Credenciais e chave de criptografia ficam fora de `public_html`, com permissão somente para o usuário da hospedagem.
+
+No hPanel, agende diariamente, fora do horário de maior movimento:
+
+```bash
+bash /home/USUARIO/domains/malu-store.com/public_html/scripts/backup/create-backup.sh
+```
+
+O objetivo de recuperação é **RPO de até 24 horas** e **RTO de até 2 horas**. A restauração sempre deve começar em um banco separado; nunca aponte o comando diretamente para o banco de produção:
+
+```bash
+BACKUP_MYSQL_CONFIG=/caminho/credenciais-de-teste.cnf \
+BACKUP_ENCRYPTION_KEY_FILE=/caminho/chave \
+RESTORE_UPLOADS_DESTINATION=/caminho/uploads-restaurados \
+bash scripts/backup/restore-backup.sh /caminho/malu-store-DATA.tar.gz.enc banco_restauracao
+```
+
+Confira pedidos, produtos, usuários, imagens e contagens antes de promover os dados restaurados. O workflow **Teste de restauração de backup** executa mensalmente o ciclo completo em bancos descartáveis e também pode ser iniciado manualmente. A chave de produção deve ter uma cópia em um cofre externo à hospedagem; sem ela, o backup criptografado não pode ser recuperado.
