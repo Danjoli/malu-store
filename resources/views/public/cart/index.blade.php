@@ -40,7 +40,7 @@
                                 {{-- Produto --}}
                                 <td class="flex items-center gap-4 p-5">
                                     <img
-                                        src="{{ asset('storage/products/' . $item->image_snapshot) }}"
+                                        src="{{ $item->image_url }}"
                                         alt="{{ $item->name_snapshot }}"
                                         class="h-24 w-20 rounded-sm object-cover"
                                     >

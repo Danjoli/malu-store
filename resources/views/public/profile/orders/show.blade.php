@@ -168,7 +168,7 @@
                     <div class="flex items-center space-x-4 border-b border-[#eee6e4] py-4">
                         @if ($item->image_snapshot)
                             <img
-                                src="{{ asset('storage/products/' . $item->image_snapshot) }}"
+                                src="{{ $item->image_url }}"
                                 alt="{{ $item->name_snapshot }}"
                                 class="h-20 w-16 rounded-sm object-cover"
                             >
