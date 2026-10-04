@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProductService
 {
@@ -58,7 +59,7 @@ class ProductService
     private function handleImages(Product $product, array $images): void
     {
         foreach ($images as $image) {
-            $name = time().'_'.$image->getClientOriginalName();
+            $name = Str::ulid().'.'.strtolower($image->extension());
             $image->storeAs('products', $name, 'public');
 
             ProductImage::create([
