@@ -215,7 +215,7 @@ Também é possível executar o monitor manualmente pela aba Actions. Depois de 
 
 ## Backup e recuperação
 
-O backup diário reúne um dump consistente do MySQL e `storage/app/public`, criptografa o pacote com AES-256 e grava um checksum SHA-256. A retenção padrão é de 14 cópias. Credenciais e chave de criptografia ficam fora de `public_html`, com permissão somente para o usuário da hospedagem.
+O backup diário reúne um dump consistente do MySQL e `storage/app/public`, criptografa o pacote com AES-256 e grava um checksum SHA-256. A retenção padrão é de 14 cópias. Credenciais, nome do banco e chave de criptografia ficam fora de `public_html`, com permissão somente para o usuário da hospedagem (`~/.malu-store-backup.cnf`, `~/.malu-store-backup-database` e `~/.malu-store-backup.key`).
 
 No hPanel, agende diariamente, fora do horário de maior movimento:
 

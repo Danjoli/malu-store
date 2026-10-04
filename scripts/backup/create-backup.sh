@@ -5,13 +5,17 @@ umask 077
 app_root="${APP_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 backup_dir="${BACKUP_DIR:-${HOME:?HOME ausente}/backups/malu-store}"
 mysql_config="${BACKUP_MYSQL_CONFIG:-${HOME}/.malu-store-backup.cnf}"
+database_file="${BACKUP_DATABASE_FILE:-${HOME}/.malu-store-backup-database}"
 key_file="${BACKUP_ENCRYPTION_KEY_FILE:-${HOME}/.malu-store-backup.key}"
 retention="${BACKUP_RETENTION_COUNT:-14}"
 
 [[ "$retention" =~ ^[1-9][0-9]*$ ]] || { printf 'Retenção inválida.\n' >&2; exit 1; }
 test -r "$mysql_config"
+test -r "$database_file"
 test -r "$key_file"
 test -d "$app_root/storage/app/public"
+database="$(tr -d '\r\n' < "$database_file")"
+[[ "$database" =~ ^[A-Za-z0-9_]+$ ]] || { printf 'Nome de banco inválido.\n' >&2; exit 1; }
 
 mkdir -p "$backup_dir"
 stage="$(mktemp -d "$backup_dir/.staging-XXXXXXXX")"
@@ -30,6 +34,7 @@ mysqldump \
     --skip-lock-tables \
     --no-tablespaces \
     --default-character-set=utf8mb4 \
+    "$database" \
     > "$stage/database.sql"
 
 release="unknown"

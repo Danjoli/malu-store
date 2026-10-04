@@ -35,7 +35,8 @@ jobs:
         run: |
           mkdir -p storage/app/public backups
           printf 'imagem de teste\n' > storage/app/public/probe.txt
-          printf '[client]\nhost=127.0.0.1\nport=3306\nuser=root\npassword=test-password\ndatabase=malu_source\n' > "$RUNNER_TEMP/mysql.cnf"
+          printf '[client]\nhost=127.0.0.1\nport=3306\nuser=root\npassword=test-password\n' > "$RUNNER_TEMP/mysql.cnf"
+          printf 'malu_source\n' > "$RUNNER_TEMP/database-name"
           printf 'test-only-encryption-key\n' > "$RUNNER_TEMP/backup.key"
           mysql --defaults-extra-file="$RUNNER_TEMP/mysql.cnf" -e 'CREATE TABLE backup_probe (id BIGINT PRIMARY KEY, value VARCHAR(50)); INSERT INTO backup_probe VALUES (1, "restored"); CREATE DATABASE malu_restore;'
 
@@ -44,6 +45,7 @@ jobs:
         env:
           BACKUP_DIR: ${{ github.workspace }}/backups
           BACKUP_MYSQL_CONFIG: ${{ runner.temp }}/mysql.cnf
+          BACKUP_DATABASE_FILE: ${{ runner.temp }}/database-name
           BACKUP_ENCRYPTION_KEY_FILE: ${{ runner.temp }}/backup.key
         run: bash scripts/backup/create-backup.sh
 
