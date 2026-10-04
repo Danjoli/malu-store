@@ -20,6 +20,6 @@ class CategoryService
 
     public function delete(Category $category): bool
     {
-        $category->delete();
+        return (bool) $category->delete();
     }
 }

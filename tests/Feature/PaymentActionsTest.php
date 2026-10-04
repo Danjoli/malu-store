@@ -95,32 +95,31 @@ class PaymentActionsTest extends TestCase
         ]);
     }
 
-    public function test_confirmed_card_payment_marks_order_as_paid_without_real_api_call(): void
+    public function test_card_checkout_redirect_is_created_without_receiving_card_data(): void
     {
         $asaas = Mockery::mock(AsaasService::class);
 
-        $asaas->shouldReceive('createCardPayment')
+        $asaas->shouldReceive('createCardCheckout')
             ->once()->andReturn([
-                'id' => 'card_1',
-                'status' => 'CONFIRMED',
+                'id' => 'checkout_1',
+                'status' => 'ACTIVE',
+                'link' => 'https://sandbox.asaas.com/checkoutSession/show/checkout_1',
             ]);
 
         $order = $this->order();
 
         (new ProcessCardPaymentAction(
             $asaas,
-            app(OperationalAlertService::class)
-        ))->execute($order, [
-            'holderName' => 'Teste',
-        ]);
+            app(OperationalAlertService::class),
+        ))->execute($order);
 
         $this->assertDatabaseHas('orders', [
             'id' => $order->id,
-            'gateway_payment_id' => 'card_1',
+            'gateway_payment_id' => 'checkout_1',
             'payment_method' => 'card',
-            'status' => 'paid',
+            'status' => 'pending_payment',
         ]);
 
-        $this->assertNotNull($order->fresh()->paid_at);
+        $this->assertNull($order->fresh()->paid_at);
     }
 }

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Jobs\ProcessAsaasWebhook;
+use App\Jobs\ProcessMelhorEnvioWebhook;
 use App\Notifications\CriticalOperationalAlert;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
@@ -35,6 +36,7 @@ class WebhookQueueTest extends TestCase
 
     public function test_authorized_melhor_envio_webhook_is_accepted(): void
     {
+        Bus::fake();
         config(['services.melhor_envio.webhook_secret' => 'webhook-secret']);
 
         $payload = [
@@ -56,6 +58,11 @@ class WebhookQueueTest extends TestCase
             ],
             $content,
         )->assertOk()->assertJson(['status' => 'ok']);
+
+        Bus::assertDispatched(
+            ProcessMelhorEnvioWebhook::class,
+            fn (ProcessMelhorEnvioWebhook $job): bool => $job->payload['id'] === 'shipment_test_1',
+        );
     }
 
     public function test_melhor_envio_webhook_with_invalid_signature_is_rejected(): void

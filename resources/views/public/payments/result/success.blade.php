@@ -10,11 +10,15 @@
             </div>
 
             <h1 class="mb-4 text-3xl font-bold tracking-tight">
-                Pedido realizado com sucesso!
+                {{ $order->status === 'paid' ? 'Pagamento confirmado!' : 'Pagamento recebido pelo Asaas' }}
             </h1>
 
             <p class="mb-6 text-gray-600">
-                Obrigado pela sua compra. Seu pedido foi recebido e está sendo processado.
+                @if ($order->status === 'paid')
+                    Obrigado pela sua compra. Seu pedido está sendo processado.
+                @else
+                    Estamos aguardando a confirmação segura do Asaas. O status do pedido será atualizado automaticamente pelo webhook.
+                @endif
             </p>
 
             <a
