@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\AdminRole;
 use App\Http\Middleware\RedirectAuthenticatedUser;
+use App\Http\Middleware\RequestId;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
@@ -32,7 +33,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'redirect.authenticated' => RedirectAuthenticatedUser::class,
         ]);
 
+        $middleware->appendToGroup('web', RequestId::class);
         $middleware->appendToGroup('web', SecurityHeaders::class);
+        $middleware->appendToGroup('api', RequestId::class);
         $middleware->appendToGroup('api', SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -1,0 +1,75 @@
+name: Monitor de produção
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: production-monitor
+  cancel-in-progress: true
+
+jobs:
+  uptime:
+    name: Verificar saúde e vitrine
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      BASE_URL: https://loja.malu-store.com
+      INCIDENT_TITLE: '[Produção] Monitor detectou indisponibilidade'
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Verificar endpoints públicos
+        id: probe
+        shell: bash
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          failed=0
+
+          for path in /up /produtos; do
+            if ! curl \
+              --fail \
+              --silent \
+              --show-error \
+              --location \
+              --retry 3 \
+              --retry-all-errors \
+              --retry-delay 5 \
+              --connect-timeout 10 \
+              --max-time 20 \
+              --output /dev/null \
+              "${BASE_URL}${path}"; then
+              printf 'Falha ao consultar %s%s\n' "$BASE_URL" "$path" >&2
+              failed=1
+            fi
+          done
+
+          exit "$failed"
+
+      - name: Registrar incidente sem duplicar
+        if: steps.probe.outcome == 'failure'
+        shell: bash
+        run: |
+          existing="$(gh issue list \
+            --repo "$GITHUB_REPOSITORY" \
+            --state open \
+            --search "$INCIDENT_TITLE in:title" \
+            --json title \
+            --jq "map(select(.title == env.INCIDENT_TITLE)) | length")"
+
+          if [[ "$existing" == '0' ]]; then
+            gh issue create \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "$INCIDENT_TITLE" \
+              --label production \
+              --label priority:high \
+              --body "O monitor externo não conseguiu acessar \`/up\` ou \`/produtos\` após múltiplas tentativas. Verifique a hospedagem, os logs da aplicação, o banco e o worker de filas. Execução: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          fi
+
+          exit 1
+

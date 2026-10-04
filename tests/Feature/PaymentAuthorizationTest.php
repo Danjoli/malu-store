@@ -31,6 +31,15 @@ class PaymentAuthorizationTest extends TestCase
         $this->actingAs($otherCustomer)->get(route('payment.error', $order))->assertNotFound();
     }
 
+    public function test_payment_creation_endpoints_do_not_accept_get_requests(): void
+    {
+        $customer = User::factory()->create();
+        $order = $this->orderFor($customer);
+
+        $this->actingAs($customer)->get(route('payment.pix', $order))->assertMethodNotAllowed();
+        $this->actingAs($customer)->get(route('payment.boleto', $order))->assertMethodNotAllowed();
+    }
+
     private function orderFor(User $user): Order
     {
         return Order::create([

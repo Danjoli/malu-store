@@ -9,7 +9,7 @@ class ClientController extends Controller
 {
     public function index()
     {
-        $users = User::all();
+        $users = User::query()->latest()->paginate(25);
 
         return view('admin.clients.index', compact('users'));
     }

@@ -24,6 +24,7 @@ class UpdateProductRequest extends FormRequest
 
             'price' => ['required', 'numeric', 'min:0'],
 
+            'images' => ['sometimes', 'array', 'max:8'],
             'images.*' => [
                 'nullable',
                 'image',

@@ -4,6 +4,7 @@ namespace App\Actions\Payment;
 
 use App\Enums\OrderStatus;
 use App\Models\Order;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class UpdateOrderFromAsaasWebhookAction
@@ -20,25 +21,33 @@ class UpdateOrderFromAsaasWebhookAction
 
             return;
         }
-        $order = $paymentId ? Order::where('gateway_payment_id', $paymentId)->first() : null;
-        $order ??= $reference ? Order::find($reference) : null;
-        if (! $order) {
-            Log::warning('Pedido não encontrado para webhook Asaas.', ['payment_id' => $paymentId, 'external_reference' => $reference]);
+        DB::transaction(function () use ($gatewayStatus, $orderStatus, $payment, $paymentId, $reference): void {
+            $order = $paymentId
+                ? Order::where('gateway_payment_id', $paymentId)->lockForUpdate()->first()
+                : null;
+            $order ??= $reference ? Order::whereKey($reference)->lockForUpdate()->first() : null;
 
-            return;
-        }
-        $wasAlreadyPaid = $order->status === OrderStatus::Paid->value;
-        $method = match ($payment['billingType'] ?? null) {
-            'PIX' => 'pix', 'BOLETO' => 'boleto', 'CREDIT_CARD' => 'card', default => isset($payment['billingType']) ? strtolower($payment['billingType']) : $order->payment_method
-        };
-        $updates = ['status' => $orderStatus->value, 'gateway_status' => $gatewayStatus, 'gateway_payment_id' => $paymentId ?? $order->gateway_payment_id, 'payment_method' => $method];
-        if ($orderStatus === OrderStatus::Paid && ! $order->paid_at) {
-            $updates['paid_at'] = now();
-        }
-        $order->update($updates);
-        if ($orderStatus === OrderStatus::Paid && ! $wasAlreadyPaid) {
-            $this->finalizePaidOrder->execute($order);
-        }
-        Log::info('Pedido atualizado via webhook Asaas.', ['order_id' => $order->id, 'status' => $orderStatus->value, 'gateway_status' => $gatewayStatus]);
+            if (! $order) {
+                Log::warning('Pedido não encontrado para webhook Asaas.', ['payment_id' => $paymentId, 'external_reference' => $reference]);
+
+                return;
+            }
+
+            $wasAlreadyPaid = $order->status === OrderStatus::Paid->value;
+            $method = match ($payment['billingType'] ?? null) {
+                'PIX' => 'pix', 'BOLETO' => 'boleto', 'CREDIT_CARD' => 'card', default => isset($payment['billingType']) ? strtolower($payment['billingType']) : $order->payment_method
+            };
+            $updates = ['status' => $orderStatus->value, 'gateway_status' => $gatewayStatus, 'gateway_payment_id' => $paymentId ?? $order->gateway_payment_id, 'payment_method' => $method];
+
+            if ($orderStatus === OrderStatus::Paid && ! $order->paid_at) {
+                $updates['paid_at'] = now();
+            }
+            if ($orderStatus === OrderStatus::Paid && ! $wasAlreadyPaid) {
+                $this->finalizePaidOrder->execute($order);
+            }
+
+            $order->update($updates);
+            Log::info('Pedido atualizado via webhook Asaas.', ['order_id' => $order->id, 'status' => $orderStatus->value, 'gateway_status' => $gatewayStatus]);
+        });
     }
 }

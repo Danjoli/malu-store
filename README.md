@@ -40,7 +40,7 @@ O funcionamento do catálogo, carrinho, checkout, pagamentos, webhooks, banco de
 
 ### Backend
 
-* PHP 8+
+* PHP 8.4+
 * Laravel
 * MySQL
 
@@ -82,7 +82,7 @@ malu-store/
 
 ## Requisitos
 
-* PHP 8.2 ou superior
+* PHP 8.4 ou superior
 * Composer
 * Node.js
 * NPM

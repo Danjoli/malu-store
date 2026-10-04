@@ -106,4 +106,8 @@
             </table>
         </div>
     </div>
+
+    <div class="mt-6">
+        {{ $admins->links() }}
+    </div>
 @endsection

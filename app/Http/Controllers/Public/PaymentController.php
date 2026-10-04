@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Public\Payments\ProcessCardPaymentRequest;
 use App\Services\Public\Payment\PaymentService;
 use Illuminate\Http\Request;
 
@@ -36,7 +35,7 @@ class PaymentController extends Controller
         return match ($request->payment_method) {
             'pix' => $this->paymentService->pix($orderId),
 
-            'card' => $this->paymentService->cardView($orderId),
+            'card' => $this->paymentService->card($orderId),
 
             'boleto' => $this->paymentService->boleto($orderId),
         };
@@ -61,9 +60,9 @@ class PaymentController extends Controller
     /**
      * Processa um pagamento via cartão.
      */
-    public function card(ProcessCardPaymentRequest $request, int $orderId)
+    public function card(int $orderId)
     {
-        return $this->paymentService->card($request, $orderId);
+        return $this->paymentService->card($orderId);
     }
 
     /**

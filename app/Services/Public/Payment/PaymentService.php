@@ -6,7 +6,6 @@ use App\Actions\Payment\CreateBoletoPaymentAction;
 use App\Actions\Payment\CreatePixPaymentAction;
 use App\Actions\Payment\ProcessCardPaymentAction;
 use App\Exceptions\Domain\PaymentException;
-use App\Http\Requests\Public\Payments\ProcessCardPaymentRequest;
 use App\Models\Order;
 
 class PaymentService
@@ -74,48 +73,37 @@ class PaymentService
     /**
      * Exibe a página de pagamento via cartão.
      */
-    public function cardView(int $orderId)
+    public function card(int $orderId)
     {
         $order = $this->ownedOrder($orderId);
 
-        return view('public.payments.methods.card.index', compact('order'));
+        return $this->cardCheckout($order);
     }
 
-    /**
-     * Processa pagamento via cartão.
-     */
-    public function card(ProcessCardPaymentRequest $request, int $orderId)
+    public function cardCheckout(Order $order)
     {
-        $order = $this->ownedOrder($orderId);
-
         try {
+            $checkout = $this->processCardPayment->execute($order);
+            $link = $checkout['link'] ?? null;
 
-            $payment = $this->processCardPayment->execute($order, $request->validated());
+            if (! is_string($link) || ! $this->isTrustedAsaasUrl($link)) {
+                throw new PaymentException('O provedor não retornou um link seguro para pagamento.');
+            }
 
-            return response()->json([
-                'success' => true,
-                'payment' => $payment,
-            ]);
+            return redirect()->away($link);
         } catch (PaymentException) {
-            return response()->json([
-                'success' => false,
-                'payment_failed' => true,
-                'error_type' => 'authorization',
-                'message' => 'Não foi possível autorizar o cartão. Confira os dados e tente novamente.',
-            ], 422);
+            return redirect()->route('payment.error', $order->id)
+                ->with('error', 'Não foi possível abrir o ambiente seguro de pagamento. Tente novamente.');
         }
     }
 
-    public function cardFromData(Order $order, array $cardData)
+    private function isTrustedAsaasUrl(string $url): bool
     {
-        try {
-            $this->processCardPayment->execute($order, $cardData);
+        $parts = parse_url($url);
+        $host = strtolower($parts['host'] ?? '');
 
-            return redirect()->route('payment.success', $order->id);
-        } catch (\RuntimeException $exception) {
-            return redirect()->route('payment.error', $order->id)
-                ->with('error', 'Não foi possível autorizar o cartão. Confira os dados e tente novamente.');
-        }
+        return ($parts['scheme'] ?? null) === 'https'
+            && ($host === 'asaas.com' || str_ends_with($host, '.asaas.com'));
     }
 
     /**
@@ -134,8 +122,9 @@ class PaymentService
     public function error(int $orderId)
     {
         $order = $this->ownedOrder($orderId);
+        $reason = request()->string('reason')->toString();
 
-        return view('public.payments.result.error', compact('order'));
+        return view('public.payments.result.error', compact('order', 'reason'));
     }
 
     /**

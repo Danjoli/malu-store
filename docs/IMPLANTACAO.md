@@ -2,11 +2,13 @@
 
 Checklist para publicar uma cópia de demonstração ou uma versão de produção da Malu Store.
 
+> A aplicação requer PHP 8.4 ou 8.5 e Laravel 13. Confirme a versão do PHP usada pelo servidor web e pelo worker de filas antes do deploy.
+
 ## Antes de começar
 
 - Configure o `.env` com o banco MySQL correto, URL do site, `APP_ENV=production` e `APP_DEBUG=false`.
 - Instale dependências PHP com `composer install --no-dev --optimize-autoloader`.
-- Envie os arquivos compilados de `public/build` ou execute `npm run build` antes do deploy.
+- Execute `npm ci && npm run build` no artefato de cada release antes do deploy.
 - Envie também `storage/app/public/products` para preservar as fotos do catálogo.
 - Configure o domínio da hospedagem para servir a pasta `public`, nunca a raiz inteira do projeto.
 
@@ -43,9 +45,11 @@ php artisan optimize:clear
 
 O comando cria a estrutura e insere categorias, produtos, imagens cadastradas, contas e pedidos de demonstração. As imagens continuam dependendo dos arquivos enviados para `storage/app/public/products`.
 
-## Arquivos públicos e SEO
+## Assets públicos e SEO
 
-- Mantenha `public/build` junto do deploy (ou execute `npm run build` antes de enviar os arquivos).
+- `public/build` é sempre gerado a partir de `resources`, `package-lock.json` e `vite.config.js`; ele não é versionado.
+- A CI compila os assets em todos os commits. O deploy deve executar `npm ci && npm run build` em uma pasta de release limpa, antes da troca atômica do diretório público.
+- O Vite limpa `public/build` antes de cada compilação, evitando arquivos com hash obsoleto. Não copie esse diretório entre releases.
 - O link `public/storage` é criado pelo `storage:link`; ele deve apontar para `storage/app/public`. Se o projeto for movido de pasta ou de servidor, recrie esse link com esse comando.
 - O ícone público principal é `public/favicon.svg`; `public/favicon.ico` é o fallback de compatibilidade para navegadores e atalhos antigos. Ambos são carregados pelos layouts público, de pagamento e administrativo.
 - Não envie `public/hot` para produção. Esse arquivo é criado somente pelo Vite em desenvolvimento e faz o Laravel procurar os assets no servidor local.
@@ -62,6 +66,20 @@ php artisan optimize:clear
 php artisan config:cache
 php artisan sitemap:generate
 ```
+
+## Pipeline protegido de produção
+
+O workflow **Deploy de produção** é iniciado manualmente no GitHub e aceita somente um commit contido em `main`. Ele repete testes, análise estática, auditorias e build; depois cria um arquivo com checksum, guarda o artefato por 30 dias e usa o Environment `production` para ativá-lo.
+
+Secrets exigidos no Environment `production`:
+
+- `PRODUCTION_SSH_HOST`
+- `PRODUCTION_SSH_PORT`
+- `PRODUCTION_SSH_USER`
+- `PRODUCTION_SSH_PRIVATE_KEY`
+- `PRODUCTION_SSH_KNOWN_HOSTS`
+
+Antes da troca, o servidor copia `.env` e `storage` da versão ativa para a nova release. Eles permanecem dentro de `public_html`, como exige o `open_basedir` do PHP web da Hostinger. Depois, o pipeline aguarda até 30 segundos pela atualização do servidor web. A release só é confirmada quando `/up` responde com sucesso e o arquivo `RELEASE_COMMIT` corresponde ao commit solicitado. Em caso de falha, o script restaura automaticamente a versão anterior. Nunca coloque senha, chave privada ou conteúdo do `.env` no workflow ou no repositório.
 
 ## Fila e webhooks
 
@@ -102,7 +120,9 @@ Não use chaves de API como tokens de webhook. Depois de alterar variáveis, exe
 
 ### Cartão de crédito
 
-O checkout não salva nem registra números de cartão ou CVV. A loja exige HTTPS para esse fluxo. Para reduzir ainda mais o escopo de dados sensíveis, habilite a tokenização de cartão na conta Asaas e planeje migrar o checkout para `creditCardToken`; essa habilitação depende de aprovação do Asaas em produção.
+O cartão usa o Asaas Checkout hospedado. Número, validade e CVV são informados exclusivamente no domínio HTTPS do Asaas; o navegador não os envia à Malu Store. A criação do Checkout apenas inicia a jornada: somente o evento `CHECKOUT_PAID`, autenticado e processado pela fila, confirma o pedido.
+
+No webhook do Asaas, habilite também `CHECKOUT_CREATED`, `CHECKOUT_PAID`, `CHECKOUT_CANCELED` e `CHECKOUT_EXPIRED`. Mantenha o mesmo token longo configurado em `ASAAS_PRODUCTION_WEBHOOK_TOKEN`.
 
 ## Ambientes das APIs: sandbox e produção
 
@@ -186,3 +206,43 @@ php artisan alerts:test
 ```
 
 O comando solicita um e-mail de teste sem exigir uma falha real. Se o e-mail não chegar, consulte `storage/logs/laravel.log` para verificar um eventual erro de SMTP.
+
+## Testes de navegador
+
+Os fluxos críticos usam Playwright e um banco SQLite descartável. Nenhum teste acessa gateways reais: pagamento e frete não são submetidos, e todas as contas são fictícias. Para executar localmente, instale o Chromium uma vez e rode:
+
+```bash
+npm ci
+npm run build
+npx playwright install chromium
+npm run test:e2e
+```
+
+A CI executa cadastro, login, inclusão na sacola, acesso ao checkout e consulta administrativa de pedidos. Em falhas, relatório, captura de tela, vídeo e trace ficam disponíveis por sete dias no artefato `browser-diagnostics`.
+
+## Monitoramento externo
+
+O workflow **Monitor de produção** consulta `/up` e `/produtos` a cada 15 minutos, com três novas tentativas para falhas transitórias. Se algum endpoint continuar indisponível, ele abre uma issue de prioridade alta no GitHub. Enquanto a primeira issue estiver aberta, novas execuções falhas não criam duplicatas.
+
+Também é possível executar o monitor manualmente pela aba Actions. Depois de resolver um incidente, valide os dois endpoints, registre a causa e a correção na issue e só então feche-a. A próxima indisponibilidade poderá criar uma nova ocorrência.
+
+## Backup e recuperação
+
+O backup diário reúne um dump consistente do MySQL e `storage/app/public`, criptografa o pacote com AES-256 e grava um checksum SHA-256. A retenção padrão é de 14 cópias. Credenciais, nome do banco e chave de criptografia ficam fora de `public_html`, com permissão somente para o usuário da hospedagem (`~/.malu-store-backup.cnf`, `~/.malu-store-backup-database` e `~/.malu-store-backup.key`).
+
+O workflow **Backup de produção** executa o script diariamente às 03:15 no horário de Brasília. Uma falha abre uma issue de produção sem duplicar incidentes ainda abertos. Como alternativa, o mesmo comando pode ser configurado no Agendador do hPanel:
+
+```bash
+bash /home/USUARIO/domains/malu-store.com/public_html/scripts/backup/create-backup.sh
+```
+
+O objetivo de recuperação é **RPO de até 24 horas** e **RTO de até 2 horas**. A restauração sempre deve começar em um banco separado; nunca aponte o comando diretamente para o banco de produção:
+
+```bash
+BACKUP_MYSQL_CONFIG=/caminho/credenciais-de-teste.cnf \
+BACKUP_ENCRYPTION_KEY_FILE=/caminho/chave \
+RESTORE_UPLOADS_DESTINATION=/caminho/uploads-restaurados \
+bash scripts/backup/restore-backup.sh /caminho/malu-store-DATA.tar.gz.enc banco_restauracao
+```
+
+Confira pedidos, produtos, usuários, imagens e contagens antes de promover os dados restaurados. O workflow **Teste de restauração de backup** executa mensalmente o ciclo completo em bancos descartáveis e também pode ser iniciado manualmente. A chave de produção deve ter uma cópia em um cofre externo à hospedagem; sem ela, o backup criptografado não pode ser recuperado.
