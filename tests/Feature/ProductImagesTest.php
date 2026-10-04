@@ -33,5 +33,9 @@ class ProductImagesTest extends TestCase
         $this->assertDatabaseCount('product_images', 2);
         Storage::disk('public')->assertMissing('products/imagem-antiga.png');
         $this->assertCount(2, Storage::disk('public')->files('products'));
+        foreach (Storage::disk('public')->files('products') as $path) {
+            $this->assertMatchesRegularExpression('/^products\/[0-9A-HJKMNP-TV-Z]{26}\.png$/', $path);
+            $this->assertStringNotContainsString('nova-', $path);
+        }
     }
 }

@@ -21,6 +21,7 @@ Route::middleware('auth')->group(function () {
         ->name('payment.method');
 
     Route::post('/payment/{order}/process', [PaymentController::class, 'process'])
+        ->middleware('throttle:payment')
         ->name('payment.process');
 
     /*
@@ -30,6 +31,7 @@ Route::middleware('auth')->group(function () {
     */
 
     Route::post('/payment/pix/{order}', [PaymentController::class, 'pix'])
+        ->middleware('throttle:payment')
         ->name('payment.pix');
 
     /*
@@ -39,6 +41,7 @@ Route::middleware('auth')->group(function () {
     */
 
     Route::post('/payment/boleto/{order}', [PaymentController::class, 'boleto'])
+        ->middleware('throttle:payment')
         ->name('payment.boleto');
 
     /*
@@ -48,6 +51,7 @@ Route::middleware('auth')->group(function () {
     */
 
     Route::post('/payment/card/{order}', [PaymentController::class, 'card'])
+        ->middleware('throttle:payment')
         ->name('payment.card.process');
 
     /*
