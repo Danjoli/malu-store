@@ -38,7 +38,7 @@
                         <td class="p-4">
                             @if ($product->primaryImage)
                                 <img
-                                    src="{{ asset('storage/products/' . $product->primaryImage->image) }}"
+                                    src="{{ $product->primaryImage->url }}"
                                     alt="{{ $product->name }}"
                                     class="h-14 w-12 rounded-lg border border-[#eaded9] object-cover"
                                 >

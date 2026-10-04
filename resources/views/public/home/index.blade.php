@@ -7,7 +7,7 @@
     <section class="border-b border-[#eee6e4] bg-[#f8eee9]">
         <div class="relative min-h-[440px] overflow-hidden sm:min-h-[410px] md:min-h-[450px]">
             <img
-                src="{{ asset('storage/products/hero-malu-store.png') }}"
+                src="{{ app(\App\Support\ProductImageStorage::class)->url('hero-malu-store.png') }}"
                 alt="Nova coleção Malu Store"
                 class="absolute inset-0 h-full w-full object-cover object-[64%_center] sm:object-[65%_center]"
             >
@@ -63,7 +63,7 @@
                         <div class="mx-auto aspect-square w-full max-w-24 overflow-hidden rounded-full border-4 border-[#f8eee9] bg-[#f1e4de] shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:border-[#f4cfca] group-hover:shadow-lg sm:max-w-32">
                             @if ($categoryImage)
                                 <img
-                                    src="{{ asset('storage/products/' . $categoryImage->image) }}"
+                                    src="{{ $categoryImage->url }}"
                                     alt="{{ $category->name }}"
                                     class="h-full w-full object-cover transition duration-500 group-hover:scale-110"
                                 >
@@ -173,7 +173,7 @@
                 <div class="grid grid-cols-4 gap-1.5 bg-white p-1.5">
                     @foreach ($galleryImages as $image)
                         <img
-                            src="{{ asset('storage/products/' . $image->image) }}"
+                            src="{{ $image->url }}"
                             alt="Malu Store"
                             class="aspect-[3/4] h-full w-full object-cover"
                         >

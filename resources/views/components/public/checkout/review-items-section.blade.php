@@ -11,7 +11,7 @@
                 <div class="h-20 w-20 overflow-hidden rounded-md bg-[#f8f1ed]">
                     @if ($item->image_snapshot)
                         <img
-                            src="{{ asset('storage/products/' . $item->image_snapshot) }}"
+                            src="{{ $item->image_url }}"
                             alt="{{ $item->name_snapshot }}"
                             class="h-full w-full object-cover"
                         >

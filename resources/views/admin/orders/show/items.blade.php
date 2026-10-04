@@ -20,7 +20,7 @@
 
                     @if ($image)
                         <img
-                            src="{{ asset('storage/products/' . $image->image) }}"
+                            src="{{ $image->url }}"
                             alt="{{ $item->name_snapshot }}"
                             class="h-14 w-14 rounded object-cover"
                         >

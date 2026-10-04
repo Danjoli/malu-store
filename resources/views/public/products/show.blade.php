@@ -27,11 +27,11 @@
                         <button
                             type="button"
                             class="block h-20 w-16 overflow-hidden rounded-sm border border-[#eadfdd]"
-                            data-product-gallery-thumbnail="{{ asset('storage/products/' . $image->image) }}"
+                            data-product-gallery-thumbnail="{{ $image->url }}"
                             data-product-gallery-alt="{{ $product->name }}"
                         >
                             <img
-                                src="{{ asset('storage/products/' . $image->image) }}"
+                                src="{{ $image->url }}"
                                 alt="{{ $product->name }}"
                                 class="h-full w-full object-cover"
                             >
@@ -43,7 +43,7 @@
                     @if ($product->images->isNotEmpty())
                         <img
                             data-product-gallery-main
-                            src="{{ asset('storage/products/' . $product->images->first()->image) }}"
+                            src="{{ $product->images->first()->url }}"
                             alt="{{ $product->name }}"
                             class="aspect-[3/4] w-full object-cover"
                         >

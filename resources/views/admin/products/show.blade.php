@@ -97,7 +97,7 @@
                 <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
                     @foreach ($product->images as $image)
                         <img
-                            src="{{ asset('storage/products/' . $image->image) }}"
+                            src="{{ $image->url }}"
                             alt="{{ $product->name }}"
                             class="rounded border shadow"
                         >

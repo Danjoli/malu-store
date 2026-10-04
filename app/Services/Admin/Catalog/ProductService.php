@@ -5,11 +5,12 @@ namespace App\Services\Admin\Catalog;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use App\Support\ProductImageStorage;
 
 class ProductService
 {
+    public function __construct(private readonly ProductImageStorage $imageStorage) {}
+
     public function create(array $data): Product
     {
         $product = Product::create([
@@ -49,7 +50,7 @@ class ProductService
     public function delete(Product $product): void
     {
         foreach ($product->images as $img) {
-            Storage::disk('public')->delete('products/'.$img->image);
+            $this->imageStorage->delete($img->image);
             $img->delete();
         }
 
@@ -59,8 +60,7 @@ class ProductService
     private function handleImages(Product $product, array $images): void
     {
         foreach ($images as $image) {
-            $name = Str::ulid().'.'.strtolower($image->extension());
-            $image->storeAs('products', $name, 'public');
+            $name = $this->imageStorage->store($image);
 
             ProductImage::create([
                 'product_id' => $product->id,
@@ -75,7 +75,7 @@ class ProductService
     public function replaceImages(Product $product, array $images): void
     {
         foreach ($product->images as $img) {
-            Storage::disk('public')->delete('products/'.$img->image);
+            $this->imageStorage->delete($img->image);
             $img->delete();
         }
 

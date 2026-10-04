@@ -12,7 +12,7 @@
         <div class="relative aspect-[3/4] overflow-hidden bg-[#f8f1ed]">
             @if ($image)
                 <img
-                    src="{{ asset('storage/products/' . $image->image) }}"
+                    src="{{ $image->url }}"
                     alt="{{ $product->name }}"
                     class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 >
