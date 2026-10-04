@@ -90,3 +90,48 @@ jobs:
           diagnostic="${diagnostic//$'\n'/'%0A'}"
           echo "::error title=Teste no Linux::$diagnostic"
 
+  browser:
+    name: Fluxos críticos no navegador
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Baixar o codigo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Preparar o PHP
+        uses: shivammathur/setup-php@b604ade2a87db23f8871b7182e69ec5e75effb45 # v2
+        with:
+          php-version: '8.5'
+          extensions: mbstring, pdo_sqlite, sqlite3, gd, fileinfo
+          coverage: none
+          tools: composer:v2
+
+      - name: Preparar o Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Instalar dependências
+        run: |
+          composer install --no-interaction --no-progress --prefer-dist
+          npm ci
+          npx playwright install --with-deps chromium
+          cp .env.example .env
+          php artisan key:generate
+          npm run build
+
+      - name: Executar fluxos críticos
+        run: npm run test:e2e
+
+      - name: Publicar diagnóstico do navegador
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: browser-diagnostics
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
+          if-no-files-found: ignore
+

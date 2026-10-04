@@ -20,6 +20,9 @@
 /public/hot
 /public/build
 /public/storage
+/playwright-report
+/test-results
+/database/e2e.sqlite
 /storage/*.key
 /storage/pail
 /vendor
