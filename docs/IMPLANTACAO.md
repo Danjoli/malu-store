@@ -207,6 +207,19 @@ php artisan alerts:test
 
 O comando solicita um e-mail de teste sem exigir uma falha real. Se o e-mail não chegar, consulte `storage/logs/laravel.log` para verificar um eventual erro de SMTP.
 
+## Testes de navegador
+
+Os fluxos críticos usam Playwright e um banco SQLite descartável. Nenhum teste acessa gateways reais: pagamento e frete não são submetidos, e todas as contas são fictícias. Para executar localmente, instale o Chromium uma vez e rode:
+
+```bash
+npm ci
+npm run build
+npx playwright install chromium
+npm run test:e2e
+```
+
+A CI executa cadastro, login, inclusão na sacola, acesso ao checkout e consulta administrativa de pedidos. Em falhas, relatório, captura de tela, vídeo e trace ficam disponíveis por sete dias no artefato `browser-diagnostics`.
+
 ## Monitoramento externo
 
 O workflow **Monitor de produção** consulta `/up` e `/produtos` a cada 15 minutos, com três novas tentativas para falhas transitórias. Se algum endpoint continuar indisponível, ele abre uma issue de prioridade alta no GitHub. Enquanto a primeira issue estiver aberta, novas execuções falhas não criam duplicatas.
