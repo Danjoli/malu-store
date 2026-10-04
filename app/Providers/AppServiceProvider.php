@@ -2,10 +2,14 @@
 
 namespace App\Providers;
 
+use App\Models\Admin;
 use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductVariant;
+use App\Models\Shipment;
 use App\Models\User;
+use App\Observers\AdminAuditObserver;
 use App\Observers\CategoryObserver;
 use App\Observers\ProductObserver;
 use Illuminate\Support\Facades\Auth;
@@ -24,6 +28,11 @@ class AppServiceProvider extends ServiceProvider
     {
         Category::observe(CategoryObserver::class);
         Product::observe(ProductObserver::class);
+        Admin::observe(AdminAuditObserver::class);
+        Category::observe(AdminAuditObserver::class);
+        Product::observe(AdminAuditObserver::class);
+        ProductVariant::observe(AdminAuditObserver::class);
+        Shipment::observe(AdminAuditObserver::class);
 
         Blade::anonymousComponentPath(
             resource_path('views/components/public'),
