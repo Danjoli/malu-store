@@ -104,6 +104,7 @@ Route::middleware('auth')->group(function () {
         ->name('checkout');
 
     Route::post('/checkout/process', [CheckoutController::class, 'processOrder'])
+        ->middleware('throttle:checkout')
         ->name('checkout.process');
 
 });

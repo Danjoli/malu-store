@@ -36,9 +36,9 @@
                 @forelse ($products as $product)
                     <tr class="transition hover:bg-[#fdf8f6]">
                         <td class="p-4">
-                            @if ($product->images && $product->images->count())
+                            @if ($product->primaryImage)
                                 <img
-                                    src="{{ asset('storage/products/' . $product->images->first()->image) }}"
+                                    src="{{ asset('storage/products/' . $product->primaryImage->image) }}"
                                     alt="{{ $product->name }}"
                                     class="h-14 w-12 rounded-lg border border-[#eaded9] object-cover"
                                 >
@@ -62,7 +62,7 @@
                         </td>
 
                         <td class="p-4 text-[#625956]">
-                            {{ optional($product->variants)->sum('stock') ?? 0 }}
+                            {{ $product->variants_sum_stock ?? 0 }}
                         </td>
 
                         <td class="p-4">
@@ -114,4 +114,8 @@
             </tbody>
         </table>
     </x-admin.table-card>
+
+    <div class="mt-6">
+        {{ $products->links() }}
+    </div>
 @endsection
