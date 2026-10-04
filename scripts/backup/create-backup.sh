@@ -56,7 +56,11 @@ openssl enc -aes-256-cbc -salt -pbkdf2 -iter 200000 \
 mv -- "$encrypted" "$backup_dir/"
 mv -- "$stage/$name.sha256" "$backup_dir/"
 
-mapfile -t archives < <(find "$backup_dir" -maxdepth 1 -type f -name 'malu-store-*.tar.gz.enc' -printf '%T@ %p\n' | sort -rn | cut -d' ' -f2-)
+find "$backup_dir" -maxdepth 1 -type f -name 'malu-store-*.tar.gz.enc' -printf '%T@ %p\n' \
+    | sort -rn \
+    | cut -d' ' -f2- \
+    > "$stage/archives"
+mapfile -t archives < "$stage/archives"
 if (( ${#archives[@]} > retention )); then
     for old_archive in "${archives[@]:retention}"; do
         [[ "$old_archive" == "$backup_dir"/malu-store-*.tar.gz.enc ]] || exit 1
