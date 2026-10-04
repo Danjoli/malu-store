@@ -217,7 +217,7 @@ Também é possível executar o monitor manualmente pela aba Actions. Depois de 
 
 O backup diário reúne um dump consistente do MySQL e `storage/app/public`, criptografa o pacote com AES-256 e grava um checksum SHA-256. A retenção padrão é de 14 cópias. Credenciais, nome do banco e chave de criptografia ficam fora de `public_html`, com permissão somente para o usuário da hospedagem (`~/.malu-store-backup.cnf`, `~/.malu-store-backup-database` e `~/.malu-store-backup.key`).
 
-No hPanel, agende diariamente, fora do horário de maior movimento:
+O workflow **Backup de produção** executa o script diariamente às 03:15 no horário de Brasília. Uma falha abre uma issue de produção sem duplicar incidentes ainda abertos. Como alternativa, o mesmo comando pode ser configurado no Agendador do hPanel:
 
 ```bash
 bash /home/USUARIO/domains/malu-store.com/public_html/scripts/backup/create-backup.sh
