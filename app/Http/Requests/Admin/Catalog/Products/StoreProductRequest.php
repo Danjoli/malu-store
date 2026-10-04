@@ -26,6 +26,7 @@ class StoreProductRequest extends FormRequest
 
             'active' => ['required', 'boolean'],
 
+            'images' => ['sometimes', 'array', 'max:8'],
             'images.*' => [
                 'nullable',
                 'image',
