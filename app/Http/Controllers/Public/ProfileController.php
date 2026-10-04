@@ -88,7 +88,7 @@ class ProfileController extends Controller
         $orders = Order::with('shipment')
             ->where('user_id', Auth::id())
             ->latest()
-            ->get();
+            ->paginate(15);
 
         return view(
             'public.profile.orders.index',
