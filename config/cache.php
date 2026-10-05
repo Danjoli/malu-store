@@ -4,6 +4,8 @@ use Illuminate\Support\Str;
 
 return [
 
+    'catalog_ttl_seconds' => (int) env('CATALOG_CACHE_SECONDS', 60),
+
     /*
     |--------------------------------------------------------------------------
     | Default Cache Store

@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Category;
+use App\Services\Public\Shop\CatalogCacheService;
 use Illuminate\Support\Str;
 
 class CategoryObserver
@@ -12,6 +13,16 @@ class CategoryObserver
         if (blank($category->slug)) {
             $category->slug = $this->uniqueSlug($category->name);
         }
+    }
+
+    public function saved(Category $category): void
+    {
+        CatalogCacheService::invalidate();
+    }
+
+    public function deleted(Category $category): void
+    {
+        CatalogCacheService::invalidate();
     }
 
     private function uniqueSlug(string $name): string

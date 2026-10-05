@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Product;
+use App\Services\Public\Shop\CatalogCacheService;
 use Illuminate\Support\Str;
 
 class ProductObserver
@@ -12,6 +13,16 @@ class ProductObserver
         if (blank($product->slug)) {
             $product->slug = $this->uniqueSlug($product->name);
         }
+    }
+
+    public function saved(Product $product): void
+    {
+        CatalogCacheService::invalidate();
+    }
+
+    public function deleted(Product $product): void
+    {
+        CatalogCacheService::invalidate();
     }
 
     private function uniqueSlug(string $name): string

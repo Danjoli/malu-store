@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class CatalogTest extends TestCase
@@ -46,5 +47,24 @@ class CatalogTest extends TestCase
         $response->assertOk()->assertSee($visible->name)
             ->assertDontSee($inactive->name)
             ->assertDontSee($outOfStock->name);
+    }
+
+    public function test_catalog_reuses_cached_data_and_invalidates_it_after_a_change(): void
+    {
+        $category = Category::factory()->create();
+        $product = $this->product('Produto em Cache', $category);
+
+        $this->get(route('catalog.index'))->assertOk()->assertSee('Produto em Cache');
+
+        DB::enableQueryLog();
+        $this->get(route('catalog.index'))->assertOk()->assertSee('Produto em Cache');
+        $this->assertSame([], DB::getQueryLog());
+
+        $product->update(['name' => 'Produto Atualizado']);
+
+        $this->get(route('catalog.index'))
+            ->assertOk()
+            ->assertSee('Produto Atualizado')
+            ->assertDontSee('Produto em Cache');
     }
 }
