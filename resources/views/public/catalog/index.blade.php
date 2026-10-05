@@ -4,22 +4,22 @@
 
 @section('content')
     <div class="store-container py-8 md:py-10">
-        <div class="mb-7 text-xs text-stone-500">
+        <div class="store-muted mb-7 text-xs">
             Home
             <span class="mx-1">›</span>
             Produtos
         </div>
 
         <div class="grid gap-8 lg:grid-cols-[190px_1fr]">
-            <aside class="hidden lg:block">
-                <h2 class="mb-3 text-xs font-bold text-stone-800">
+            <aside class="store-card hidden self-start p-5 lg:block">
+                <h2 class="store-kicker mb-3">
                     Categorias
                 </h2>
 
                 <nav class="space-y-1 text-xs text-stone-600">
                     <a
                         href="{{ route('catalog.index') }}"
-                        class="block rounded-sm px-3 py-2 {{ !request('category') ? 'bg-[#fff1ef] text-stone-900' : 'hover:bg-[#fff8f7]' }}"
+                        class="block rounded-lg px-3 py-2 {{ !request('category') ? 'bg-[var(--store-surface-accent)] text-stone-900' : 'hover:bg-[var(--store-surface-soft)]' }}"
                     >
                         Todos
                     </a>
@@ -27,14 +27,14 @@
                     @foreach ($categories as $category)
                         <a
                             href="{{ route('catalog.index', ['category' => $category->slug]) }}"
-                            class="block rounded-sm px-3 py-2 {{ request('category') === $category->slug ? 'bg-[#fff1ef] text-stone-900' : 'hover:bg-[#fff8f7]' }}"
+                            class="block rounded-lg px-3 py-2 {{ request('category') === $category->slug ? 'bg-[var(--store-surface-accent)] text-stone-900' : 'hover:bg-[var(--store-surface-soft)]' }}"
                         >
                             {{ $category->name }}
                         </a>
                     @endforeach
                 </nav>
 
-                <form method="GET" class="mt-8 border-t border-[#eee6e4] pt-6 text-xs">
+                <form method="GET" class="mt-8 border-t border-[var(--store-border)] pt-6 text-xs">
                     @if (request('category'))
                         <input type="hidden" name="category" value="{{ request('category') }}">
                     @endif
@@ -66,7 +66,7 @@
 
                                 <span
                                     title="{{ $color }}"
-                                    class="block h-4 w-4 rounded-full border border-stone-300 ring-offset-2 peer-checked:ring-2 peer-checked:ring-[#bd5564]"
+                                    class="block h-4 w-4 rounded-full border border-stone-300 ring-offset-2 peer-checked:ring-2 peer-checked:ring-[var(--store-accent)]"
                                     style="background-color: {{ $hex }}"
                                 ></span>
                             </label>
@@ -126,8 +126,12 @@
 
             <section>
                 <div class="mb-6 flex items-center justify-between">
-                    <h1 class="store-title text-3xl md:text-4xl">
-                        Todos os produtos
+                    <div>
+                        <p class="store-kicker mb-1">Curadoria completa</p>
+                        <h1 class="store-title text-3xl md:text-4xl">
+                            Todos os produtos
+                        </h1>
+                    </div>
                     </h1>
 
                     <form method="GET" class="flex items-center gap-2">
@@ -184,7 +188,7 @@
                         @for ($page = 1; $page <= $products->lastPage(); $page++)
                             <a
                                 href="{{ $products->url($page) }}"
-                                class="flex h-7 min-w-7 items-center justify-center rounded-sm px-1 {{ $page === $products->currentPage() ? 'bg-[#d66f7c] text-white' : 'text-stone-700 hover:bg-[#fff1ef]' }}"
+                                class="flex h-8 min-w-8 items-center justify-center rounded-full px-1 {{ $page === $products->currentPage() ? 'bg-[var(--store-accent)] text-[var(--store-accent-contrast)]' : 'text-stone-700 hover:bg-[var(--store-surface-accent)]' }}"
                             >
                                 {{ $page }}
                             </a>

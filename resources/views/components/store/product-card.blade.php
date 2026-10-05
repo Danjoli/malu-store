@@ -6,10 +6,10 @@
 @endphp
 
 <article
-    class="group relative overflow-hidden rounded-md border border-[#eee6e4] bg-white transition duration-300 hover:-translate-y-1 hover:shadow-[0_14px_35px_rgba(63,38,35,.09)]"
+    class="store-card group relative overflow-hidden transition duration-300 hover:-translate-y-1"
 >
     <a href="{{ route('product.show', $product) }}" class="block">
-        <div class="relative aspect-[3/4] overflow-hidden bg-[#f8f1ed]">
+        <div class="store-soft-panel relative aspect-[3/4] overflow-hidden">
             @if ($image)
                 <img
                     src="{{ $image->url }}"
