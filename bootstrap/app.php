@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\AdminRole;
+use App\Http\Middleware\ProtectStagingEnvironment;
 use App\Http\Middleware\RedirectAuthenticatedUser;
 use App\Http\Middleware\RequestId;
 use App\Http\Middleware\SecurityHeaders;
@@ -36,6 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->appendToGroup('web', RequestId::class);
         $middleware->appendToGroup('web', SecurityHeaders::class);
+        $middleware->appendToGroup('web', ProtectStagingEnvironment::class);
         $middleware->appendToGroup('api', RequestId::class);
         $middleware->appendToGroup('api', SecurityHeaders::class);
     })

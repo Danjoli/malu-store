@@ -1,7 +1,12 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
+import encoding from 'k6/encoding';
 
 const baseUrl = (__ENV.BASE_URL || 'http://127.0.0.1:8000').replace(/\/$/, '');
+const basicAuth = __ENV.BASIC_AUTH_USER && __ENV.BASIC_AUTH_PASSWORD
+    ? `Basic ${encoding.b64encode(`${__ENV.BASIC_AUTH_USER}:${__ENV.BASIC_AUTH_PASSWORD}`)}`
+    : null;
+const requestOptions = basicAuth ? { headers: { Authorization: basicAuth } } : {};
 
 if (baseUrl.includes('loja.malu-store.com') && __ENV.ALLOW_PRODUCTION !== 'true') {
     throw new Error('Production load tests require ALLOW_PRODUCTION=true. Prefer staging.');
@@ -25,6 +30,7 @@ const pages = ['/', '/produtos'];
 export default function () {
     for (const path of pages) {
         const response = http.get(`${baseUrl}${path}`, {
+            ...requestOptions,
             tags: { page: path },
         });
 
@@ -39,7 +45,7 @@ export default function () {
 }
 
 export function setup() {
-    const response = http.get(`${baseUrl}/health`);
+    const response = http.get(`${baseUrl}/health`, requestOptions);
 
     check(response, {
         'readiness returns 200': (result) => result.status === 200,
