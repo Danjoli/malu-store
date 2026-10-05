@@ -2,7 +2,7 @@
     <div class="store-container grid gap-8 py-[clamp(2.5rem,4vw,5rem)] text-[clamp(0.75rem,0.82vw,1rem)] text-stone-600 sm:grid-cols-2 lg:grid-cols-4">
         <div>
             <h3 class="store-title mb-3 text-[clamp(1.6rem,2vw,3rem)] font-semibold tracking-[-.06em] text-stone-900">
-                MALU <span class="font-normal italic text-[var(--store-accent)]">STORE</span>
+                MALU <span class="font-semibold text-[var(--store-accent)]">STORE</span>
             </h3>
 
             <p class="leading-6">

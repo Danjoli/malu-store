@@ -39,7 +39,7 @@
                 MS
             </span>
             <span class="store-title hidden text-[clamp(1.1rem,1.35vw,1.65rem)] font-semibold tracking-[-.06em] sm:inline">
-                MALU <span class="font-normal italic">STORE</span>
+                MALU <span class="font-semibold text-[var(--store-accent)]">STORE</span>
             </span>
         </a>
 

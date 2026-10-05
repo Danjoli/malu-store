@@ -8,7 +8,7 @@
             Pedido #{{ $order->id }}
         </p>
 
-        <h1 class="mt-2 font-['Cormorant_Garamond'] text-3xl font-semibold">
+        <h1 class="store-title mt-2 text-3xl font-bold">
             Pagamento via boleto
         </h1>
 
