@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Queue\RedisQueue;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
@@ -44,7 +46,25 @@ class HealthController extends Controller
         $queue = config("queue.connections.{$connection}");
 
         if (! is_array($queue) || ($queue['driver'] ?? null) !== 'database') {
-            return true;
+            if (($queue['driver'] ?? null) !== 'redis') {
+                return true;
+            }
+
+            try {
+                $redisQueue = Queue::connection($connection);
+
+                if (! $redisQueue instanceof RedisQueue) {
+                    return false;
+                }
+
+                $redisQueue->getRedis()
+                    ->connection($queue['connection'] ?? 'default')
+                    ->command('ping');
+
+                return true;
+            } catch (Throwable) {
+                return false;
+            }
         }
 
         try {

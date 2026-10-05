@@ -17,6 +17,7 @@ class OperationalHealthCheckTest extends TestCase
     {
         parent::setUp();
         Cache::flush();
+        config(['queue.default' => 'database']);
     }
 
     public function test_it_succeeds_when_queues_are_healthy(): void

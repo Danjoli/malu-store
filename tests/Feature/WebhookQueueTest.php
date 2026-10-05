@@ -24,7 +24,8 @@ class WebhookQueueTest extends TestCase
             ->assertOk()
             ->assertJson(['status' => 'ok']);
 
-        Bus::assertDispatched(ProcessAsaasWebhook::class, fn (ProcessAsaasWebhook $job) => $job->payload['event'] === 'PAYMENT_RECEIVED');
+        Bus::assertDispatched(ProcessAsaasWebhook::class, fn (ProcessAsaasWebhook $job) => $job->payload['event'] === 'PAYMENT_RECEIVED'
+            && $job->queue === 'critical');
     }
 
     public function test_unauthorized_asaas_webhook_is_rejected(): void
@@ -61,7 +62,8 @@ class WebhookQueueTest extends TestCase
 
         Bus::assertDispatched(
             ProcessMelhorEnvioWebhook::class,
-            fn (ProcessMelhorEnvioWebhook $job): bool => $job->payload['id'] === 'shipment_test_1',
+            fn (ProcessMelhorEnvioWebhook $job): bool => $job->payload['id'] === 'shipment_test_1'
+                && $job->queue === 'critical',
         );
     }
 
