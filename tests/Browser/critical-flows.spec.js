@@ -11,6 +11,55 @@ test('visitante alterna o tema e a preferência permanece salva', async ({ page 
     await expect(page.getByRole('button', { name: 'Ativar tema claro' })).toBeVisible();
 });
 
+test('textos principais e secundários mantêm contraste nos dois temas', async ({ page }) => {
+    await page.goto('/');
+
+    for (const dark of [false, true]) {
+        await page.evaluate((nextDark) => window.storeTheme.set(nextDark), dark);
+
+        const ratios = await page.evaluate(() => {
+            const styles = getComputedStyle(document.documentElement);
+            const parse = (value) => {
+                if (value.startsWith('#')) {
+                    const hex = value.slice(1);
+                    return [0, 2, 4].map((offset) => Number.parseInt(hex.slice(offset, offset + 2), 16));
+                }
+
+                const match = value.match(/\d+/g).map(Number);
+                return match.slice(0, 3);
+            };
+            const luminance = (rgb) => {
+                const channels = rgb.map((channel) => {
+                    const value = channel / 255;
+                    return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+                });
+                return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+            };
+            const contrast = (foreground, background) => {
+                const light = Math.max(luminance(parse(foreground)), luminance(parse(background)));
+                const dark = Math.min(luminance(parse(foreground)), luminance(parse(background)));
+                return (light + 0.05) / (dark + 0.05);
+            };
+
+            const text = styles.getPropertyValue('--store-text').trim();
+            const soft = styles.getPropertyValue('--store-text-soft').trim();
+            const background = styles.getPropertyValue('--store-bg').trim();
+            const surface = styles.getPropertyValue('--store-surface').trim();
+
+            return [
+                contrast(text, background),
+                contrast(text, surface),
+                contrast(soft, background),
+                contrast(soft, surface),
+            ];
+        });
+
+        for (const ratio of ratios) {
+            expect(ratio).toBeGreaterThanOrEqual(4.5);
+        }
+    }
+});
+
 async function loginAsCustomer(page) {
     await page.goto('/login');
     await page.getByLabel('E-mail').fill('test@gmail.com');
