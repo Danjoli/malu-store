@@ -6,10 +6,12 @@ use App\Models\Admin;
 use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Models\Shipment;
 use App\Models\User;
 use App\Observers\AdminAuditObserver;
+use App\Observers\CatalogRelationObserver;
 use App\Observers\CategoryObserver;
 use App\Observers\ProductObserver;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -31,6 +33,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Category::observe(CategoryObserver::class);
         Product::observe(ProductObserver::class);
+        ProductImage::observe(CatalogRelationObserver::class);
+        ProductVariant::observe(CatalogRelationObserver::class);
         Admin::observe(AdminAuditObserver::class);
         Category::observe(AdminAuditObserver::class);
         Product::observe(AdminAuditObserver::class);
