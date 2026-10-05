@@ -8,6 +8,10 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('operations:check')
+// Shared hosting disables proc_open, so scheduled work must run in-process.
+Schedule::call(static function (): void {
+    Artisan::call('operations:check');
+})
+    ->name('operations:check')
     ->everyFiveMinutes()
     ->withoutOverlapping(10);
