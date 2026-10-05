@@ -20,7 +20,10 @@ class ProcessMelhorEnvioWebhook implements ShouldQueue
 
     public int $backoff = 30;
 
-    public function __construct(public readonly array $payload) {}
+    public function __construct(public readonly array $payload)
+    {
+        $this->onQueue('critical');
+    }
 
     public function handle(MelhorEnvioWebhookService $webhook): void
     {

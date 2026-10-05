@@ -20,7 +20,10 @@ class ProcessAsaasWebhook implements ShouldQueue
 
     public int $backoff = 30;
 
-    public function __construct(public array $payload) {}
+    public function __construct(public array $payload)
+    {
+        $this->onQueue('critical');
+    }
 
     public function handle(AsaasWebhookService $asaasWebhook): void
     {
