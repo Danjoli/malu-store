@@ -31,7 +31,7 @@
         --store-surface-soft: #f3ebe4;
         --store-surface-accent: #efe0df;
         --store-text: #292323;
-        --store-text-soft: #716562;
+        --store-text-soft: #5e5350;
         --store-border: #e4d8d0;
         --store-accent: #9f4055;
         --store-accent-strong: #7d2f42;
@@ -47,7 +47,7 @@
         --store-surface-soft: #2a2225;
         --store-surface-accent: #35252b;
         --store-text: #f6efea;
-        --store-text-soft: #c3b6b2;
+        --store-text-soft: #d8cdca;
         --store-border: #44373b;
         --store-accent: #e08ca0;
         --store-accent-strong: #f0a6b6;
@@ -87,10 +87,10 @@
     .store-card:hover { border-color: color-mix(in srgb, var(--store-accent) 42%, var(--store-border)); box-shadow: var(--store-shadow); }
     .checkout-step { border: 1px solid var(--store-border); border-radius: 1rem; background: var(--store-surface); padding: clamp(1.25rem, 3vw, 1.75rem); }
     .address-card:has(input:checked), .payment-card:has(input:checked) { border-color: var(--store-accent); background: var(--store-surface-accent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--store-accent) 20%, transparent); }
-    .legal-document h2 { margin-top: 2rem; color: #302a29; font-family: var(--font-display); font-size: clamp(1.65rem, 2vw, 2.15rem); font-weight: 600; letter-spacing: -.025em; }
+    .legal-document h2 { margin-top: 2rem; color: var(--store-text); font-family: var(--font-display); font-size: clamp(1.65rem, 2vw, 2.15rem); font-weight: 600; letter-spacing: -.025em; }
     .legal-document h2:first-child { margin-top: 0; }
-    .legal-document h3 { margin-top: 1.35rem; color: #443d3b; font-size: .9rem; font-weight: 700; }
-    .legal-document p, .legal-document li { color: #625956; font-size: .9rem; line-height: 1.8; }
+    .legal-document h3 { margin-top: 1.35rem; color: var(--store-text); font-size: .9rem; font-weight: 700; }
+    .legal-document p, .legal-document li { color: var(--store-text-soft); font-size: .9rem; line-height: 1.8; }
     .legal-document p { margin-top: .75rem; }
     .legal-document ul, .legal-document ol { margin-top: .75rem; padding-left: 1.25rem; }
     .legal-document ul { list-style: disc; }
@@ -99,7 +99,20 @@
     .theme-toggle { border: 1px solid var(--store-border); color: var(--store-text); background: var(--store-surface-soft); }
     .theme-toggle:hover { border-color: var(--store-accent); color: var(--store-accent); transform: rotate(8deg); }
 
-    /* Compatibilidade do tema escuro com telas públicas mais antigas. */
+    /* Contraste consistente nas telas públicas e de pagamento mais antigas. */
+    .store-shell .text-stone-300, .store-shell .text-stone-400, .store-shell .text-stone-500, .store-shell .text-stone-600,
+    .store-shell .text-gray-400, .store-shell .text-gray-500, .store-shell .text-gray-600 { color: var(--store-text-soft) !important; }
+    .store-shell .text-stone-700, .store-shell .text-stone-800, .store-shell .text-stone-900,
+    .store-shell .text-gray-700, .store-shell .text-gray-800, .store-shell .text-gray-900 { color: var(--store-text) !important; }
+    .store-shell [class~="text-[#746b68]"], .store-shell [class~="text-[#857b78]"],
+    .store-shell [class~="text-[#625956]"] { color: var(--store-text-soft) !important; }
+    .store-shell [class~="text-[#2d2928]"], .store-shell [class~="text-[#443d3b]"] { color: var(--store-text) !important; }
+    .store-shell [class~="text-[#bd5564]"], .store-shell [class~="text-[#c96f82]"],
+    .store-shell [class~="text-[#cf7184]"], .store-shell [class~="text-[#b85d70]"],
+    .store-shell [class~="text-[#b44259]"], .store-shell [class~="text-[#9f4c5e]"] { color: var(--store-accent) !important; }
+    .store-shell input::placeholder, .store-shell textarea::placeholder { color: var(--store-text-soft); opacity: .9; }
+
+    /* Compatibilidade do tema escuro com superfícies antigas. */
     .dark .text-stone-900, .dark .text-stone-800, .dark .text-stone-700 { color: var(--store-text) !important; }
     .dark .text-stone-600, .dark .text-stone-500, .dark .text-stone-400 { color: var(--store-text-soft) !important; }
     .dark .bg-white, .dark [class*="bg-[#fff"] { background-color: var(--store-surface) !important; }

@@ -2,7 +2,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <meta name="theme-color" content="#c95f75">
+    <meta name="theme-color" content="#9f4055">
+
+    @include('layouts.partials.theme-init')
 
     <link
         rel="icon"

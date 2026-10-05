@@ -3,11 +3,11 @@
 
 @include('layouts.payments.partials.head')
 
-<body class="min-h-screen bg-[#f8f3f1] font-sans text-[#2d2928]">
-    <header class="border-b border-[#eaded9] bg-white px-5 py-4 text-center">
+<body class="store-shell min-h-screen font-sans">
+    <header class="store-header border-b px-5 py-4 text-center">
         <a
             href="{{ route('home') }}"
-            class="font-['Cormorant_Garamond'] text-2xl font-semibold tracking-[0.08em]"
+            class="store-title text-2xl font-semibold tracking-[0.04em]"
         >
             MALU STORE
         </a>
