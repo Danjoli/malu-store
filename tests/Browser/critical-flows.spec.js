@@ -60,6 +60,44 @@ test('textos principais e secundários mantêm contraste nos dois temas', async 
     }
 });
 
+test('cabeçalho da autenticação permanece legível nos dois temas', async ({ page }) => {
+    await page.goto('/login');
+
+    for (const dark of [false, true]) {
+        await page.evaluate((nextDark) => window.storeTheme.set(nextDark), dark);
+
+        const heading = page.getByRole('heading', { name: 'Que bom te ver' });
+        const subtitle = page.getByText('Entre para acompanhar seus pedidos e favoritos.');
+
+        await expect(heading).toBeVisible();
+        await expect(subtitle).toBeVisible();
+
+        const ratios = await page.locator('.auth-card-header').evaluate((header) => {
+            const parse = (value) => value.match(/\d+(?:\.\d+)?/g).slice(0, 3).map(Number);
+            const luminance = (value) => {
+                const channels = parse(value).map((channel) => {
+                    const normalized = channel / 255;
+                    return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
+                });
+                return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+            };
+            const contrast = (foreground, background) => {
+                const values = [luminance(foreground), luminance(background)].sort((a, b) => b - a);
+                return (values[0] + 0.05) / (values[1] + 0.05);
+            };
+            const background = getComputedStyle(header).backgroundColor;
+
+            return [...header.querySelectorAll('h1, p')].map((element) =>
+                contrast(getComputedStyle(element).color, background),
+            );
+        });
+
+        for (const ratio of ratios) {
+            expect(ratio).toBeGreaterThanOrEqual(4.5);
+        }
+    }
+});
+
 async function loginAsCustomer(page) {
     await page.goto('/login');
     await page.getByLabel('E-mail').fill('test@gmail.com');

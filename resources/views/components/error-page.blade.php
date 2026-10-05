@@ -13,7 +13,7 @@
             {{ $eyebrow }}
         </p>
 
-        <p class="mt-4 font-['Cormorant_Garamond'] text-7xl font-semibold leading-none text-[#e8cbd1] sm:text-8xl">
+        <p class="store-title mt-4 text-7xl font-bold leading-none text-[#e8cbd1] sm:text-8xl">
             {{ $code }}
         </p>
 

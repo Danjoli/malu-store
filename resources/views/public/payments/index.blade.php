@@ -9,7 +9,7 @@
                 Finalização
             </p>
 
-            <h1 class="mt-2 font-['Cormorant_Garamond'] text-4xl font-semibold">
+            <h1 class="store-title mt-2 text-4xl font-bold">
                 Como deseja pagar?
             </h1>
 

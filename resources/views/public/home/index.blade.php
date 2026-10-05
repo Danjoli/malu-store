@@ -24,10 +24,10 @@
                     </p>
 
                     <h1 class="store-title text-[2.65rem] leading-[.98] text-stone-900 sm:text-5xl md:text-[4.4rem]">
-                        Vista o que faz você <em class="font-medium text-[var(--store-accent)]">florescer</em>
+                        Vista o que faz você <em class="font-bold not-italic text-[var(--store-accent)]">florescer</em>
                     </h1>
 
-                    <p class="store-muted mt-6 max-w-sm text-sm font-light leading-6 sm:text-base">
+                    <p class="store-muted mt-6 max-w-sm text-sm font-medium leading-6 sm:text-base">
                         Peças femininas escolhidas para acompanhar dias comuns e momentos inesquecíveis com leveza.
                     </p>
 

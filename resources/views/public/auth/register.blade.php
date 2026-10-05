@@ -4,22 +4,22 @@
 
 @section('content')
     <div class="mx-auto flex min-h-[58vh] max-w-md items-center px-5 py-12">
-        <section class="w-full overflow-hidden rounded-2xl border border-[#eaded9] bg-white shadow-[0_12px_34px_rgba(76,50,47,0.08)]">
-            <div class="border-b border-[#f0e5e1] bg-[#fdf8f6] px-6 py-7 text-center sm:px-8">
-                <p class="text-xs font-bold uppercase tracking-[0.18em] text-[#c96f82]">
+        <section class="auth-card w-full">
+            <div class="auth-card-header sm:px-8">
+                <p class="store-kicker">
                     Minha conta
                 </p>
 
-                <h1 class="mt-2 font-['Cormorant_Garamond'] text-4xl font-semibold text-[#2d2928]">
+                <h1 class="store-title mt-2 text-3xl font-bold text-[var(--store-text)] sm:text-4xl">
                     Crie sua conta
                 </h1>
 
-                <p class="mt-2 text-sm text-[#746b68]">
+                <p class="store-muted mt-2 text-sm font-medium">
                     Cadastre-se para comprar e acompanhar seus pedidos.
                 </p>
             </div>
 
-            <form method="POST" action="/register" class="space-y-5 px-6 py-7 sm:px-8">
+            <form method="POST" action="/register" class="auth-card-body space-y-5 sm:px-8">
                 @csrf
 
                 @if ($errors->any())
@@ -36,7 +36,7 @@
                 @endif
 
                 <div>
-                    <label for="name" class="mb-2 block text-sm font-semibold text-[#443d3b]">
+                    <label for="name" class="auth-label">
                         Nome completo
                     </label>
 
@@ -47,14 +47,14 @@
                         value="{{ old('name') }}"
                         autocomplete="name"
                         placeholder="Seu nome"
-                        class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none transition focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
+                        class="store-input"
                         required
                         autofocus
                     >
                 </div>
 
                 <div>
-                    <label for="email" class="mb-2 block text-sm font-semibold text-[#443d3b]">
+                    <label for="email" class="auth-label">
                         E-mail
                     </label>
 
@@ -65,13 +65,13 @@
                         value="{{ old('email') }}"
                         autocomplete="email"
                         placeholder="voce@email.com"
-                        class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none transition focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
+                        class="store-input"
                         required
                     >
                 </div>
 
                 <div>
-                    <label for="phone" class="mb-2 block text-sm font-semibold text-[#443d3b]">
+                    <label for="phone" class="auth-label">
                         Telefone
                     </label>
 
@@ -83,13 +83,13 @@
                         autocomplete="tel"
                         inputmode="tel"
                         placeholder="(11) 99999-9999"
-                        class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none transition focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
+                        class="store-input"
                         required
                     >
                 </div>
 
                 <div>
-                    <label for="password" class="mb-2 block text-sm font-semibold text-[#443d3b]">
+                    <label for="password" class="auth-label">
                         Senha
                     </label>
 
@@ -100,23 +100,23 @@
                         autocomplete="new-password"
                         minlength="8"
                         placeholder="8+ caracteres, maiúscula, número e símbolo"
-                        class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm outline-none transition focus:border-[#cf7184] focus:ring-4 focus:ring-[#f7dce2]"
+                        class="store-input"
                         required
                     >
                 </div>
 
                 <button
                     type="submit"
-                    class="w-full rounded-xl bg-[#cf7184] py-3.5 text-sm font-bold text-white transition hover:bg-[#b85d70]"
+                    class="store-button store-button-primary w-full rounded-xl py-3.5"
                 >
                     Criar conta
                 </button>
 
-                <p class="text-center text-sm text-[#746b68]">
+                <p class="store-muted text-center text-sm font-medium">
                     Já tem uma conta?
                     <a
                         href="{{ route('login') }}"
-                        class="font-bold text-[#b85d70] hover:text-[#9f4c5e]"
+                        class="auth-link"
                     >
                         Entrar
                     </a>

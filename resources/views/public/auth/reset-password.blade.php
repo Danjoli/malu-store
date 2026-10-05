@@ -1,5 +1,38 @@
 @extends('layouts.public.app')
+
 @section('title', 'Nova senha')
+
 @section('content')
-<div class="mx-auto flex min-h-[58vh] max-w-md items-center px-5 py-12"><section class="w-full rounded-2xl border border-[#eaded9] bg-white p-7 shadow-[0_12px_34px_rgba(76,50,47,0.08)] sm:p-8"><p class="text-xs font-bold uppercase tracking-[.18em] text-[#c96f82]">Minha conta</p><h1 class="mt-2 font-['Cormorant_Garamond'] text-4xl font-semibold">Crie uma nova senha</h1><form method="POST" action="{{ route('password.update') }}" class="mt-6 space-y-4">@csrf <input type="hidden" name="token" value="{{ $token }}"><input type="email" name="email" value="{{ old('email', $email) }}" required class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm"><input type="password" name="password" required minlength="8" autocomplete="new-password" placeholder="Nova senha" class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm"><input type="password" name="password_confirmation" required minlength="8" autocomplete="new-password" placeholder="Confirme a nova senha" class="w-full rounded-xl border border-[#ded4d0] px-4 py-3 text-sm">@error('email')<p class="text-xs text-[#b44259]">{{ $message }}</p>@enderror <button class="w-full rounded-xl bg-[#cf7184] py-3 text-sm font-bold text-white">Atualizar senha</button></form></section></div>
+    <div class="mx-auto flex min-h-[58vh] max-w-md items-center px-5 py-12">
+        <section class="auth-card w-full">
+            <div class="auth-card-header sm:px-8">
+                <p class="store-kicker">Minha conta</p>
+                <h1 class="store-title mt-2 text-3xl font-bold text-[var(--store-text)] sm:text-4xl">Crie uma nova senha</h1>
+            </div>
+
+            <form method="POST" action="{{ route('password.update') }}" class="auth-card-body space-y-4 sm:px-8">
+                @csrf
+                <input type="hidden" name="token" value="{{ $token }}">
+
+                <div>
+                    <label for="email" class="auth-label">E-mail</label>
+                    <input id="email" type="email" name="email" value="{{ old('email', $email) }}" required autocomplete="email" class="store-input">
+                </div>
+                <div>
+                    <label for="password" class="auth-label">Nova senha</label>
+                    <input id="password" type="password" name="password" required minlength="8" autocomplete="new-password" placeholder="Nova senha" class="store-input">
+                </div>
+                <div>
+                    <label for="password_confirmation" class="auth-label">Confirme a nova senha</label>
+                    <input id="password_confirmation" type="password" name="password_confirmation" required minlength="8" autocomplete="new-password" placeholder="Confirme a nova senha" class="store-input">
+                </div>
+
+                @error('email')
+                    <p class="text-xs font-semibold text-[var(--store-accent)]">{{ $message }}</p>
+                @enderror
+
+                <button class="store-button store-button-primary w-full rounded-xl py-3.5">Atualizar senha</button>
+            </form>
+        </section>
+    </div>
 @endsection
