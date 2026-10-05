@@ -6,7 +6,7 @@
     <button
         type="button"
         @click="open = !open"
-        class="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[#fff1ef]"
+        class="flex h-8 w-8 items-center justify-center rounded-full transition hover:bg-[var(--store-surface-accent)]"
     >
         <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -26,20 +26,20 @@
         x-cloak
         x-transition
         @click.outside="open = false"
-        class="absolute right-0 z-50 mt-3 w-52 overflow-hidden rounded-md border border-[#eadfdd] bg-white shadow-xl"
+        class="store-panel absolute right-0 z-50 mt-3 w-52 overflow-hidden rounded-xl border shadow-xl"
     >
         {{-- Usuário logado --}}
         @auth
             <a
                 href="{{ route('profile.edit') }}"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                class="store-link block px-4 py-2 text-sm hover:bg-[var(--store-surface-soft)]"
             >
                 Editar conta
             </a>
 
             <a
                 href="{{ route('profile.orders') }}"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                class="store-link block px-4 py-2 text-sm hover:bg-[var(--store-surface-soft)]"
             >
                 Ver pedidos
             </a>
@@ -54,7 +54,7 @@
 
                 <button
                     type="submit"
-                    class="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-100"
+                    class="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-[var(--store-surface-soft)]"
                 >
                     Sair
                 </button>
@@ -65,14 +65,14 @@
         @guest
             <a
                 href="{{ route('login') }}"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                class="store-link block px-4 py-2 text-sm hover:bg-[var(--store-surface-soft)]"
             >
                 Entrar
             </a>
 
             <a
                 href="{{ route('register') }}"
-                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                class="store-link block px-4 py-2 text-sm hover:bg-[var(--store-surface-soft)]"
             >
                 Criar conta
             </a>

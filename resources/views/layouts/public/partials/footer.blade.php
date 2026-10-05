@@ -1,8 +1,8 @@
-<footer class="mt-20 border-t border-[#eee6e4] bg-[#fffaf9]">
+<footer class="store-panel mt-20 border-t">
     <div class="store-container grid gap-8 py-[clamp(2.5rem,4vw,5rem)] text-[clamp(0.75rem,0.82vw,1rem)] text-stone-600 sm:grid-cols-2 lg:grid-cols-4">
         <div>
             <h3 class="store-title mb-3 text-[clamp(1.6rem,2vw,3rem)] font-semibold tracking-[-.06em] text-stone-900">
-                MALU STORE
+                MALU <span class="font-normal italic text-[var(--store-accent)]">STORE</span>
             </h3>
 
             <p class="leading-6">
@@ -68,7 +68,7 @@
         </div>
     </div>
 
-    <div class="border-t border-[#eee6e4] py-4 text-center text-[clamp(0.6rem,0.65vw,0.8rem)] text-stone-400">
+    <div class="store-divider border-t py-4 text-center text-[clamp(0.6rem,0.65vw,0.8rem)] text-stone-400">
         © {{ date('Y') }} Malu Store — Todos os direitos reservados
     </div>
 </footer>

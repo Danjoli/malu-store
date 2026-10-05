@@ -3,7 +3,7 @@
 
 @include('layouts.public.partials.head')
 
-<body class="bg-[#fffdfc] font-sans antialiased">
+<body class="store-shell font-sans antialiased">
     @include('layouts.public.partials.header')
 
     <main class="min-h-screen">

@@ -1,5 +1,16 @@
 import { expect, test } from '@playwright/test';
 
+test('visitante alterna o tema e a preferência permanece salva', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Ativar tema escuro' }).click();
+
+    await expect(page.locator('html')).toHaveClass(/dark/);
+
+    await page.reload();
+    await expect(page.locator('html')).toHaveClass(/dark/);
+    await expect(page.getByRole('button', { name: 'Ativar tema claro' })).toBeVisible();
+});
+
 async function loginAsCustomer(page) {
     await page.goto('/login');
     await page.getByLabel('E-mail').fill('test@gmail.com');

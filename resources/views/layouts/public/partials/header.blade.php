@@ -1,8 +1,16 @@
-<header class="relative z-50 border-b border-[#eee6e4] bg-white">
+<header class="store-header sticky top-0 z-50 border-b">
     @include('layouts.public.partials.header.top-bar')
 
     <div
-        x-data="{ searchOpen: false, menuOpen: false }"
+        x-data="{
+            searchOpen: false,
+            menuOpen: false,
+            dark: document.documentElement.classList.contains('dark'),
+            toggleTheme() {
+                this.dark = !this.dark;
+                window.storeTheme.set(this.dark);
+            }
+        }"
         class="store-container relative flex min-h-18 items-center justify-between gap-5 py-[clamp(0.8rem,1vw,1.25rem)]"
     >
         <button
@@ -25,9 +33,14 @@
 
         <a
             href="{{ route('home') }}"
-            class="store-title absolute left-1/2 shrink-0 -translate-x-1/2 text-[clamp(1.25rem,1.6vw,2.5rem)] font-semibold tracking-[-.07em] text-stone-900 md:static md:translate-x-0"
+            class="absolute left-1/2 flex shrink-0 -translate-x-1/2 items-center gap-2.5 text-stone-900 md:static md:translate-x-0"
         >
-            MALU <span class="font-normal">STORE</span>
+            <span class="store-title flex h-9 w-9 items-center justify-center rounded-full bg-[var(--store-accent)] text-sm font-semibold tracking-[-.08em] text-[var(--store-accent-contrast)] shadow-sm">
+                MS
+            </span>
+            <span class="store-title hidden text-[clamp(1.1rem,1.35vw,1.65rem)] font-semibold tracking-[-.06em] sm:inline">
+                MALU <span class="font-normal italic">STORE</span>
+            </span>
         </a>
 
         <nav class="hidden items-center gap-[clamp(1rem,1.6vw,2rem)] text-[clamp(0.65rem,0.65vw,0.9rem)] font-medium text-stone-700 md:flex">
@@ -127,6 +140,22 @@
         <nav class="flex items-center gap-3 text-stone-700">
             <button
                 type="button"
+                @click="toggleTheme()"
+                :aria-label="dark ? 'Ativar tema claro' : 'Ativar tema escuro'"
+                :title="dark ? 'Tema claro' : 'Tema escuro'"
+                class="theme-toggle flex h-9 w-9 items-center justify-center rounded-full transition"
+            >
+                <svg x-show="!dark" class="h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M20.4 15.2A8.5 8.5 0 0 1 8.8 3.6 8.5 8.5 0 1 0 20.4 15.2Z" />
+                </svg>
+                <svg x-show="dark" x-cloak class="h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3.5" />
+                    <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+                </svg>
+            </button>
+
+            <button
+                type="button"
                 @click="searchOpen = !searchOpen; $nextTick(() => $refs.searchInput?.focus())"
                 aria-label="Buscar"
                 class="p-1 transition hover:text-[#bd5564]"
@@ -203,7 +232,7 @@
             x-transition
             action="{{ route('catalog.index') }}"
             method="GET"
-            class="absolute inset-x-0 top-full z-30 border border-[#eee6e4] bg-white p-3 shadow-lg"
+            class="store-panel absolute inset-x-0 top-full z-30 border p-3 shadow-lg"
         >
             <div class="relative">
                 <input

@@ -4,30 +4,41 @@
 
 @section('content')
     {{-- Banner principal --}}
-    <section class="border-b border-[#eee6e4] bg-[#f8eee9]">
-        <div class="relative min-h-[440px] overflow-hidden sm:min-h-[410px] md:min-h-[450px]">
+    <section class="store-divider border-b bg-[var(--store-surface-soft)]">
+        <div class="relative min-h-[520px] overflow-hidden sm:min-h-[500px] md:min-h-[580px]">
             <img
                 src="{{ app(\App\Support\ProductImageStorage::class)->url('hero-malu-store.png') }}"
                 alt="Nova coleção Malu Store"
-                class="absolute inset-0 h-full w-full object-cover object-[64%_center] sm:object-[65%_center]"
+                class="absolute inset-0 h-full w-full scale-[1.01] object-cover object-[64%_center] sm:object-[65%_center]"
             >
 
-            <div class="absolute inset-0 bg-gradient-to-r from-[#f8eee9] via-[#f8eee9]/90 to-[#f8eee9]/10 sm:via-[#f8eee9]/78 sm:to-transparent"></div>
+            <div class="absolute inset-0 bg-[linear-gradient(90deg,var(--store-surface-soft)_0%,color-mix(in_srgb,var(--store-surface-soft)_91%,transparent)_38%,transparent_78%)]"></div>
+            <div class="absolute -left-24 top-16 h-72 w-72 rounded-full border border-[var(--store-accent)]/20"></div>
+            <div class="absolute left-10 top-28 h-52 w-52 rounded-full border border-[var(--store-accent)]/15"></div>
 
-            <div class="store-container home-container relative z-10 flex min-h-[440px] items-center py-12 sm:min-h-[410px] md:min-h-[450px]">
-                <div class="max-w-[17rem] sm:max-w-md">
-                    <p class="store-kicker mb-5 text-[#bd5564]">
-                        Nova coleção
+            <div class="store-container home-container relative z-10 flex min-h-[520px] items-center py-16 sm:min-h-[500px] md:min-h-[580px]">
+                <div class="max-w-[19rem] sm:max-w-lg">
+                    <p class="store-kicker mb-6 flex items-center gap-3">
+                        <span class="h-px w-8 bg-[var(--store-accent)]"></span>
+                        Edição Primavera
                     </p>
 
-                    <h1 class="store-title text-[2.25rem] leading-[1.02] text-stone-900 sm:text-4xl md:text-5xl">
-                        Elegância para todos os momentos
+                    <h1 class="store-title text-[2.65rem] leading-[.98] text-stone-900 sm:text-5xl md:text-[4.4rem]">
+                        Vista o que faz você <em class="font-medium text-[var(--store-accent)]">florescer</em>
                     </h1>
 
+                    <p class="store-muted mt-6 max-w-sm text-sm font-light leading-6 sm:text-base">
+                        Peças femininas escolhidas para acompanhar dias comuns e momentos inesquecíveis com leveza.
+                    </p>
+
                     <a href="#produtos" class="store-button store-button-primary mt-7">
-                        Comprar agora
+                        Descobrir coleção
                     </a>
                 </div>
+            </div>
+
+            <div class="store-panel absolute bottom-6 right-6 z-10 hidden rounded-full border px-5 py-2 text-[10px] font-semibold uppercase tracking-[.18em] md:block">
+                Curadoria Malu · 2026
             </div>
         </div>
     </section>
@@ -40,12 +51,12 @@
     @if ($categories->isNotEmpty())
         <section class="store-container home-container py-12 md:py-14">
             <div class="mb-8 text-center">
-                <p class="store-kicker mb-2 text-[#bd5564]">
+                <p class="store-kicker mb-2">
                     Encontre seu estilo
                 </p>
 
-                <h2 class="store-title text-3xl">
-                    Categorias
+                <h2 class="store-title text-3xl sm:text-4xl">
+                    Escolha seu momento
                 </h2>
             </div>
 
@@ -60,7 +71,7 @@
                         href="{{ route('home', ['category' => $category->slug]) }}"
                         class="group text-center"
                     >
-                        <div class="mx-auto aspect-square w-full max-w-24 overflow-hidden rounded-full border-4 border-[#f8eee9] bg-[#f1e4de] shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:border-[#f4cfca] group-hover:shadow-lg sm:max-w-32">
+                        <div class="store-soft-panel mx-auto aspect-square w-full max-w-24 overflow-hidden rounded-[2rem] border-4 border-[var(--store-surface)] shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:rotate-2 group-hover:border-[var(--store-accent)]/30 group-hover:shadow-lg sm:max-w-32">
                             @if ($categoryImage)
                                 <img
                                     src="{{ $categoryImage->url }}"
@@ -76,7 +87,7 @@
                             @endif
                         </div>
 
-                        <p class="mt-3 text-xs font-bold uppercase tracking-wider text-stone-700 transition group-hover:text-[#bd5564]">
+                        <p class="mt-3 text-xs font-bold uppercase tracking-[.12em] text-stone-700 transition group-hover:text-[var(--store-accent)]">
                             {{ $category->name }}
                         </p>
                     </a>
@@ -88,19 +99,19 @@
     {{-- Produtos --}}
     <section id="produtos" class="store-container home-container py-14">
         <div class="mb-8 flex items-center gap-2 sm:gap-4">
-            <span class="h-px flex-1 bg-[#eadfdd]"></span>
+            <span class="h-px flex-1 bg-[var(--store-border)]"></span>
 
             <div class="text-center">
                 <h2 class="store-title text-2xl sm:text-3xl">
-                    Novidades
+                    Acabaram de chegar
                 </h2>
             </div>
 
-            <span class="h-px flex-1 bg-[#eadfdd]"></span>
+            <span class="h-px flex-1 bg-[var(--store-border)]"></span>
 
             <a
                 href="{{ route('home') }}"
-                class="shrink-0 text-[11px] font-semibold text-stone-700 transition hover:text-[#bd5564] sm:text-xs"
+                class="store-link shrink-0 text-[11px] font-semibold sm:text-xs"
             >
                 Ver todas
             </a>
@@ -118,28 +129,28 @@
     </section>
 
     {{-- Benefícios --}}
-    <section class="border-y border-[#eee6e4] bg-[#fff8f7]">
+    <section class="store-panel border-y">
         <div class="store-container home-container grid gap-5 py-7 text-center sm:grid-cols-2 lg:grid-cols-4">
             <div>
-                <p class="text-lg">▱</p>
+                <p class="text-xl text-[var(--store-sage)]">▱</p>
                 <p class="mt-1 text-[10px] font-bold uppercase tracking-wider">Envio rápido</p>
                 <p class="text-[10px] text-stone-500">para todo o Brasil</p>
             </div>
 
             <div>
-                <p class="text-lg">♢</p>
+                <p class="text-xl text-[var(--store-sage)]">♢</p>
                 <p class="mt-1 text-[10px] font-bold uppercase tracking-wider">Compra segura</p>
                 <p class="text-[10px] text-stone-500">seus dados protegidos</p>
             </div>
 
             <div>
-                <p class="text-lg">↺</p>
+                <p class="text-xl text-[var(--store-sage)]">↺</p>
                 <p class="mt-1 text-[10px] font-bold uppercase tracking-wider">Troca fácil</p>
                 <p class="text-[10px] text-stone-500">até 7 dias</p>
             </div>
 
             <div>
-                <p class="text-lg">▤</p>
+                <p class="text-xl text-[var(--store-sage)]">▤</p>
                 <p class="mt-1 text-[10px] font-bold uppercase tracking-wider">Parcele em até 6x</p>
                 <p class="text-[10px] text-stone-500">sem juros no cartão</p>
             </div>
@@ -155,9 +166,9 @@
 
     @if ($galleryImages->isNotEmpty())
         <section class="store-container home-container py-14">
-            <div class="grid overflow-hidden rounded-md border border-[#eee6e4] md:grid-cols-[.9fr_2.1fr]">
-                <div class="bg-[#fff1ef] p-8">
-                    <p class="store-kicker text-[#bd5564]">
+            <div class="store-card grid overflow-hidden md:grid-cols-[.9fr_2.1fr]">
+                <div class="bg-[var(--store-surface-accent)] p-8">
+                    <p class="store-kicker">
                         #malustore
                     </p>
 
@@ -170,7 +181,7 @@
                     </a>
                 </div>
 
-                <div class="grid grid-cols-4 gap-1.5 bg-white p-1.5">
+                <div class="store-panel grid grid-cols-4 gap-1.5 p-1.5">
                     @foreach ($galleryImages as $image)
                         <img
                             src="{{ $image->url }}"
