@@ -67,4 +67,23 @@ class CatalogTest extends TestCase
             ->assertSee('Produto Atualizado')
             ->assertDontSee('Produto em Cache');
     }
+
+    public function test_large_catalog_uses_navigation_without_rendering_every_page_number(): void
+    {
+        $category = Category::factory()->create();
+
+        foreach (range(1, 11) as $number) {
+            $this->product('Produto '.$number, $category);
+        }
+
+        $this->get(route('catalog.index'))
+            ->assertOk()
+            ->assertSee('Página 1')
+            ->assertSee(route('catalog.index', ['page' => 2]), false);
+
+        $this->get(route('catalog.index', ['page' => 2]))
+            ->assertOk()
+            ->assertSee('Página 2')
+            ->assertSee(route('catalog.index'), false);
+    }
 }

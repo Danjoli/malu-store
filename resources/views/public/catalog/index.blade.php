@@ -185,14 +185,12 @@
                             </a>
                         @endif
 
-                        @for ($page = 1; $page <= $products->lastPage(); $page++)
-                            <a
-                                href="{{ $products->url($page) }}"
-                                class="flex h-8 min-w-8 items-center justify-center rounded-full px-1 {{ $page === $products->currentPage() ? 'bg-[var(--store-accent)] text-[var(--store-accent-contrast)]' : 'text-stone-700 hover:bg-[var(--store-surface-accent)]' }}"
-                            >
-                                {{ $page }}
-                            </a>
-                        @endfor
+                        <span
+                            class="flex h-8 items-center justify-center rounded-full bg-[var(--store-accent)] px-3 font-semibold text-[var(--store-accent-contrast)]"
+                            aria-current="page"
+                        >
+                            Página {{ $products->currentPage() }}
+                        </span>
 
                         @if ($products->hasMorePages())
                             <a

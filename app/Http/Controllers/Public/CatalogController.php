@@ -26,7 +26,9 @@ class CatalogController extends Controller
             };
 
             return [
-                'products' => $query->paginate(9)->withQueryString(),
+                // O catalogo nao precisa contar todos os produtos para exibir a
+                // navegacao. simplePaginate evita uma contagem cara em bases grandes.
+                'products' => $query->simplePaginate(9)->withQueryString(),
                 'categories' => Category::orderBy('name')->get(),
             ];
         });
