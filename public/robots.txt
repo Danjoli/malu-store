@@ -24,4 +24,4 @@ Disallow: /api
 Allow: /
 
 # Sitemap (IMPORTANTE)
-Sitemap: https://loja.malu-store.com/sitemap.xml
+Sitemap: https://malu-store.com/sitemap.xml

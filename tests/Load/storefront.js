@@ -8,7 +8,7 @@ const basicAuth = __ENV.BASIC_AUTH_USER && __ENV.BASIC_AUTH_PASSWORD
     : null;
 const requestOptions = basicAuth ? { headers: { Authorization: basicAuth } } : {};
 
-if (baseUrl.includes('loja.malu-store.com') && __ENV.ALLOW_PRODUCTION !== 'true') {
+if (/^https:\/\/(?:loja\.)?malu-store\.com(?:\/|$)/.test(`${baseUrl}/`) && __ENV.ALLOW_PRODUCTION !== 'true') {
     throw new Error('Production load tests require ALLOW_PRODUCTION=true. Prefer staging.');
 }
 
