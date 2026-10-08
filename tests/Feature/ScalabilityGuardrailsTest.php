@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Product;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
 
 class ScalabilityGuardrailsTest extends TestCase
@@ -32,5 +33,19 @@ class ScalabilityGuardrailsTest extends TestCase
 
         $this->assertCount(25, $products->items());
         $this->assertSame(30, $products->total());
+    }
+
+    public function test_public_catalog_sort_columns_have_compound_indexes(): void
+    {
+        $indexes = collect(Schema::getIndexes('products'))->keyBy('name');
+
+        $this->assertSame(
+            ['active', 'created_at'],
+            $indexes->get('products_active_created_index')['columns'] ?? null,
+        );
+        $this->assertSame(
+            ['active', 'price'],
+            $indexes->get('products_active_price_index')['columns'] ?? null,
+        );
     }
 }
