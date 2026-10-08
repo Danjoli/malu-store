@@ -17,7 +17,7 @@ class PublicProductController extends Controller
         $relatedProducts = Product::with(['images', 'variants'])
             ->where('active', true)
             ->whereKeyNot($product->id)
-            ->whereHas('variants', fn ($variants) => $variants->where('stock', '>', 0))
+            ->inStock()
             ->where('category_id', $product->category_id)
             ->take(4)
             ->get();
@@ -28,7 +28,7 @@ class PublicProductController extends Controller
                     ->where('active', true)
                     ->whereKeyNot($product->id)
                     ->whereNotIn('id', $relatedProducts->pluck('id'))
-                    ->whereHas('variants', fn ($variants) => $variants->where('stock', '>', 0))
+                    ->inStock()
                     ->take(4 - $relatedProducts->count())
                     ->get()
             );
