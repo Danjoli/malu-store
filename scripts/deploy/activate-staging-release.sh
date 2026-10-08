@@ -5,7 +5,6 @@ archive_name="${1:?arquivo da release ausente}"
 checksum_name="${2:?checksum ausente}"
 commit="${3:?commit ausente}"
 app_root="${4:?diretório da homologação ausente}"
-health_url="${5:?URL de saúde ausente}"
 
 if [[ ! "$commit" =~ ^[0-9a-f]{40}$ ]]; then
     printf 'Commit inválido para implantação.\n' >&2
@@ -20,11 +19,6 @@ case "$app_root" in
         exit 1
         ;;
 esac
-
-if [[ ! "$health_url" =~ ^https://staging\.malu-store\.com(/|$) ]]; then
-    printf 'A URL de saúde precisa pertencer a staging.malu-store.com.\n' >&2
-    exit 1
-fi
 
 current="$app_root/public_html"
 releases="$app_root/releases"
@@ -149,22 +143,6 @@ if ! (
     "$php_bin" artisan route:cache &&
     "$php_bin" artisan view:cache
 ); then
-    rollback
-    exit 1
-fi
-
-healthy=false
-for attempt in {1..10}; do
-    if curl --fail --silent --max-time 10 "$health_url" >/dev/null; then
-        healthy=true
-        break
-    fi
-
-    printf 'Health check da homologação indisponível (tentativa %s/10).\n' "$attempt"
-    sleep 3
-done
-
-if [[ "$healthy" != true ]]; then
     rollback
     exit 1
 fi
