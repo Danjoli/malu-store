@@ -93,6 +93,11 @@ cd "$home_dir"
 sha256sum --check "$checksum_name"
 mkdir -p "$releases"
 
+# A implantação atual já preservará a versão ativa em $previous. Cópias de
+# rollbacks mais antigos e releases incompletas apenas consomem cota/inodes.
+find "$app_root" -mindepth 1 -maxdepth 1 -type d -name 'previous-*' -exec rm -rf -- {} +
+find "$releases" -mindepth 1 -maxdepth 1 -type d -exec rm -rf -- {} +
+
 rm -rf "$release"
 mkdir -p "$release"
 tar -xzf "$archive_name" -C "$release"
@@ -172,4 +177,5 @@ fi
 
 cd "$current"
 "$php_bin" artisan queue:restart
+rm -f "$home_dir/$archive_name" "$home_dir/$checksum_name"
 printf 'Homologação %s implantada com sucesso. Rollback disponível em %s\n' "$commit" "$previous"
