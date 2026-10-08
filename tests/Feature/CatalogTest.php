@@ -49,6 +49,29 @@ class CatalogTest extends TestCase
             ->assertDontSee($outOfStock->name);
     }
 
+    public function test_stock_filters_require_an_available_matching_variant(): void
+    {
+        $category = Category::factory()->create();
+        $matching = Product::factory()->for($category)->create(['name' => 'Conjunto Disponível']);
+        ProductVariant::factory()->for($matching)->create([
+            'color' => 'Rosé',
+            'size' => 'M',
+            'stock' => 3,
+        ]);
+
+        $unavailable = Product::factory()->for($category)->create(['name' => 'Conjunto Esgotado']);
+        ProductVariant::factory()->for($unavailable)->create([
+            'color' => 'Rosé',
+            'size' => 'M',
+            'stock' => 0,
+        ]);
+
+        $this->get(route('catalog.index', ['color' => 'Rosé', 'size' => 'M']))
+            ->assertOk()
+            ->assertSee($matching->name)
+            ->assertDontSee($unavailable->name);
+    }
+
     public function test_catalog_reuses_cached_data_and_invalidates_it_after_a_change(): void
     {
         $category = Category::factory()->create();
