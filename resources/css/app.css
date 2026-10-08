@@ -37,6 +37,8 @@
         --store-accent-strong: #7d2f42;
         --store-accent-contrast: #fffaf7;
         --store-sage: #74806d;
+        --store-warning-surface: #fff3cf;
+        --store-warning-text: #6b4300;
         --store-shadow: 0 24px 70px rgb(75 49 44 / .10);
     }
 
@@ -53,6 +55,8 @@
         --store-accent-strong: #f0a6b6;
         --store-accent-contrast: #211519;
         --store-sage: #aab7a3;
+        --store-warning-surface: #3b2f1d;
+        --store-warning-text: #ffdc91;
         --store-shadow: 0 24px 70px rgb(0 0 0 / .34);
     }
 
@@ -85,6 +89,13 @@
     .store-input:focus { border-color: var(--store-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--store-accent) 16%, transparent); }
     .store-card { border: 1px solid var(--store-border); border-radius: 1.25rem; background: var(--store-surface); box-shadow: 0 1px 0 rgb(255 255 255 / .04); }
     .store-card:hover { border-color: color-mix(in srgb, var(--store-accent) 42%, var(--store-border)); box-shadow: var(--store-shadow); }
+    .store-warning { border-color: color-mix(in srgb, var(--store-warning-text) 28%, transparent); color: var(--store-warning-text); background: var(--store-warning-surface); }
+    .product-size-option { min-width: 2.5rem; border: 1px solid var(--store-border); color: var(--store-text); background: var(--store-surface); font-weight: 700; transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+    .product-size-option:hover:not(:disabled) { border-color: var(--store-accent); color: var(--store-accent-strong); background: var(--store-surface-accent); }
+    .product-size-option[aria-pressed="true"] { border-color: var(--store-accent); color: var(--store-accent-contrast); background: var(--store-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--store-accent) 24%, transparent); transform: translateY(-1px); }
+    .product-size-option:disabled { cursor: not-allowed; opacity: .42; }
+    .product-color-option { border: 2px solid var(--store-surface); outline: 1px solid var(--store-border); outline-offset: 1px; }
+    .product-color-option[aria-pressed="true"] { outline: 3px solid var(--store-accent); outline-offset: 2px; }
     .auth-card { overflow: hidden; border: 1px solid var(--store-border); border-radius: 1.25rem; background: var(--store-surface); box-shadow: var(--store-shadow); }
     .auth-card-header { border-bottom: 1px solid var(--store-border); background: var(--store-surface-soft); padding: 1.75rem 1.5rem; text-align: center; }
     .auth-card-body { background: var(--store-surface); padding: 1.75rem 1.5rem; }
@@ -128,10 +139,17 @@
     /* Compatibilidade do tema escuro com superfícies antigas. */
     .dark .text-stone-900, .dark .text-stone-800, .dark .text-stone-700 { color: var(--store-text) !important; }
     .dark .text-stone-600, .dark .text-stone-500, .dark .text-stone-400 { color: var(--store-text-soft) !important; }
-    .dark .bg-white, .dark [class*="bg-[#fff"] { background-color: var(--store-surface) !important; }
-    .dark [class*="bg-[#f8"], .dark [class*="bg-[#f7"], .dark [class*="bg-[#f6"], .dark [class*="bg-[#f1"] { background-color: var(--store-surface-soft) !important; }
+    .dark .store-shell .bg-white,
+    .dark .store-shell .bg-stone-50, .dark .store-shell .bg-stone-100,
+    .dark .store-shell .bg-gray-50, .dark .store-shell .bg-gray-100, .dark .store-shell .bg-gray-200,
+    .dark .store-shell [class*="bg-[#fff"], .dark .store-shell [class*="bg-[#fdf"],
+    .dark .store-shell [class*="bg-[#fcf"], .dark .store-shell [class*="bg-[#faf"] { background-color: var(--store-surface) !important; }
+    .dark .store-shell [class*="bg-[#f8"], .dark .store-shell [class*="bg-[#f7"],
+    .dark .store-shell [class*="bg-[#f6"], .dark .store-shell [class*="bg-[#f1"],
+    .dark .store-shell [class*="bg-[#ead"], .dark .store-shell [class*="bg-[#eaf"] { background-color: var(--store-surface-soft) !important; }
     .dark [class*="border-[#e"] { border-color: var(--store-border) !important; }
     .dark [class*="text-[#2"], .dark [class*="text-[#4"], .dark [class*="text-[#6"], .dark [class*="text-[#7"] { color: var(--store-text) !important; }
+    .store-shell [class~="text-[#986d16]"] { color: var(--store-warning-text) !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {

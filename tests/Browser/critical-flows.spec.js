@@ -98,6 +98,59 @@ test('cabeçalho da autenticação permanece legível nos dois temas', async ({ 
     }
 });
 
+test('produto mantém frete legível e tamanho selecionado destacado nos dois temas', async ({ page }) => {
+    await page.goto('/produtos/vestido-midi-floral');
+
+    for (const dark of [false, true]) {
+        await page.evaluate((nextDark) => window.storeTheme.set(nextDark), dark);
+
+        const selectedSize = page.getByRole('button', { name: 'Selecionar tamanho M' });
+        await selectedSize.click();
+        await expect(selectedSize).toHaveAttribute('aria-pressed', 'true');
+
+        const audit = await page.locator('[data-product-shipping]').evaluate((shipping) => {
+            const parse = (value) => value.match(/\d+(?:\.\d+)?/g).slice(0, 3).map(Number);
+            const luminance = (value) => {
+                const channels = parse(value).map((channel) => {
+                    const normalized = channel / 255;
+                    return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
+                });
+                return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+            };
+            const contrast = (foreground, background) => {
+                const values = [luminance(foreground), luminance(background)].sort((a, b) => b - a);
+                return (values[0] + 0.05) / (values[1] + 0.05);
+            };
+            const background = getComputedStyle(shipping).backgroundColor;
+
+            return [...shipping.querySelectorAll('h2, p')].map((element) =>
+                contrast(getComputedStyle(element).color, background),
+            );
+        });
+
+        for (const ratio of audit) {
+            expect(ratio).toBeGreaterThanOrEqual(4.5);
+        }
+
+        const sizeContrast = await selectedSize.evaluate((button) => {
+            const parse = (value) => value.match(/\d+(?:\.\d+)?/g).slice(0, 3).map(Number);
+            const luminance = (value) => {
+                const channels = parse(value).map((channel) => {
+                    const normalized = channel / 255;
+                    return normalized <= 0.04045 ? normalized / 12.92 : ((normalized + 0.055) / 1.055) ** 2.4;
+                });
+                return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+            };
+            const styles = getComputedStyle(button);
+            const values = [luminance(styles.color), luminance(styles.backgroundColor)].sort((a, b) => b - a);
+
+            return (values[0] + 0.05) / (values[1] + 0.05);
+        });
+
+        expect(sizeContrast).toBeGreaterThanOrEqual(4.5);
+    }
+});
+
 async function loginAsCustomer(page) {
     await page.goto('/login');
     await page.getByLabel('E-mail').fill('test@gmail.com');
