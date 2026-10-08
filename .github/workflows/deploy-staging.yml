@@ -121,4 +121,18 @@ jobs:
           archive="malu-store-staging-${release_sha}.tar.gz"
           checksum="malu-store-staging-${release_sha}.sha256"
           scp -P "$DEPLOY_PORT" ".release/$archive" ".release/$checksum" scripts/deploy/activate-staging-release.sh "$DEPLOY_USER@$DEPLOY_HOST:~/"
-          ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "bash ~/activate-staging-release.sh '$archive' '$checksum' '$release_sha' '$STAGING_APP_ROOT' 'https://staging.malu-store.com/up'"
+          ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "bash ~/activate-staging-release.sh '$archive' '$checksum' '$release_sha' '$STAGING_APP_ROOT'"
+
+      - name: Verificar saúde externa
+        shell: bash
+        run: |
+          for attempt in {1..10}; do
+            if curl --fail --silent --show-error --max-time 10 https://staging.malu-store.com/up >/dev/null; then
+              exit 0
+            fi
+
+            printf 'Health check externo indisponível (tentativa %s/10).\n' "$attempt"
+            sleep 3
+          done
+
+          exit 1
