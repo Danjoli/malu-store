@@ -100,8 +100,9 @@
                                 type="button"
                                 title="{{ $color }}"
                                 data-product-color="{{ $color }}"
-                                class="h-5 w-5 rounded-full border border-stone-300 bg-[#e9d5cc]"
+                                class="product-color-option h-5 w-5 rounded-full bg-[#e9d5cc]"
                                 aria-label="Selecionar cor {{ $color }}"
+                                aria-pressed="false"
                             ></button>
                         @endforeach
                     </div>
@@ -116,7 +117,9 @@
                                 <button
                                     type="button"
                                     data-product-size="{{ $size }}"
-                                    class="flex h-8 min-w-9 items-center justify-center rounded-sm border border-[#eadfdd] px-2 text-xs transition"
+                                    class="product-size-option flex h-9 items-center justify-center rounded-md px-3 text-xs"
+                                    aria-label="Selecionar tamanho {{ $size }}"
+                                    aria-pressed="false"
                                 >
                                     {{ $size }}
                                 </button>
@@ -139,7 +142,7 @@
                         data-product-shipping
                         data-product-id="{{ $product->id }}"
                         data-endpoint="{{ route('frete.calcular') }}"
-                        class="mt-5 rounded-md border border-[#eee6e4] bg-[#fcfaf9] p-4"
+                        class="store-panel mt-5 rounded-md border p-4"
                         aria-labelledby="product-shipping-title"
                     >
                         <div class="flex items-start gap-3">
@@ -179,7 +182,7 @@
                             O frete definitivo é escolhido no checkout.
                         </p>
 
-                        <ul data-shipping-results class="mt-3 hidden rounded-md bg-white p-3"></ul>
+                        <ul data-shipping-results class="store-soft-panel mt-3 hidden rounded-md p-3"></ul>
                     </section>
 
                     <input type="hidden" name="quantity" value="1">

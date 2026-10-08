@@ -32,16 +32,11 @@ document.addEventListener('DOMContentLoaded', () => {
         form.querySelectorAll('[data-product-size]').forEach((button) => {
             const available = variants.some((item) => item.color === color && item.size === button.dataset.productSize);
             button.disabled = !available;
-            button.classList.toggle('opacity-40', !available);
-            button.classList.toggle('cursor-not-allowed', !available);
-            button.classList.toggle('border-[#d66f7c]', button.dataset.productSize === size && available);
-            button.classList.toggle('bg-[#fff1ef]', button.dataset.productSize === size && available);
+            button.setAttribute('aria-pressed', String(button.dataset.productSize === size && available));
         });
 
         form.querySelectorAll('[data-product-color]').forEach((button) => {
             button.setAttribute('aria-pressed', String(button.dataset.productColor === color));
-            button.classList.toggle('ring-2', button.dataset.productColor === color);
-            button.classList.toggle('ring-[#d66f7c]', button.dataset.productColor === color);
         });
     };
 
