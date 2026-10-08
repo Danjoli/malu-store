@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+    Options -Indexes
+
+    RewriteEngine On
+
+    # Hostinger shared hosting serves public_html as the document root. Keep
+    # Laravel internals outside the public web namespace and forward every
+    # request to the framework's public directory.
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
