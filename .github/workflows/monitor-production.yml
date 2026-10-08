@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
-      BASE_URL: https://loja.malu-store.com
+      BASE_URL: https://malu-store.com
       INCIDENT_TITLE: '[Produção] Monitor detectou indisponibilidade'
       GH_TOKEN: ${{ github.token }}
     steps:

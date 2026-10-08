@@ -16,7 +16,7 @@ releases="$app_root/releases"
 release="$releases/$commit"
 previous="$app_root/previous-$commit"
 php_bin="/opt/alt/php85/usr/bin/php"
-health_url="https://loja.malu-store.com/up"
+health_url="https://malu-store.com/up"
 
 cd "$home_dir"
 sha256sum --check "$checksum_name"
@@ -31,6 +31,7 @@ rm -rf "$release"
 mkdir -p "$release"
 tar -xzf "$archive_name" -C "$release"
 cp "$current/.env" "$release/.env"
+sed -i 's|^APP_URL=.*$|APP_URL=https://malu-store.com|' "$release/.env"
 rm -rf "$release/storage"
 cp -a "$current/storage" "$release/storage"
 rm -f "$release/public/storage"
@@ -76,7 +77,8 @@ if ! (
     cd "$current" &&
     "$php_bin" artisan config:cache &&
     "$php_bin" artisan route:cache &&
-    "$php_bin" artisan view:cache
+    "$php_bin" artisan view:cache &&
+    "$php_bin" artisan sitemap:generate
 ); then
     rollback
     exit 1
