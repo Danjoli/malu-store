@@ -17,6 +17,7 @@ release="$releases/$commit"
 previous="$app_root/previous-$commit"
 php_bin="/opt/alt/php85/usr/bin/php"
 health_url="https://malu-store.com/up"
+origin_host="malu-store.com.cdn.hstgr.net"
 
 cd "$home_dir"
 sha256sum --check "$checksum_name"
@@ -85,8 +86,16 @@ if ! (
 fi
 
 healthy=false
+origin_ip="$(getent ahostsv4 "$origin_host" 2>/dev/null | awk 'NR == 1 { print $1 }')"
 for attempt in {1..10}; do
-    if curl --fail --silent --max-time 10 "$health_url" >/dev/null; then
+    curl_args=(--fail --silent --max-time 10)
+    if [[ -n "$origin_ip" ]]; then
+        # Valida a release diretamente na origem. O monitor externo separado
+        # continua verificando Cloudflare/DNS sem sujeitar o rollback a um 429.
+        curl_args+=(--resolve "malu-store.com:443:$origin_ip")
+    fi
+
+    if curl "${curl_args[@]}" "$health_url" >/dev/null; then
         healthy=true
         break
     fi
