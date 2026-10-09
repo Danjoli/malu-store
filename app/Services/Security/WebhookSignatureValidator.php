@@ -23,7 +23,7 @@ class WebhookSignatureValidator
         }
 
         $signature = preg_replace('/^sha256=/i', '', trim($receivedSignature));
-        $expectedSignature = hash_hmac('sha256', $payload, $secret);
+        $expectedSignature = base64_encode(hash_hmac('sha256', $payload, $secret, true));
 
         return hash_equals($expectedSignature, $signature);
     }

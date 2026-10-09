@@ -45,7 +45,7 @@ class WebhookQueueTest extends TestCase
             'status' => 'posted',
         ];
         $content = json_encode($payload, JSON_THROW_ON_ERROR);
-        $signature = hash_hmac('sha256', $content, 'webhook-secret');
+        $signature = base64_encode(hash_hmac('sha256', $content, 'webhook-secret', true));
 
         $this->call(
             'POST',
