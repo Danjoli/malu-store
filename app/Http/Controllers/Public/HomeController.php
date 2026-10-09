@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
+    private const PRODUCT_LIMIT = 12;
+
     protected $productFilterService;
 
     public function __construct(ProductFilterService $productFilterService)
@@ -21,7 +23,12 @@ class HomeController extends Controller
         $products = $catalogCache->remember(
             'home',
             $request->query(),
-            fn () => $this->productFilterService->filter($request),
+            fn () => $this->productFilterService
+                ->query($request)
+                ->latest('created_at')
+                ->latest('id')
+                ->limit(self::PRODUCT_LIMIT)
+                ->get(),
         );
 
         return view('public.home.index', compact('products'));

@@ -109,4 +109,19 @@ class CatalogTest extends TestCase
             ->assertSee('Página 2')
             ->assertSee(route('catalog.index'), false);
     }
+
+    public function test_home_only_loads_a_bounded_product_showcase(): void
+    {
+        $category = Category::factory()->create();
+
+        foreach (range(1, 13) as $number) {
+            $this->product('Vitrine '.$number, $category);
+        }
+
+        $response = $this->get(route('home'));
+
+        $response->assertOk()
+            ->assertViewHas('products', fn ($products) => $products->count() === 12)
+            ->assertSee(route('catalog.index'), false);
+    }
 }
