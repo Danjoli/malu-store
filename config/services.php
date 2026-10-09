@@ -22,10 +22,12 @@ $melhorEnvioProfiles = [
         // Mantém compatibilidade com o token local existente durante a migração.
         'token' => env('MELHOR_ENVIO_SANDBOX_TOKEN') ?: env('MELHOR_ENVIO_TOKEN'),
         'url' => env('MELHOR_ENVIO_SANDBOX_BASE_URL', 'https://sandbox.melhorenvio.com.br/api/v2/me/'),
+        'webhook_secret' => env('MELHOR_ENVIO_SANDBOX_WEBHOOK_SECRET') ?: env('MELHOR_ENVIO_WEBHOOK_SECRET'),
     ],
     'production' => [
         'token' => env('MELHOR_ENVIO_PRODUCTION_TOKEN'),
         'url' => env('MELHOR_ENVIO_PRODUCTION_BASE_URL', 'https://melhorenvio.com.br/api/v2/me/'),
+        'webhook_secret' => env('MELHOR_ENVIO_PRODUCTION_WEBHOOK_SECRET') ?: env('MELHOR_ENVIO_WEBHOOK_SECRET'),
     ],
 ];
 
@@ -82,7 +84,6 @@ return [
         'environment' => $melhorEnvioEnvironment,
         ...$melhorEnvioProfiles[$melhorEnvioEnvironment],
         'origin_zip' => env('MELHOR_ENVIO_ORIGIN_ZIP'),
-        'webhook_secret' => env('MELHOR_ENVIO_WEBHOOK_SECRET'),
         'sender' => [
             'name' => env('MELHOR_ENVIO_SENDER_NAME'),
             'phone' => env('MELHOR_ENVIO_SENDER_PHONE'),
