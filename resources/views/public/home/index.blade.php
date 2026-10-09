@@ -110,7 +110,7 @@
             <span class="h-px flex-1 bg-[var(--store-border)]"></span>
 
             <a
-                href="{{ route('home') }}"
+                href="{{ route('catalog.index') }}"
                 class="store-link shrink-0 text-[11px] font-semibold sm:text-xs"
             >
                 Ver todas
