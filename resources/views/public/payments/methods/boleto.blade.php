@@ -60,7 +60,7 @@
 @endsection
 
 @push('payment-scripts')
-    <script>
+    <script nonce="{{ Vite::cspNonce() }}">
         window.BOLETO_ORDER_ID = @json($order->id);
         window.BOLETO_STATUS_URL = @json(route('payment.status', $order->id));
         window.BOLETO_SUCCESS_URL = @json(route('payment.success', $order->id));

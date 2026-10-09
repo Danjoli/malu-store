@@ -30,7 +30,7 @@
 @endsection
 
 @push('scripts')
-    <script>
+    <script nonce="{{ Vite::cspNonce() }}">
         window.SUBTOTAL = @json($subtotal ?? 0);
         window.CSRF_TOKEN = @json(csrf_token());
         window.CHECKOUT_ADDRESSES = @json($addresses ?? []);

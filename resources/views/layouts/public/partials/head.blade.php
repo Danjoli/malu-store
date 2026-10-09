@@ -25,7 +25,7 @@
         'resources/js/app.js',
     ])
 
-    <style>
+    <style nonce="{{ Vite::cspNonce() }}">
         [x-cloak] {
             display: none !important;
         }

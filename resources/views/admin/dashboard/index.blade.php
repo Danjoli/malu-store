@@ -169,7 +169,7 @@
         </section>
     </div>
 
-    <script>
+    <script nonce="{{ Vite::cspNonce() }}">
         window.DASHBOARD = {
             months: @json($months),
             sales: @json($sales),

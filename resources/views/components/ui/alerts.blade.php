@@ -28,7 +28,7 @@
 @endphp
 
 @if (count($alerts) || count($validationErrors))
-    <script>
+    <script nonce="{{ Vite::cspNonce() }}">
         document.addEventListener('DOMContentLoaded', async function () {
             const alerts = @json($alerts);
             const errors = @json($validationErrors);
