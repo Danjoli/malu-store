@@ -1,4 +1,4 @@
-<script>
+<script nonce="{{ Vite::cspNonce() }}">
     (() => {
         const savedTheme = localStorage.getItem('malu-store-theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;

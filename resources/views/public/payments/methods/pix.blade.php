@@ -52,7 +52,7 @@
 @endsection
 
 @push('payment-scripts')
-    <script>
+    <script nonce="{{ Vite::cspNonce() }}">
         window.PIX_ORDER_ID = @json($order->id);
         window.PIX_EXPIRES_AT = @json($order->expires_at?->toIso8601String());
         window.PIX_STATUS_URL = @json(route('payment.status', $order->id));

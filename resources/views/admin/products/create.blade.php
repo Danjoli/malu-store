@@ -22,7 +22,7 @@
 @endsection
 
 @push('scripts')
-    <script>
+    <script nonce="{{ Vite::cspNonce() }}">
         window.PRODUCT = {
             variantIndex: @json($variantIndex),
         };
