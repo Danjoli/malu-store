@@ -10,10 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 class SecurityHeaders
 {
     /**
-     * Adiciona proteções que não dependem do conteúdo renderizado pelas views.
-     *
-     * A Content Security Policy será adicionada separadamente, após uma revisão
-     * das integrações de scripts e estilos externos em produção.
+     * Adiciona os cabeçalhos de proteção e a CSP com nonce por resposta.
      */
     public function handle(Request $request, Closure $next): Response
     {

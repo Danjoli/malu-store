@@ -2,64 +2,109 @@
 
 ## Estado atual
 
-A produção usa uma única instância Hostinger. Cache, sessões e filas estão no MySQL; uploads ficam em `storage/app/public`. O PHP possui a extensão Redis, mas não existe servidor Redis acessível. Também não há bucket S3 configurado. A hospedagem desabilita `proc_open`, portanto não é adequada para Laravel Horizon ou supervisão contínua de múltiplos workers.
+A aplicação roda em uma instância Hostinger, com MySQL como banco principal.
+Homologação e produção usam Redis gerenciado para cache, sessões e filas, e
+Cloudflare R2 para imagens de produtos. Os recursos e prefixos são separados por
+ambiente. A configuração e os diagnósticos estão em
+[INFRAESTRUTURA.md](INFRAESTRUTURA.md).
 
-## Pré-requisitos externos
+A hospedagem desabilita `proc_open` e não oferece supervisão contínua adequada
+para Laravel Horizon. Por isso, os workers Redis são curtos, usam
+`--stop-when-empty` e são iniciados pelo agendador com `flock`.
 
-- Redis gerenciado com TLS, autenticação, backups e região próxima à aplicação.
-- Object storage compatível com S3, bucket privado para origem e CDN HTTPS para leitura pública.
-- Ambiente de homologação com as mesmas integrações.
-- Plataforma que mantenha processos de fila continuamente supervisionados, ou um worker separado em VPS/container.
+O catálogo já foi validado com um milhão de usuários sintéticos e um milhão de
+produtos em homologação. Esse volume demonstra o comportamento das consultas,
+mas não substitui teste concorrente, métricas do servidor ou projeção de tráfego
+real.
 
-Credenciais devem ficar apenas no Environment protegido e no `.env` de cada ambiente. Nunca devem entrar no repositório.
+## Capacidade e sinais de crescimento
 
-## Migração sem indisponibilidade
+Aumente recursos ou reveja a arquitetura quando houver tendência persistente,
+não por um pico isolado. Acompanhe:
 
-### 1. Object storage e CDN
+- latência p50, p95 e p99 das páginas públicas;
+- taxa de respostas 5xx e timeouts;
+- CPU, memória, I/O e conexões MySQL;
+- consultas lentas e planos de execução;
+- uso, latência, erros e hit rate do Redis;
+- quantidade de jobs, idade do mais antigo, tentativas e falhas por fila;
+- latência e erros do R2, Asaas e Melhor Envio;
+- volume, custo e taxa de erros registrados no Sentry.
 
-1. Criar bucket, política de menor privilégio, CORS e CDN.
-2. Alterar a aplicação para gerar URLs pelo disco configurado, eliminando caminhos `/storage` fixos.
-3. Copiar os uploads existentes para `products/` no bucket sem removê-los do servidor.
-4. Comparar quantidade, tamanho e checksum dos objetos.
-5. Ativar leitura pelo CDN em homologação e executar a suíte de navegador.
-6. Em produção, ativar `FILESYSTEM_DISK=s3`; manter os arquivos locais durante pelo menos sete dias para rollback.
-7. Aplicar cache público longo para nomes imutáveis e curto para objetos substituíveis.
+## Evolução recomendada
 
-### 2. Redis para cache e rate limiting
+### 1. Otimizar antes de ampliar
 
-1. Configurar conexões separadas e prefixos exclusivos por ambiente.
-2. Validar TLS, latência, expiração e comportamento quando o serviço estiver indisponível.
-3. Trocar primeiro apenas `CACHE_STORE=redis` e acompanhar erros, memória e hit rate.
-4. O rate limiting passa a compartilhar o mesmo cache entre instâncias.
-5. Rollback: retornar `CACHE_STORE=database`; caches podem ser descartados com segurança.
+1. Identificar consultas lentas com dados representativos.
+2. Confirmar índices com `EXPLAIN`, evitando adicionar índices sem evidência.
+3. Cachear apenas resultados de leitura que possam ser descartados.
+4. Manter paginação e limites em listagens administrativas e públicas.
+5. Medir novamente com os perfis definidos em
+   [TESTES-DE-CARGA.md](TESTES-DE-CARGA.md).
 
-### 3. Sessões
+### 2. Redis
 
-1. Confirmar persistência, TTL e criptografia das sessões em homologação.
-2. Trocar `SESSION_DRIVER=redis` em janela de baixo tráfego.
-3. A troca pode solicitar novo login aos usuários; não altera pedidos nem carrinhos persistidos no banco.
-4. Rollback: retornar ao driver `database`.
+- manter TLS, autenticação e prefixos exclusivos;
+- acompanhar memória, expiração, evicções e reconexões;
+- aumentar o plano antes de atingir o limite de memória;
+- nunca usar `FLUSHALL` ou `FLUSHDB` em produção;
+- testar indisponibilidade e rollback em homologação.
 
-### 4. Filas por criticidade
+Se o serviço permitir, sessões/filas e cache podem continuar em bancos lógicos
+separados. Em uma futura arquitetura com várias aplicações ou políticas de
+retenção distintas, use instâncias/projetos separados.
 
-Separar `payments`, `webhooks`, `shipping` e `default`. Pagamentos e webhooks recebem workers próprios e prioridade maior. Antes da troca:
+### 3. Filas
 
-1. iniciar workers Redis supervisionados;
-2. manter o worker do banco consumindo a fila antiga;
-3. alterar `QUEUE_CONNECTION=redis` e publicar novos jobs nas filas nomeadas;
-4. aguardar a fila do banco chegar a zero;
-5. manter o worker antigo disponível por uma janela de rollback.
+As filas `critical` e `default` devem ser acompanhadas separadamente. Se jobs
+críticos passarem a aguardar, aumente a frequência dos workers ou migre a execução
+para uma VPS/container com supervisor contínuo. Antes da migração:
 
-Métricas mínimas: jobs publicados/concluídos por minuto, idade do job mais antigo, tamanho por fila, falhas, tentativas e tempo de execução. Alertar quando a idade ou as falhas ultrapassarem os limites operacionais.
+1. iniciar os novos workers;
+2. manter o consumidor antigo enquanto houver jobs pendentes;
+3. confirmar idempotência de pagamentos, webhooks e etiquetas;
+4. ensaiar rollback sem perder nem duplicar jobs.
 
-## Critérios para ativação
+### 4. Banco de dados
 
-- suíte completa e testes de navegador aprovados em homologação;
-- teste de falha e reconexão do Redis;
+Quando a instância atual deixar de atender:
+
+1. otimizar consultas e índices;
+2. aumentar recursos do MySQL;
+3. separar tarefas analíticas e relatórios pesados;
+4. considerar réplica de leitura somente quando a aplicação estiver preparada
+   para consistência eventual;
+5. manter backups e restaurações testados em qualquer mudança.
+
+### 5. Aplicação horizontal
+
+Redis e R2 removem estado local de sessões, cache, filas e imagens, preparando a
+aplicação para mais de uma instância web. Antes de escalar horizontalmente,
+confirme:
+
+- releases idênticas e configuração consistente;
+- balanceador com health check;
+- nenhuma dependência de arquivos gravados apenas no servidor local;
+- migrations compatíveis com implantação sem indisponibilidade;
+- workers, logs, métricas e alertas centralizados.
+
+## Critérios para aumentar a carga de teste
+
+1. `smoke` aprovado após o deploy.
+2. `baseline` estável sem aumento de erros ou filas.
+3. `growth` somente quando o tráfego real se aproximar do baseline ou antes de
+   campanhas.
+4. `stress` somente em homologação, em janela controlada e sem backups,
+   importações ou manutenção simultânea.
+5. Produção aceita apenas `smoke` deliberado, com `ALLOW_PRODUCTION=true` e fora
+   do horário de pico.
+
+## Critérios de segurança para qualquer mudança
+
+- suíte completa e testes de navegador aprovados;
+- teste de carga aprovado em homologação;
+- falha e reconexão de Redis verificadas;
+- escrita, leitura e exclusão no R2 verificadas;
 - restauração de backup validada;
-- checksums dos uploads conferidos;
-- workers reiniciam automaticamente;
-- painéis e alertas testados;
-- procedimento de rollback ensaiado.
-
-Sem Redis, bucket/CDN e supervisão fornecidos, a aplicação deve permanecer nos drivers atuais. Essa decisão mantém a loja funcional e evita uma migração parcial que perderia sessões, jobs ou imagens.
+- workers e alertas verificados;
+- rollback documentado e ensaiado.

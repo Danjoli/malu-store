@@ -1,4 +1,8 @@
-# Testes de carga da vitrine
+# Testes de carga da vitrine — referência rápida
+
+A política completa, critérios de interrupção e registro dos resultados estão em
+[`docs/TESTES-DE-CARGA.md`](../../docs/TESTES-DE-CARGA.md). Este arquivo mantém
+somente as instruções próximas ao script executável.
 
 Os perfis exercitam somente endpoints de leitura (`/`, `/produtos` e `/health`).
 Execute preferencialmente contra homologação e acompanhe CPU, memória, banco, Redis,
