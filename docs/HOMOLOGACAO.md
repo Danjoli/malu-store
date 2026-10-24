@@ -75,6 +75,31 @@ artisan queue:work redis --queue=default --stop-when-empty --tries=3 --timeout=1
 Cada comando deve usar um arquivo `flock` próprio, diferente dos arquivos da
 produção.
 
+## Diagnóstico dos serviços
+
+Depois de qualquer alteração no `.env`, execute:
+
+```bash
+php artisan optimize:clear
+php artisan config:cache
+php artisan queue:restart
+```
+
+Valide a prontidão completa:
+
+```bash
+curl --user 'USUARIO' https://staging.malu-store.com/health
+```
+
+A resposta deve ter `status: ok` e indicar `database`, `queue` e `storage` como
+verdadeiros. O check da fila envia `PING` ao Redis; o check de storage grava e
+remove um objeto temporário no R2. Não coloque a senha diretamente no comando:
+sem `:senha`, o `curl` solicita o valor sem gravá-lo no histórico.
+
+Para um diagnóstico detalhado e seguro de Redis e R2, siga
+[INFRAESTRUTURA.md](INFRAESTRUTURA.md). Nunca mostre `REDIS_URL`, chaves AWS/R2 ou
+o conteúdo completo do `.env`.
+
 ## Teste de carga
 
 O cenário existente aceita a autenticação da homologação:
@@ -88,3 +113,7 @@ k6 run -e BASE_URL=https://staging.malu-store.com \
 
 As credenciais não devem ser gravadas no Git ou no histórico compartilhado do
 terminal.
+
+Use `PROFILE=smoke`, `baseline`, `growth` ou `stress` conforme
+[TESTES-DE-CARGA.md](TESTES-DE-CARGA.md); não comece diretamente pelo perfil de
+maior carga.

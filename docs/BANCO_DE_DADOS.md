@@ -88,7 +88,7 @@ O banco guarda apenas o caminho da imagem na tabela `product_images`; um produto
 Os arquivos devem existir em:
 
 ```text
-storage/app/public/products
+storage/app/public/products  # ambiente local
 ```
 
 Para expô-los pela web, execute:
@@ -97,7 +97,13 @@ Para expô-los pela web, execute:
 php artisan storage:link
 ```
 
-Em uma implantação, envie a pasta `storage/app/public/products` junto com o projeto. Executar os seeders sem enviar os arquivos não faz as imagens aparecerem. No painel, a tela de detalhes do produto permite substituir a galeria com até oito imagens válidas; ao substituir, os registros e arquivos anteriores são removidos.
+No ambiente local, envie ou mantenha `storage/app/public/products`. Em homologação
+e produção, as imagens ficam no bucket R2 selecionado por `FILESYSTEM_DISK=s3`;
+executar seeders sem copiar os objetos correspondentes não faz as imagens
+aparecerem. O comando `storage:migrate-products` copia e verifica imagens do disco
+local para o R2 sem apagar a origem. No painel, a tela de detalhes do produto
+permite substituir a galeria com até oito imagens válidas; ao substituir, os
+registros e arquivos anteriores são removidos do disco configurado.
 
 ## Boas práticas para evoluir
 

@@ -9,12 +9,14 @@ Checklist para publicar uma cópia de demonstração ou uma versão de produçã
 - Configure o `.env` com o banco MySQL correto, URL do site, `APP_ENV=production` e `APP_DEBUG=false`.
 - Instale dependências PHP com `composer install --no-dev --optimize-autoloader`.
 - Execute `npm ci && npm run build` no artefato de cada release antes do deploy.
-- Envie também `storage/app/public/products` para preservar as fotos do catálogo.
+- Confirme o acesso ao Redis e ao bucket R2 antes de ativar a release. Imagens
+  locais legadas podem ser copiadas com `storage:migrate-products`.
 - Configure o domínio da hospedagem para servir a pasta `public`, nunca a raiz inteira do projeto.
 
 ### Base recomendada para produção
 
-O `.env.example` já traz os padrões locais do Malu Store: português do Brasil, MySQL, disco público para uploads e logs diários. No servidor, confirme pelo menos estes valores e nunca versione senhas ou chaves:
+O `.env.example` traz padrões locais. Produção usa Redis e R2; confirme pelo
+menos estes valores no servidor e nunca versione senhas ou chaves:
 
 ```env
 APP_ENV=production
@@ -24,7 +26,23 @@ APP_TIMEZONE=America/Sao_Paulo
 APP_LOCALE=pt_BR
 
 DB_CONNECTION=mysql
-FILESYSTEM_DISK=public
+CACHE_STORE=redis
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+REDIS_CLIENT=phpredis
+REDIS_URL=
+REDIS_PREFIX=malu-store-production-
+REDIS_CACHE_DB=1
+
+FILESYSTEM_DISK=s3
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_DEFAULT_REGION=auto
+AWS_BUCKET=malu-store-products-production
+AWS_ENDPOINT=https://ACCOUNT_ID.r2.cloudflarestorage.com
+AWS_URL=https://assets.malu-store.com
+AWS_USE_PATH_STYLE_ENDPOINT=false
+
 SESSION_SECURE_COOKIE=true
 LOG_STACK=daily
 LOG_LEVEL=info
@@ -43,14 +61,18 @@ php artisan storage:link
 php artisan optimize:clear
 ```
 
-O comando cria a estrutura e insere categorias, produtos, imagens cadastradas, contas e pedidos de demonstração. As imagens continuam dependendo dos arquivos enviados para `storage/app/public/products`.
+O comando cria a estrutura e insere categorias, produtos, imagens cadastradas,
+contas e pedidos de demonstração. Localmente, as imagens dependem dos arquivos em
+`storage/app/public/products`; nos ambientes hospedados, dependem dos objetos no
+bucket R2.
 
 ## Assets públicos e SEO
 
 - `public/build` é sempre gerado a partir de `resources`, `package-lock.json` e `vite.config.js`; ele não é versionado.
 - A CI compila os assets em todos os commits. O deploy deve executar `npm ci && npm run build` em uma pasta de release limpa, antes da troca atômica do diretório público.
 - O Vite limpa `public/build` antes de cada compilação, evitando arquivos com hash obsoleto. Não copie esse diretório entre releases.
-- O link `public/storage` é criado pelo `storage:link`; ele deve apontar para `storage/app/public`. Se o projeto for movido de pasta ou de servidor, recrie esse link com esse comando.
+- O link `public/storage` atende o disco local e arquivos legados. Imagens novas
+  usam o disco definido por `FILESYSTEM_DISK`; com `s3`, a URL vem de `AWS_URL`.
 - O ícone público principal é `public/favicon.svg`; `public/favicon.ico` é o fallback de compatibilidade para navegadores e atalhos antigos. Ambos são carregados pelos layouts público, de pagamento e administrativo.
 - Não envie `public/hot` para produção. Esse arquivo é criado somente pelo Vite em desenvolvimento e faz o Laravel procurar os assets no servidor local.
 - Após cadastrar ou alterar o catálogo em produção, gere o sitemap com `php artisan sitemap:generate`. O comando usa o `APP_URL` do ambiente, por isso essa variável deve conter o domínio HTTPS definitivo antes de executá-lo.
@@ -83,17 +105,23 @@ Antes da troca, o servidor copia `.env` e `storage` da versão ativa para a nova
 
 ## Fila e webhooks
 
-Como o webhook do Asaas e a geração de etiquetas são colocados na fila `database`, mantenha um worker ativo:
+Pagamentos, webhooks e operações de envio usam filas Redis nos ambientes
+hospedados. Como a hospedagem não mantém Horizon continuamente, configure no
+agendador workers curtos e separados por prioridade:
 
 ```bash
-php artisan queue:work --tries=3 --timeout=120 --sleep=3
+php artisan queue:work redis --queue=critical --stop-when-empty --tries=3 --timeout=120
+php artisan queue:work redis --queue=default --stop-when-empty --tries=3 --timeout=120
 ```
 
-Configure esse processo pelo recurso de processos/cron da hospedagem de acordo com o plano contratado. O worker usa até três tentativas e 120 segundos por Job. Sem worker, webhooks e etiquetas entram na tabela `jobs`, mas não são processados. Consulte e repita trabalhos que falharam somente depois de investigar:
+Configure cada comando com um `flock` próprio e execute também
+`artisan schedule:run` a cada minuto. Sem worker, os jobs permanecem no Redis sem
+ser processados. Consulte e repita trabalhos que falharam somente depois de
+investigar:
 
 ```bash
 php artisan queue:failed
-php artisan queue:retry all
+php artisan queue:retry ID
 ```
 
 ## Segurança de produção
@@ -111,10 +139,31 @@ SECURITY_HSTS=true
 
 `SESSION_SAME_SITE` já é lida nativamente por `config/session.php`; a variável não precisa existir em outro arquivo de configuração. `lax` preserva os fluxos normais da loja e reduz o risco de requisições cross-site. Os cabeçalhos HTTP de proteção são aplicados automaticamente pela aplicação; HSTS só é enviado quando a requisição já usa HTTPS.
 
+O middleware `SecurityHeaders` aplica uma CSP restritiva com nonce único por
+resposta, bloqueia objetos, frames e scripts inline sem nonce, limita imagens aos
+domínios autorizados e remove `X-Powered-By`. O `.htaccess` também remove esse
+cabeçalho no Apache. `unsafe-eval` permanece temporariamente em `script-src` por
+compatibilidade com o avaliador padrão do Alpine.js; a diretiva
+`style-src-attr 'unsafe-inline'` permanece para cores dinâmicas de produtos. Ao adicionar CDN,
+fonte, script ou integração no navegador, ajuste a CSP pelo menor escopo possível
+e execute os testes de navegador nos dois temas.
+
+Validação sem expor cookies ou conteúdo:
+
+```bash
+curl -sSI https://malu-store.com/ | grep -Ei \
+  '^(content-security-policy|x-powered-by|strict-transport-security|x-content-type-options|x-frame-options):'
+```
+
+O resultado deve conter CSP, HSTS e os demais cabeçalhos de proteção, mas não
+deve conter `X-Powered-By`.
+
 ### Assinaturas dos webhooks
 
 - Asaas: configure um token longo no painel do Asaas e use o mesmo valor em `ASAAS_PRODUCTION_WEBHOOK_TOKEN`. A aplicação valida o cabeçalho `asaas-access-token` antes de enfileirar o evento.
-- Melhor Envio: copie o *secret* do aplicativo para `MELHOR_ENVIO_WEBHOOK_SECRET`. A aplicação valida o cabeçalho `X-ME-Signature` via HMAC-SHA256 no corpo original da requisição.
+- Melhor Envio: use `MELHOR_ENVIO_SANDBOX_WEBHOOK_SECRET` e
+  `MELHOR_ENVIO_PRODUCTION_WEBHOOK_SECRET`. A aplicação seleciona o secret pelo
+  `MELHOR_ENVIO_ENV` e valida `X-ME-Signature` via HMAC-SHA256 no corpo original.
 
 Não use chaves de API como tokens de webhook. Depois de alterar variáveis, execute `php artisan optimize:clear` e `php artisan config:cache`.
 
@@ -143,7 +192,9 @@ ASAAS_PRODUCTION_API_KEY=
 ASAAS_PRODUCTION_WEBHOOK_TOKEN=
 
 MELHOR_ENVIO_SANDBOX_TOKEN=
+MELHOR_ENVIO_SANDBOX_WEBHOOK_SECRET=
 MELHOR_ENVIO_PRODUCTION_TOKEN=
+MELHOR_ENVIO_PRODUCTION_WEBHOOK_SECRET=
 MELHOR_ENVIO_ORIGIN_ZIP=
 MELHOR_ENVIO_SENDER_NAME=
 MELHOR_ENVIO_SENDER_PHONE=
@@ -226,9 +277,23 @@ O workflow **Monitor de produção** consulta `/up` e `/produtos` a cada 15 minu
 
 Também é possível executar o monitor manualmente pela aba Actions. Depois de resolver um incidente, valide os dois endpoints, registre a causa e a correção na issue e só então feche-a. A próxima indisponibilidade poderá criar uma nova ocorrência.
 
+`/up` confirma que o Laravel iniciou. `/health` é a verificação de prontidão e
+testa MySQL, fila/Redis e escrita/exclusão no disco padrão (R2 em produção). Use
+`/health` em diagnóstico e antes/depois de testes de carga; ele pode responder
+`503` mesmo quando `/up` ainda responde `200`.
+
 ## Backup e recuperação
 
-O backup diário reúne um dump consistente do MySQL e `storage/app/public`, criptografa o pacote com AES-256 e grava um checksum SHA-256. A retenção padrão é de 14 cópias. Credenciais, nome do banco e chave de criptografia ficam fora de `public_html`, com permissão somente para o usuário da hospedagem (`~/.malu-store-backup.cnf`, `~/.malu-store-backup-database` e `~/.malu-store-backup.key`).
+O backup diário reúne um dump consistente do MySQL e os arquivos locais legados
+em `storage/app/public`, criptografa o pacote com AES-256 e grava um checksum
+SHA-256. A retenção padrão é de 14 cópias. Credenciais, nome do banco e chave de
+criptografia ficam fora de `public_html`, com permissão somente para o usuário da
+hospedagem (`~/.malu-store-backup.cnf`, `~/.malu-store-backup-database` e
+`~/.malu-store-backup.key`).
+
+Esse script não exporta objetos do R2. Configure no Cloudflare um mecanismo de
+retenção e recuperação compatível com o plano contratado e teste separadamente a
+recuperação das imagens.
 
 O workflow **Backup de produção** executa o script diariamente às 03:15 no horário de Brasília. Uma falha abre uma issue de produção sem duplicar incidentes ainda abertos. Como alternativa, o mesmo comando pode ser configurado no Agendador do hPanel:
 

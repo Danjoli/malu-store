@@ -14,7 +14,11 @@ Tecnologias principais:
 - Asaas para Pix, boleto e cartão;
 - Melhor Envio para serviços de frete e acompanhamento de envio.
 
-Os defaults de `config/` e do `.env.example` seguem a operação da loja: `pt_BR`, fuso `America/Sao_Paulo`, MySQL, disco `public` para uploads e fila/cache configuráveis por ambiente. Os testes continuam isolados em SQLite em memória, independentemente do MySQL local ou de produção.
+Os defaults locais de `config/` e do `.env.example` usam `pt_BR`, fuso
+`America/Sao_Paulo`, MySQL e disco `public`. Nos ambientes hospedados, cache,
+sessões e filas usam Redis, enquanto imagens usam Cloudflare R2 por meio do disco
+`s3`. Os testes continuam isolados em SQLite em memória, independentemente do
+MySQL local ou hospedado. Consulte [INFRAESTRUTURA.md](INFRAESTRUTURA.md).
 
 ## Organização de código
 
@@ -195,7 +199,7 @@ O modelo completo de tabelas, relações, snapshots, seeders, imagens e comandos
 
 Cada produto possui uma relação `hasMany` com `ProductImage`: a primeira foto da galeria é usada nos cards e as demais ficam disponíveis na página de detalhes. O catálogo de demonstração cria três imagens por produto.
 
-No painel, a tela **Produtos → Detalhes** possui a seção **Substituir imagens do produto**. Administradores com permissão de gestão podem selecionar de 1 a 8 arquivos JPG, JPEG, PNG ou WebP de até 2 MB cada. Ao salvar, a galeria anterior e seus arquivos em `storage/app/public/products` são substituídos pelas imagens selecionadas.
+No painel, a tela **Produtos → Detalhes** possui a seção **Substituir imagens do produto**. Administradores com permissão de gestão podem selecionar de 1 a 8 arquivos JPG, JPEG, PNG ou WebP de até 2 MB cada. Ao salvar, a galeria anterior e seus arquivos no disco definido por `FILESYSTEM_DISK` são substituídos. Localmente esse disco é `public`; nos ambientes hospedados, é o bucket R2 configurado como `s3`.
 
 ### Estimativa de frete no produto
 
@@ -266,7 +270,7 @@ Asaas e Melhor Envio usam uma configuração por perfil. O ambiente ativo é def
 
 `MELHOR_ENVIO_ORIGIN_ZIP` é o CEP de origem usado nas cotações e etiquetas. Para emitir etiquetas, também são obrigatórios os dados do remetente: `MELHOR_ENVIO_SENDER_NAME`, `PHONE`, `EMAIL`, `DOCUMENT`, `ADDRESS`, `NUMBER`, `DISTRICT`, `CITY` e `STATE`. Eles pertencem ao `.env` e nunca devem ficar no código ou no Git.
 
-A solicitação de etiqueta enviada pelo painel cria a Job `GenerateShipmentLabel`. Ela executa as chamadas ao Melhor Envio na fila `database`, tenta até três vezes e registra/alerta uma falha definitiva. Assim, o painel administrativo não fica aguardando a integração externa.
+A solicitação de etiqueta enviada pelo painel cria a Job `GenerateShipmentLabel`. Ela executa as chamadas ao Melhor Envio na conexão de fila configurada (`database` localmente e Redis nos ambientes hospedados), tenta até três vezes e registra/alerta uma falha definitiva. Assim, o painel administrativo não fica aguardando a integração externa.
 
 ## Webhook do Asaas e estoque
 
