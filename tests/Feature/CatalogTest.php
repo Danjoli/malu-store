@@ -136,6 +136,7 @@ class CatalogTest extends TestCase
 
         $this->get(route('home'))
             ->assertOk()
+            ->assertSee('flex flex-wrap justify-center', false)
             ->assertSee($categories->first()->name)
             ->assertSee($categories->last()->name);
     }
