@@ -78,6 +78,8 @@
 
 {{-- Ativo / Inativo --}}
 <div class="mt-2 flex items-center gap-2 text-sm text-[#443d3b]">
+    <input type="hidden" name="is_active" value="0">
+
     <input
         type="checkbox"
         id="is_active"

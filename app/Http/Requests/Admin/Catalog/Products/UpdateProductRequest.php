@@ -24,6 +24,8 @@ class UpdateProductRequest extends FormRequest
 
             'price' => ['required', 'numeric', 'min:0'],
 
+            'active' => ['required', 'boolean'],
+
             'images' => ['sometimes', 'array', 'max:8'],
             'images.*' => [
                 'nullable',
@@ -47,6 +49,7 @@ class UpdateProductRequest extends FormRequest
             'name' => 'nome do produto',
             'description' => 'descrição',
             'price' => 'preço',
+            'active' => 'status',
             'images' => 'imagens',
             'variants' => 'variações',
             'variants.*.color' => 'cor',
@@ -81,5 +84,12 @@ class UpdateProductRequest extends FormRequest
             'variants.*.stock.required' => 'Informe o estoque da variação.',
             'variants.*.stock.min' => 'O estoque não pode ser negativo.',
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'active' => $this->boolean('active'),
+        ]);
     }
 }

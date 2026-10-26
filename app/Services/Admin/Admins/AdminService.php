@@ -10,7 +10,7 @@ class AdminService
     public function create(array $data): Admin
     {
         $data['password'] = Hash::make($data['password']);
-        $data['is_active'] = isset($data['is_active']);
+        $data['is_active'] = (bool) ($data['is_active'] ?? false);
 
         return Admin::create($data);
     }
@@ -23,7 +23,7 @@ class AdminService
             unset($data['password']);
         }
 
-        $data['is_active'] = isset($data['is_active']);
+        $data['is_active'] = (bool) ($data['is_active'] ?? false);
 
         $admin->update($data);
 
