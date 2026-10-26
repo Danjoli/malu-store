@@ -229,6 +229,13 @@ miniaturas; ao escolher novos arquivos, o navegador cria uma prévia local antes
 do envio. Isso permite conferir a roupa enquanto nome, descrição e variações são
 preenchidos, sem gravar arquivos temporários no servidor.
 
+Na edição, variações existentes carregam seu identificador e são sincronizadas
+individualmente. Alterar o produto não recria todas as variações, preservando as
+referências mantidas por sacolas e pedidos. Quando uma variação é realmente
+removida, os itens transitórios de sacolas que apontavam para ela são eliminados;
+itens de pedidos continuam preservados por snapshot e com referência anulada pela
+chave estrangeira.
+
 ### Estimativa de frete no produto
 
 A página de produto oferece uma estimativa de frete antes da compra. O visitante informa um CEP e consulta as opções retornadas pelo Melhor Envio, com valor e prazo estimado para uma unidade. A rota é pública e limitada a 10 consultas por minuto para reduzir abuso da integração. A escolha da modalidade de frete e o valor definitivo continuam no checkout, pois dependem do endereço e do pedido completo.

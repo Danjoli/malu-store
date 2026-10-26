@@ -16,6 +16,8 @@ class UpdateProductRequest extends FormRequest
 
     public function rules(): array
     {
+        $product = $this->route('product');
+
         return [
             'category_id' => ['required', 'integer', 'exists:categories,id'],
 
@@ -36,6 +38,12 @@ class UpdateProductRequest extends FormRequest
 
             'variants' => ['required', 'array', 'min:1', new DistinctProductVariantCombinations],
 
+            'variants.*.id' => [
+                'nullable',
+                'integer',
+                Rule::exists('product_variants', 'id')
+                    ->where('product_id', $product->id),
+            ],
             'variants.*.color' => ['required', 'string', 'max:50'],
             'variants.*.size' => ['required', 'string', Rule::enum(ClothingSize::class)],
             'variants.*.stock' => ['required', 'integer', 'min:0'],
@@ -52,6 +60,7 @@ class UpdateProductRequest extends FormRequest
             'active' => 'status',
             'images' => 'imagens',
             'variants' => 'variações',
+            'variants.*.id' => 'variação',
             'variants.*.color' => 'cor',
             'variants.*.size' => 'tamanho',
             'variants.*.stock' => 'estoque',
