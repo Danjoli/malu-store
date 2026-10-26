@@ -84,4 +84,11 @@ class StoreProductRequest extends FormRequest
             'variants.*.stock.min' => 'O estoque não pode ser negativo.',
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'active' => $this->boolean('active'),
+        ]);
+    }
 }

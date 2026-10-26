@@ -34,6 +34,7 @@ class ProductService
             'name' => $data['name'],
             'description' => $data['description'] ?? null,
             'price' => $data['price'],
+            'active' => $data['active'],
         ]);
 
         if (! empty($data['images'])) {

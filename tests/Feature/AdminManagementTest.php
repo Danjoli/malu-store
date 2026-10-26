@@ -6,6 +6,8 @@ use App\Enums\AdminRole;
 use App\Models\Admin;
 use App\Models\Category;
 use App\Models\Order;
+use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\Shipment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -90,6 +92,60 @@ class AdminManagementTest extends TestCase
             'stock' => 8,
         ]);
         $this->assertCount(1, Storage::disk('public')->files('products'));
+    }
+
+    public function test_admin_can_deactivate_and_reactivate_a_product(): void
+    {
+        $category = Category::factory()->create();
+        $product = Product::factory()->for($category)->create(['active' => true]);
+        ProductVariant::factory()->for($product)->create([
+            'color' => 'Rosé',
+            'size' => 'M',
+            'stock' => 8,
+        ]);
+        $admin = $this->admin(AdminRole::Admin);
+
+        $payload = [
+            'category_id' => $category->id,
+            'name' => $product->name,
+            'description' => $product->description,
+            'price' => $product->price,
+            'active' => '0',
+            'variants' => [
+                ['color' => 'Rosé', 'size' => 'M', 'stock' => 8],
+            ],
+        ];
+
+        $this->actingAs($admin, 'admin')
+            ->put(route('admin.products.update', $product), $payload)
+            ->assertRedirect(route('admin.products.index'));
+
+        $this->assertFalse($product->fresh()->active);
+
+        $payload['active'] = '1';
+
+        $this->actingAs($admin, 'admin')
+            ->put(route('admin.products.update', $product), $payload)
+            ->assertRedirect(route('admin.products.index'));
+
+        $this->assertTrue($product->fresh()->active);
+    }
+
+    public function test_super_admin_can_deactivate_an_administrator(): void
+    {
+        $superAdmin = $this->admin(AdminRole::SuperAdmin);
+        $target = $this->admin(AdminRole::Admin);
+
+        $this->actingAs($superAdmin, 'admin')
+            ->put(route('admin.admins.update', $target), [
+                'name' => $target->name,
+                'email' => $target->email,
+                'role' => $target->role->value,
+                'is_active' => '0',
+            ])
+            ->assertRedirect(route('admin.admins.index'));
+
+        $this->assertFalse($target->fresh()->is_active);
     }
 
     public function test_admin_can_update_a_shipment_with_an_allowed_status(): void

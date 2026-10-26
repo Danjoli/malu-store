@@ -66,4 +66,11 @@ class UpdateAdminRequest extends FormRequest
             'role.in' => 'O nível de acesso selecionado é inválido.',
         ];
     }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'is_active' => $this->boolean('is_active'),
+        ]);
+    }
 }

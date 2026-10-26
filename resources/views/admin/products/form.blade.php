@@ -85,6 +85,8 @@
     {{-- Ativo --}}
     <div>
         <label class="flex items-center gap-2">
+            <input type="hidden" name="active" value="0">
+
             <input
                 type="checkbox"
                 name="active"
