@@ -223,6 +223,12 @@ Cada produto possui uma relação `hasMany` com `ProductImage`: a primeira foto 
 
 No painel, a tela **Produtos → Detalhes** possui a seção **Substituir imagens do produto**. Administradores com permissão de gestão podem selecionar de 1 a 8 arquivos JPG, JPEG, PNG ou WebP de até 2 MB cada. Ao salvar, a galeria anterior e seus arquivos no disco definido por `FILESYSTEM_DISK` são substituídos. Localmente esse disco é `public`; nos ambientes hospedados, é o bucket R2 configurado como `s3`.
 
+Os formulários de criação e edição mantêm uma área ampla de visualização ao lado
+dos dados do produto. Na edição, a galeria atual já aparece com seleção por
+miniaturas; ao escolher novos arquivos, o navegador cria uma prévia local antes
+do envio. Isso permite conferir a roupa enquanto nome, descrição e variações são
+preenchidos, sem gravar arquivos temporários no servidor.
+
 ### Estimativa de frete no produto
 
 A página de produto oferece uma estimativa de frete antes da compra. O visitante informa um CEP e consulta as opções retornadas pelo Melhor Envio, com valor e prazo estimado para uma unidade. A rota é pública e limitada a 10 consultas por minuto para reduzir abuso da integração. A escolha da modalidade de frete e o valor definitivo continuam no checkout, pois dependem do endereço e do pedido completo.
