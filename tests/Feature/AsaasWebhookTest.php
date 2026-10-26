@@ -11,7 +11,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
-use App\Services\Public\Payment\AsaasWebhookService;
+use App\UseCases\Payment\ProcessAsaasWebhook;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -79,8 +79,8 @@ class AsaasWebhookTest extends TestCase
             ],
         ];
 
-        app(AsaasWebhookService::class)->handleAsaas($payload);
-        app(AsaasWebhookService::class)->handleAsaas($payload);
+        app(ProcessAsaasWebhook::class)->execute($payload);
+        app(ProcessAsaasWebhook::class)->execute($payload);
 
         $this->assertDatabaseHas('orders', [
             'id' => $order->id,
@@ -123,7 +123,7 @@ class AsaasWebhookTest extends TestCase
         ]);
 
         try {
-            app(AsaasWebhookService::class)->handleAsaas([
+            app(ProcessAsaasWebhook::class)->execute([
                 'event' => 'PAYMENT_RECEIVED',
                 'payment' => ['id' => 'pay_without_stock', 'billingType' => 'PIX'],
             ]);
@@ -171,8 +171,8 @@ class AsaasWebhookTest extends TestCase
             ],
         ];
 
-        app(AsaasWebhookService::class)->handleAsaas($payload);
-        app(AsaasWebhookService::class)->handleAsaas($payload);
+        app(ProcessAsaasWebhook::class)->execute($payload);
+        app(ProcessAsaasWebhook::class)->execute($payload);
 
         $this->assertDatabaseHas('orders', [
             'id' => $order->id,
@@ -206,7 +206,7 @@ class AsaasWebhookTest extends TestCase
                 'gateway_payment_id' => 'checkout_'.strtolower($scenario['gateway']),
             ]);
 
-            app(AsaasWebhookService::class)->handleAsaas([
+            app(ProcessAsaasWebhook::class)->execute([
                 'id' => 'evt_'.strtolower($scenario['gateway']),
                 'event' => $scenario['event'],
                 'checkout' => [

@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Services\OperationalAlertService;
-use App\Services\Public\Payment\AsaasWebhookService;
+use App\UseCases\Payment\ProcessAsaasWebhook;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -12,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-class ProcessAsaasWebhook implements ShouldQueue
+class ProcessAsaasWebhookJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -25,9 +25,9 @@ class ProcessAsaasWebhook implements ShouldQueue
         $this->onQueue('critical');
     }
 
-    public function handle(AsaasWebhookService $asaasWebhook): void
+    public function handle(ProcessAsaasWebhook $processWebhook): void
     {
-        $asaasWebhook->handleAsaas($this->payload);
+        $processWebhook->execute($this->payload);
     }
 
     public function failed(Throwable $exception): void

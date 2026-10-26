@@ -27,18 +27,26 @@ app/
 ├── Actions/                 Operações pequenas e com uma responsabilidade
 │   ├── Checkout/            Endereço, pedido, itens e envio
 │   └── Payment/             Cobranças e processamento de webhook
-├── Data/                    DTOs normalizados
-│   └── CheckoutData.php
+├── Data/                    DTOs de entrada, resultados e webhooks
+│   ├── CheckoutData.php
+│   ├── Payments/            Resultados tipados de Pix e boleto
+│   └── Webhooks/            Payloads normalizados dos provedores
 ├── Exceptions/Domain/        Exceções de regra de negócio
 ├── Http/
 │   ├── Controllers/         Entrada HTTP; não concentra regra de negócio
+│   ├── Presenters/          Converte resultados em respostas HTTP
 │   └── Requests/            Validação por área e recurso
+├── Jobs/                    Entrada assíncrona; nomes terminam em Job
 ├── Models/                  Entidades e relacionamentos Eloquent
 ├── Observers/               Regras automáticas de persistência
-└── Services/                Orquestração e integrações externas
-    ├── Admin/               Serviços administrativos por recurso
-    ├── Public/              Fluxos exclusivos da loja
-    └── Shipping/            Melhor Envio e mapeamento de status
+├── Services/                Capacidades reutilizáveis e integrações externas
+│   ├── Admin/               Serviços administrativos por recurso
+│   ├── Public/              Consultas e capacidades reutilizáveis da loja
+│   └── Shipping/            Cliente Melhor Envio e mapeamento de status
+└── UseCases/                Intenções completas de negócio
+    ├── Checkout/            Criação transacional do pedido
+    ├── Payment/             Cobranças e processamento de webhooks
+    └── Shipping/            Etiquetas, rastreio e webhooks de envio
 database/
 ├── factories/               Dados aleatórios para testes
 ├── migrations/              Estrutura do banco
@@ -60,9 +68,15 @@ tests/Feature/               Testes dos fluxos de negócio
 ### Convenções
 
 - **Controller:** recebe a requisição, usa Request validado e devolve view/redirect/JSON.
-- **Service:** coordena um fluxo ou encapsula uma integração, como Asaas e Melhor Envio.
-- **Action:** executa uma única operação importante, reutilizável e simples de testar.
+- **Use Case:** representa uma intenção completa do sistema e coordena Actions,
+  persistência e integrações, como finalizar checkout ou gerar uma etiqueta.
+- **Service:** encapsula uma capacidade reutilizável, consulta ou cliente externo,
+  como Asaas e Melhor Envio; não produz respostas HTTP.
+- **Action:** executa uma etapa menor e reutilizável dentro de um ou mais casos de uso.
 - **DTO (`Data`):** transforma dados de entrada em uma estrutura consistente.
+- **Presenter:** transforma o resultado de aplicação em view, redirect ou JSON.
+- **Job:** recebe o trabalho da fila e chama um Use Case; usa o sufixo `Job` para
+  não colidir com a intenção de negócio correspondente.
 - **Model:** representa a tabela e seus relacionamentos.
 - **Policy:** centraliza a autorização sobre uma entidade, como pedido ou endereço.
 - **Observer:** aplica regra de persistência automática, como a geração de slugs.
@@ -77,7 +91,15 @@ tests/Feature/               Testes dos fluxos de negócio
 - As integrações com Asaas e Melhor Envio registram somente operação e status HTTP. Corpo de resposta de provedores, cartões e dados de clientes não são incluídos em exceções ou logs.
 - O payload de etiqueta usa o snapshot do endereço no pedido, preservando a consistência mesmo que o cliente altere ou remova seu endereço depois da compra.
 
-As rotas `resource` do painel são declaradas somente para métodos realmente implementados nos respectivos controllers. Isso evita endpoints que apontariam para ações inexistentes.
+CRUD simples permanece em Services; não se cria Use Case apenas para renomear uma
+operação sem orquestração de negócio. As rotas `resource` do painel são declaradas
+somente para métodos realmente implementados nos respectivos controllers. Isso
+evita endpoints que apontariam para ações inexistentes.
+
+Use Cases recebem dependências de contexto explicitamente. Por exemplo,
+`PlaceOrder` recebe o `User` autenticado do controller em vez de consultar a
+facade de autenticação. A transação pertence ao fluxo externo; Actions chamadas
+dentro dela não abrem uma segunda transação.
 
 ### Rotas
 
@@ -235,7 +257,7 @@ O checkout é transacional: se uma etapa falhar, nenhuma parte parcial do pedido
 
 ```text
 CheckoutController
-  → CheckoutService
+  → PlaceOrder (Use Case)
     → CheckoutData (normaliza CPF, CEP, estado, complemento e frete)
     → ResolveAddressAction
     → CreateOrderAction
@@ -256,11 +278,15 @@ Detalhes:
 
 ## Pagamentos com Asaas
 
-`PaymentService` cuida das telas e das respostas HTTP. A lógica de cada meio foi separada em Actions:
+`PaymentController` resolve o pedido pertencente ao cliente e delega cada intenção
+de pagamento a um Use Case. Os Use Cases retornam valores ou DTOs tipados, sem
+construir respostas HTTP. `PaymentResponsePresenter` transforma esses resultados
+em view, JSON ou redirecionamento:
 
-- `CreatePixPaymentAction`: cria cobrança Pix, busca QR Code e define expiração de 30 minutos.
-- `CreateBoletoPaymentAction`: cria boleto e guarda a data de vencimento.
-- `ProcessCardPaymentAction`: cria o Checkout hospedado do Asaas sem receber PAN ou CVV e deixa o pedido aguardando webhook.
+- `CreatePixPayment`: cria cobrança Pix, busca QR Code e define expiração de 30 minutos.
+- `CreateBoletoPayment`: cria boleto e guarda a data de vencimento.
+- `CreateCardCheckout`: cria e valida a URL do Checkout hospedado do Asaas sem
+  receber PAN ou CVV e deixa o pedido aguardando webhook.
 
 Os dados sensíveis e URL da API devem permanecer no `.env`; nunca devem ser enviados ao repositório público.
 
@@ -270,7 +296,7 @@ Asaas e Melhor Envio usam uma configuração por perfil. O ambiente ativo é def
 
 `MELHOR_ENVIO_ORIGIN_ZIP` é o CEP de origem usado nas cotações e etiquetas. Para emitir etiquetas, também são obrigatórios os dados do remetente: `MELHOR_ENVIO_SENDER_NAME`, `PHONE`, `EMAIL`, `DOCUMENT`, `ADDRESS`, `NUMBER`, `DISTRICT`, `CITY` e `STATE`. Eles pertencem ao `.env` e nunca devem ficar no código ou no Git.
 
-A solicitação de etiqueta enviada pelo painel cria a Job `GenerateShipmentLabel`. Ela executa as chamadas ao Melhor Envio na conexão de fila configurada (`database` localmente e Redis nos ambientes hospedados), tenta até três vezes e registra/alerta uma falha definitiva. Assim, o painel administrativo não fica aguardando a integração externa.
+A solicitação de etiqueta enviada pelo painel cria a Job `GenerateShipmentLabelJob`. Ela executa as chamadas ao Melhor Envio na conexão de fila configurada (`database` localmente e Redis nos ambientes hospedados), tenta até três vezes com espera progressiva e registra/alerta uma falha definitiva. O identificador remoto é persistido antes da consulta do PDF; uma nova tentativa retoma o processamento sem comprar uma segunda etiqueta. Não há pausa bloqueante dentro do worker.
 
 ## Webhook do Asaas e estoque
 
@@ -278,8 +304,8 @@ O endpoint recebe eventos em `routes/api.php`. A estrutura é:
 
 ```text
 WebhookController
-  → ProcessAsaasWebhook (Job na fila)
-    → AsaasWebhookService
+  → ProcessAsaasWebhookJob (Job na fila)
+    → ProcessAsaasWebhook (Use Case)
     → UpdateOrderFromAsaasWebhookAction
       → FinalizePaidOrderAction (somente na primeira confirmação)
 ```
@@ -296,6 +322,18 @@ Eventos tratados:
 | `PAYMENT_REFUNDED` | cancelado |
 
 Quando o pagamento vira `paid` pela primeira vez, `FinalizePaidOrderAction` baixa o estoque das variantes e limpa o carrinho ativo. Se o Asaas enviar confirmação e recebimento para o mesmo pagamento, a baixa não se repete.
+
+## Casos de uso de envio
+
+- `GenerateShipmentLabel`: valida o pedido, monta o snapshot do remetente e
+  destinatário, compra a etiqueta apenas quando necessário, consulta rastreio e
+  persiste o resultado de forma retomável.
+- `SyncShipmentStatus`: consulta o Melhor Envio e atualiza o estado local.
+- `ProcessMelhorEnvioWebhook`: aplica de forma segura uma atualização recebida
+  pela fila.
+
+`ShipmentService` permanece responsável somente pela edição administrativa
+simples. `MelhorEnvioService` continua isolando os detalhes da API externa.
 
 ## Dados de demonstração
 

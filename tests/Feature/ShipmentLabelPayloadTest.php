@@ -3,14 +3,13 @@
 namespace Tests\Feature;
 
 use App\Enums\AdminRole;
-use App\Jobs\GenerateShipmentLabel;
+use App\Jobs\GenerateShipmentLabelJob;
 use App\Models\Admin;
 use App\Models\Order;
 use App\Models\Shipment;
 use App\Models\User;
-use App\Services\Admin\Shipments\ShipmentService;
 use App\Services\Shipping\MelhorEnvioService;
-use App\Services\Shipping\ShipmentStatusMapper;
+use App\UseCases\Shipping\GenerateShipmentLabel as GenerateShipmentLabelUseCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Queue;
@@ -39,8 +38,8 @@ class ShipmentLabelPayloadTest extends TestCase
             ->assertSessionHas('success');
 
         Queue::assertPushed(
-            GenerateShipmentLabel::class,
-            fn (GenerateShipmentLabel $job): bool => $job->shipmentId === 999,
+            GenerateShipmentLabelJob::class,
+            fn (GenerateShipmentLabelJob $job): bool => $job->shipmentId === 999,
         );
     }
 
@@ -101,14 +100,58 @@ class ShipmentLabelPayloadTest extends TestCase
             'url' => 'https://example.test/label.pdf',
         ]);
 
-        (new ShipmentService($melhorEnvio, new ShipmentStatusMapper))
-            ->generateLabel($shipment->id);
+        (new GenerateShipmentLabelUseCase($melhorEnvio))->execute($shipment->id);
 
         $this->assertDatabaseHas('shipments', [
             'id' => $shipment->id,
             'shipment_id' => 'shipment-provider-id',
             'tracking_code' => 'BR000000001',
             'status' => 'waiting_post',
+        ]);
+    }
+
+    public function test_label_generation_resumes_without_buying_a_second_label(): void
+    {
+        $user = User::factory()->create();
+        $order = Order::create([
+            'user_id' => $user->id,
+            'recipient_name' => 'Cliente',
+            'street' => 'Rua A',
+            'number' => '1',
+            'city' => 'São Paulo',
+            'state' => 'SP',
+            'cep' => '01001000',
+            'subtotal' => 100,
+            'shipping' => 15,
+            'total' => 115,
+            'status' => 'paid',
+        ]);
+        $shipment = Shipment::create([
+            'order_id' => $order->id,
+            'carrier' => 'Correios',
+            'service_id' => '1',
+            'shipment_id' => 'existing-provider-id',
+            'status' => 'waiting_post',
+        ]);
+
+        $melhorEnvio = Mockery::mock(MelhorEnvioService::class);
+        $melhorEnvio->shouldNotReceive('adicionarAoCarrinho');
+        $melhorEnvio->shouldNotReceive('comprarEtiqueta');
+        $melhorEnvio->shouldNotReceive('gerarEtiqueta');
+        $melhorEnvio->shouldReceive('consultarPedido')->once()->andReturn([
+            ['tracking' => 'BR000000002', 'status' => 'created'],
+        ]);
+        $melhorEnvio->shouldReceive('imprimirEtiqueta')->once()->andReturn([
+            'url' => 'https://example.test/label-2.pdf',
+        ]);
+
+        (new GenerateShipmentLabelUseCase($melhorEnvio))->execute($shipment->id);
+
+        $this->assertDatabaseHas('shipments', [
+            'id' => $shipment->id,
+            'shipment_id' => 'existing-provider-id',
+            'tracking_code' => 'BR000000002',
+            'label_url' => 'https://example.test/label-2.pdf',
         ]);
     }
 }

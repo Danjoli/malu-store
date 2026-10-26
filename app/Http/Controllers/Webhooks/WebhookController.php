@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Webhooks;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\ProcessAsaasWebhook;
-use App\Jobs\ProcessMelhorEnvioWebhook;
+use App\Jobs\ProcessAsaasWebhookJob;
+use App\Jobs\ProcessMelhorEnvioWebhookJob;
 use App\Services\Security\WebhookSignatureValidator;
 use Illuminate\Http\Request;
 
@@ -23,7 +23,7 @@ class WebhookController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        ProcessMelhorEnvioWebhook::dispatch($request->all());
+        ProcessMelhorEnvioWebhookJob::dispatch($request->all());
 
         return response()->json([
             'status' => 'ok',
@@ -38,7 +38,7 @@ class WebhookController extends Controller
             ], 401);
         }
 
-        ProcessAsaasWebhook::dispatch($request->all());
+        ProcessAsaasWebhookJob::dispatch($request->all());
 
         return response()->json([
             'status' => 'ok',

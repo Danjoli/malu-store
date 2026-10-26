@@ -2,90 +2,89 @@
 
 namespace App\Http\Controllers\Public;
 
+use App\Exceptions\Domain\PaymentException;
 use App\Http\Controllers\Controller;
-use App\Services\Public\Payment\PaymentService;
+use App\Http\Presenters\PaymentResponsePresenter;
+use App\Models\Order;
+use App\UseCases\Payment\CreateBoletoPayment;
+use App\UseCases\Payment\CreateCardCheckout;
+use App\UseCases\Payment\CreatePixPayment;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
     public function __construct(
-        protected PaymentService $paymentService
+        private CreatePixPayment $createPixPayment,
+        private CreateBoletoPayment $createBoletoPayment,
+        private CreateCardCheckout $createCardCheckout,
+        private PaymentResponsePresenter $presenter,
     ) {}
 
-    /**
-     * Exibe a página de pagamento do pedido.
-     */
-    public function method(int $orderId)
+    public function method(Request $request, int $orderId)
     {
-        return $this->paymentService->method($orderId);
+        return $this->presenter->method($this->ownedOrder($request, $orderId));
     }
 
-    /**
-     * Processa o método de pagamento escolhido.
-     */
     public function process(Request $request, int $orderId)
     {
-        $request->validate([
-            'payment_method' => [
-                'required',
-                'in:pix,card,boleto',
-            ],
+        $validated = $request->validate([
+            'payment_method' => ['required', 'in:pix,card,boleto'],
         ]);
 
-        return match ($request->payment_method) {
-            'pix' => $this->paymentService->pix($orderId),
-
-            'card' => $this->paymentService->card($orderId),
-
-            'boleto' => $this->paymentService->boleto($orderId),
+        return match ($validated['payment_method']) {
+            'pix' => $this->pix($request, $orderId),
+            'card' => $this->card($request, $orderId),
+            'boleto' => $this->boleto($request, $orderId),
         };
     }
 
-    /**
-     * Cria um pagamento via Pix.
-     */
-    public function pix(int $orderId)
+    public function pix(Request $request, int $orderId)
     {
-        return $this->paymentService->pix($orderId);
+        $order = $this->ownedOrder($request, $orderId);
+
+        return $this->presenter->pix($order, $this->createPixPayment->execute($order));
     }
 
-    /**
-     * Cria um pagamento via boleto.
-     */
-    public function boleto(int $orderId)
+    public function boleto(Request $request, int $orderId)
     {
-        return $this->paymentService->boleto($orderId);
+        $order = $this->ownedOrder($request, $orderId);
+
+        return $this->presenter->boleto($order, $this->createBoletoPayment->execute($order));
     }
 
-    /**
-     * Processa um pagamento via cartão.
-     */
-    public function card(int $orderId)
+    public function card(Request $request, int $orderId)
     {
-        return $this->paymentService->card($orderId);
+        $order = $this->ownedOrder($request, $orderId);
+
+        try {
+            return $this->presenter->card($this->createCardCheckout->execute($order));
+        } catch (PaymentException) {
+            return $this->presenter->cardError($order);
+        }
     }
 
-    /**
-     * Consulta status do pagamento.
-     */
-    public function status(int $orderId)
+    public function status(Request $request, int $orderId)
     {
-        return $this->paymentService->status($orderId);
+        return $this->presenter->status($this->ownedOrder($request, $orderId));
     }
 
-    /**
-     * Exibe a página de sucesso.
-     */
-    public function success(int $orderId)
+    public function success(Request $request, int $orderId)
     {
-        return $this->paymentService->success($orderId);
+        return $this->presenter->success($this->ownedOrder($request, $orderId));
     }
 
-    /**
-     * Exibe a página de erro.
-     */
-    public function error(int $orderId)
+    public function error(Request $request, int $orderId)
     {
-        return $this->paymentService->error($orderId);
+        return $this->presenter->error(
+            $this->ownedOrder($request, $orderId),
+            $request->string('reason')->toString(),
+        );
+    }
+
+    private function ownedOrder(Request $request, int $orderId): Order
+    {
+        return Order::query()
+            ->where('user_id', $request->user()->id)
+            ->findOrFail($orderId);
     }
 }
