@@ -76,6 +76,7 @@ rollback() {
 # its final location, otherwise PHP-FPM writes to the now-empty staging folder.
 if ! (
     cd "$current" &&
+    "$php_bin" artisan catalog:import-october-2026 --force &&
     "$php_bin" artisan config:cache &&
     "$php_bin" artisan route:cache &&
     "$php_bin" artisan view:cache &&
