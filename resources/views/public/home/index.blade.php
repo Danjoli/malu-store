@@ -56,7 +56,7 @@
                 </h2>
             </div>
 
-            <div class="grid grid-cols-3 gap-x-3 gap-y-6 sm:grid-cols-6 sm:gap-4 md:gap-5">
+            <div class="flex flex-wrap justify-center gap-x-6 gap-y-6 sm:gap-x-8 md:gap-x-10">
                 @foreach ($categories as $category)
                     @php
                         $categoryProduct = $category->products->first();
@@ -65,7 +65,7 @@
 
                     <a
                         href="{{ route('home', ['category' => $category->slug]) }}"
-                        class="group text-center"
+                        class="group w-24 text-center sm:w-32"
                     >
                         <div class="store-soft-panel mx-auto aspect-square w-full max-w-24 overflow-hidden rounded-[2rem] border-4 border-[var(--store-surface)] shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:rotate-2 group-hover:border-[var(--store-accent)]/30 group-hover:shadow-lg sm:max-w-32">
                             @if ($categoryImage)
