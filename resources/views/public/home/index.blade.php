@@ -44,10 +44,6 @@
     </section>
 
     {{-- Categorias --}}
-    @php
-        $categories = $products->pluck('category')->filter()->unique('id');
-    @endphp
-
     @if ($categories->isNotEmpty())
         <section class="store-container home-container py-12 md:py-14">
             <div class="mb-8 text-center">
@@ -63,7 +59,7 @@
             <div class="grid grid-cols-3 gap-x-3 gap-y-6 sm:grid-cols-6 sm:gap-4 md:gap-5">
                 @foreach ($categories as $category)
                     @php
-                        $categoryProduct = $products->firstWhere('category_id', $category->id);
+                        $categoryProduct = $category->products->first();
                         $categoryImage = $categoryProduct?->images->first();
                     @endphp
 

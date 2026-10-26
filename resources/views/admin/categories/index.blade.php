@@ -19,6 +19,11 @@
         </x-slot:actions>
     </x-admin.page-header>
 
+    <x-admin.filter-panel :action="route('admin.categories.index')" :reset="route('admin.categories.index')">
+        <input name="q" value="{{ request('q') }}" placeholder="Nome ou slug" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm lg:col-span-2">
+        <select name="products" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm"><option value="">Todas as categorias</option><option value="with" @selected(request('products') === 'with')>Com produtos</option><option value="without" @selected(request('products') === 'without')>Sem produtos</option></select>
+    </x-admin.filter-panel>
+
     <x-admin.table-card>
 
         <table class="w-full min-w-[620px] text-left text-sm">
@@ -166,5 +171,7 @@
         </table>
 
     </x-admin.table-card>
+
+    <div class="mt-6">{{ $categories->links() }}</div>
 
 @endsection

@@ -10,6 +10,7 @@ use App\Http\Requests\Admin\Catalog\Products\UpdateProductRequest;
 use App\Models\Category;
 use App\Models\Product;
 use App\Services\Admin\Catalog\ProductService;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
@@ -17,15 +18,25 @@ class ProductController extends Controller
         protected ProductService $service
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
         $products = Product::query()
             ->with(['category', 'primaryImage'])
             ->withSum('variants', 'stock')
+            ->when($request->filled('q'), function ($query) use ($request): void {
+                $search = '%'.trim($request->string('q')->toString()).'%';
+                $query->where(fn ($query) => $query->where('name', 'like', $search)->orWhere('slug', 'like', $search));
+            })
+            ->when($request->filled('category'), fn ($query) => $query->where('category_id', $request->integer('category')))
+            ->when($request->string('status')->toString() === 'active', fn ($query) => $query->where('active', true))
+            ->when($request->string('status')->toString() === 'inactive', fn ($query) => $query->where('active', false))
+            ->when($request->string('stock')->toString() === 'available', fn ($query) => $query->inStock())
+            ->when($request->string('stock')->toString() === 'empty', fn ($query) => $query->whereDoesntHave('variants', fn ($query) => $query->where('stock', '>', 0)))
             ->latest()
-            ->paginate(25);
+            ->paginate(25)
+            ->withQueryString();
 
-        return view('admin.products.index', compact('products'));
+        return view('admin.products.index', ['products' => $products, 'categories' => Category::query()->orderBy('name')->get()]);
     }
 
     public function show(Product $product)

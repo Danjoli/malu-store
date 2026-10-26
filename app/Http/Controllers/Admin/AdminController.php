@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\Admins\StoreAdminRequest;
 use App\Http\Requests\Admin\Admins\UpdateAdminRequest;
 use App\Models\Admin;
 use App\Services\Admin\Admins\AdminService;
+use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
@@ -15,11 +16,21 @@ class AdminController extends Controller
         protected AdminService $adminService
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        $admins = Admin::query()->orderBy('name')->paginate(25);
+        $admins = Admin::query()
+            ->when($request->filled('q'), function ($query) use ($request): void {
+                $search = '%'.trim($request->string('q')->toString()).'%';
+                $query->where(fn ($query) => $query->where('name', 'like', $search)->orWhere('email', 'like', $search));
+            })
+            ->when($request->filled('role'), fn ($query) => $query->where('role', $request->string('role')->toString()))
+            ->when($request->string('status')->toString() === 'active', fn ($query) => $query->where('is_active', true))
+            ->when($request->string('status')->toString() === 'inactive', fn ($query) => $query->where('is_active', false))
+            ->orderBy('name')
+            ->paginate(25)
+            ->withQueryString();
 
-        return view('admin.admins.index', compact('admins'));
+        return view('admin.admins.index', ['admins' => $admins, 'roles' => AdminRole::cases()]);
     }
 
     public function show(Admin $admin)

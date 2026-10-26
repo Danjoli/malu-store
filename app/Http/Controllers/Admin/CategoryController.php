@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\Categories\StoreCategoryRequest;
 use App\Http\Requests\Admin\Categories\UpdateCategoryRequest;
 use App\Models\Category;
 use App\Services\Admin\Categories\CategoryService;
+use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
@@ -14,9 +15,19 @@ class CategoryController extends Controller
         protected CategoryService $service
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::all();
+        $categories = Category::query()
+            ->withCount('products')
+            ->when($request->filled('q'), function ($query) use ($request): void {
+                $search = '%'.trim($request->string('q')->toString()).'%';
+                $query->where(fn ($query) => $query->where('name', 'like', $search)->orWhere('slug', 'like', $search));
+            })
+            ->when($request->string('products')->toString() === 'with', fn ($query) => $query->has('products'))
+            ->when($request->string('products')->toString() === 'without', fn ($query) => $query->doesntHave('products'))
+            ->orderBy('name')
+            ->paginate(25)
+            ->withQueryString();
 
         return view('admin.categories.index', compact('categories'));
     }

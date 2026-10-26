@@ -89,21 +89,27 @@
 
                     <p class="mb-2 text-xs font-bold text-stone-700">
                         Cor:
-                        <span class="font-normal">
+                        <span class="font-normal" data-selected-color-name>
                             {{ $colors->first() ?? 'Única' }}
                         </span>
                     </p>
 
-                    <div class="mb-5 flex gap-2">
+                    <div class="mb-5 flex flex-wrap gap-2">
                         @foreach ($colors as $color)
                             <button
                                 type="button"
-                                title="{{ $color }}"
                                 data-product-color="{{ $color }}"
-                                class="product-color-option h-5 w-5 rounded-full bg-[#e9d5cc]"
+                                class="product-color-option inline-flex min-h-10 items-center gap-2 rounded-full border border-[var(--store-border)] px-3 py-2 text-xs font-semibold"
                                 aria-label="Selecionar cor {{ $color }}"
                                 aria-pressed="false"
-                            ></button>
+                            >
+                                <span
+                                    class="h-5 w-5 rounded-full border border-black/15 shadow-inner"
+                                    style="background-color: {{ \App\Support\ProductColor::css($color) }}"
+                                    aria-hidden="true"
+                                ></span>
+                                <span>{{ $color }}</span>
+                            </button>
                         @endforeach
                     </div>
 

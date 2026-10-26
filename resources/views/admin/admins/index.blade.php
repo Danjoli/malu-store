@@ -26,6 +26,12 @@
         </a>
     </div>
 
+    <x-admin.filter-panel :action="route('admin.admins.index')" :reset="route('admin.admins.index')">
+        <input name="q" value="{{ request('q') }}" placeholder="Nome ou e-mail" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm lg:col-span-2">
+        <select name="role" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm"><option value="">Todos os cargos</option>@foreach($roles as $role)<option value="{{ $role->value }}" @selected(request('role') === $role->value)>{{ $role->label() }}</option>@endforeach</select>
+        <select name="status" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm"><option value="">Todos os status</option><option value="active" @selected(request('status') === 'active')>Ativos</option><option value="inactive" @selected(request('status') === 'inactive')>Inativos</option></select>
+    </x-admin.filter-panel>
+
     <div class="overflow-hidden rounded-2xl border border-[#eaded9] bg-white shadow-[0_8px_24px_rgba(76,50,47,0.05)]">
         <div class="overflow-x-auto">
             <table class="w-full min-w-[720px] text-left text-sm">

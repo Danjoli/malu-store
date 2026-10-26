@@ -17,6 +17,13 @@
         </p>
     </div>
 
+    <x-admin.filter-panel :action="route('admin.clients.index')" :reset="route('admin.clients.index')">
+        <input name="q" value="{{ request('q') }}" placeholder="Nome, e-mail ou telefone" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm lg:col-span-2">
+        <select name="orders" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm">
+            <option value="">Todos os clientes</option><option value="with" @selected(request('orders') === 'with')>Com pedidos</option><option value="without" @selected(request('orders') === 'without')>Sem pedidos</option>
+        </select>
+    </x-admin.filter-panel>
+
     <div class="overflow-hidden rounded-2xl border border-[#eaded9] bg-white shadow-[0_8px_24px_rgba(76,50,47,0.05)]">
         <div class="overflow-x-auto">
             <table class="w-full min-w-[650px] text-left text-sm">
@@ -33,6 +40,7 @@
                         <th class="p-4">
                             Telefone
                         </th>
+                        <th class="p-4">Pedidos</th>
 
                         <th class="p-4 text-right">
                             Ação
@@ -54,6 +62,7 @@
                             <td class="p-4 text-[#625956]">
                                 {{ $user->phone ?: '—' }}
                             </td>
+                            <td class="p-4 text-[#625956]">{{ $user->orders_count }}</td>
 
                             <td class="p-4 text-right">
                                 <a
@@ -66,7 +75,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="p-12 text-center text-[#746b68]">
+                            <td colspan="5" class="p-12 text-center text-[#746b68]">
                                 Nenhum cliente cadastrado ainda.
                             </td>
                         </tr>
