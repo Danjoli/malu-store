@@ -2,10 +2,12 @@
 
 namespace App\Services\Admin\Catalog;
 
+use App\Models\CartItem;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Support\ProductImageStorage;
+use Illuminate\Support\Facades\DB;
 
 class ProductService
 {
@@ -29,21 +31,21 @@ class ProductService
 
     public function update(Product $product, array $data): Product
     {
-        $product->update([
-            'category_id' => $data['category_id'],
-            'name' => $data['name'],
-            'description' => $data['description'] ?? null,
-            'price' => $data['price'],
-            'active' => $data['active'],
-        ]);
+        DB::transaction(function () use ($product, $data): void {
+            $product->update([
+                'category_id' => $data['category_id'],
+                'name' => $data['name'],
+                'description' => $data['description'] ?? null,
+                'price' => $data['price'],
+                'active' => $data['active'],
+            ]);
 
-        if (! empty($data['images'])) {
-            $this->replaceImages($product, $data['images']);
-        }
+            if (! empty($data['images'])) {
+                $this->replaceImages($product, $data['images']);
+            }
 
-        if (! empty($data['variants'])) {
-            $this->replaceVariants($product, $data['variants']);
-        }
+            $this->syncVariants($product, $data['variants']);
+        });
 
         return $product;
     }
@@ -95,9 +97,38 @@ class ProductService
         }
     }
 
-    private function replaceVariants(Product $product, array $variants): void
+    private function syncVariants(Product $product, array $variants): void
     {
-        $product->variants()->delete();
-        $this->handleVariants($product, $variants);
+        $existing = $product->variants()->lockForUpdate()->get()->keyBy('id');
+        $retainedIds = collect($variants)
+            ->pluck('id')
+            ->filter()
+            ->map(fn ($id): int => (int) $id);
+        $removedIds = $existing->keys()->diff($retainedIds)->values();
+
+        if ($removedIds->isNotEmpty()) {
+            CartItem::query()->whereIn('product_variant_id', $removedIds)->delete();
+            $product->variants()->whereKey($removedIds)->delete();
+        }
+
+        foreach ($retainedIds as $id) {
+            $existing[$id]->update(['color' => "__updating_{$id}"]);
+        }
+
+        foreach ($variants as $variant) {
+            $attributes = [
+                'color' => $variant['color'],
+                'size' => $variant['size'],
+                'stock' => $variant['stock'],
+            ];
+
+            if (! empty($variant['id'])) {
+                $existing[(int) $variant['id']]->update($attributes);
+
+                continue;
+            }
+
+            $product->variants()->create($attributes);
+        }
     }
 }

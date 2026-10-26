@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Enums\AdminRole;
 use App\Models\Admin;
+use App\Models\Cart;
+use App\Models\CartItem;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
@@ -98,10 +100,22 @@ class AdminManagementTest extends TestCase
     {
         $category = Category::factory()->create();
         $product = Product::factory()->for($category)->create(['active' => true]);
-        ProductVariant::factory()->for($product)->create([
+        $variant = ProductVariant::factory()->for($product)->create([
             'color' => 'Rosé',
             'size' => 'M',
             'stock' => 8,
+        ]);
+        $customer = User::factory()->create();
+        $cart = Cart::create(['user_id' => $customer->id, 'status' => 'active']);
+        $cartItem = CartItem::create([
+            'cart_id' => $cart->id,
+            'product_variant_id' => $variant->id,
+            'name_snapshot' => $product->name,
+            'image_snapshot' => 'produto.jpg',
+            'color_snapshot' => $variant->color,
+            'size_snapshot' => $variant->size,
+            'price' => $product->price,
+            'quantity' => 1,
         ]);
         $admin = $this->admin(AdminRole::Admin);
 
@@ -112,7 +126,7 @@ class AdminManagementTest extends TestCase
             'price' => $product->price,
             'active' => '0',
             'variants' => [
-                ['color' => 'Rosé', 'size' => 'M', 'stock' => 8],
+                ['id' => $variant->id, 'color' => 'Rosé', 'size' => 'M', 'stock' => 8],
             ],
         ];
 
@@ -121,6 +135,14 @@ class AdminManagementTest extends TestCase
             ->assertRedirect(route('admin.products.index'));
 
         $this->assertFalse($product->fresh()->active);
+        $this->assertDatabaseHas('cart_items', [
+            'id' => $cartItem->id,
+            'product_variant_id' => $variant->id,
+        ]);
+        $this->assertDatabaseHas('product_variants', [
+            'id' => $variant->id,
+            'product_id' => $product->id,
+        ]);
 
         $payload['active'] = '1';
 

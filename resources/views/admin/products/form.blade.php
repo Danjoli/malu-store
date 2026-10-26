@@ -83,6 +83,7 @@
                 @if (isset($product) && $product && $product->variants)
                     @foreach ($product->variants as $i => $variant)
                         <div class="variant-row grid grid-cols-1 gap-2 rounded border p-3 sm:grid-cols-4">
+                            <input type="hidden" name="variants[{{ $i }}][id]" value="{{ $variant->id }}">
                             <input
                                 type="text"
                                 name="variants[{{ $i }}][color]"
