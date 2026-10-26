@@ -131,6 +131,27 @@ class AdminManagementTest extends TestCase
         $this->assertTrue($product->fresh()->active);
     }
 
+    public function test_product_forms_show_a_large_image_workspace(): void
+    {
+        $category = Category::factory()->create();
+        $product = Product::factory()->for($category)->create();
+        ProductVariant::factory()->for($product)->create();
+        $superAdmin = $this->admin(AdminRole::SuperAdmin);
+
+        $this->actingAs($superAdmin, 'admin')
+            ->get(route('admin.products.create'))
+            ->assertOk()
+            ->assertSee('Visualização da roupa')
+            ->assertSeeHtml('id="productImageStage"')
+            ->assertSeeHtml('id="productImageStageImage"');
+
+        $this->actingAs($superAdmin, 'admin')
+            ->get(route('admin.products.edit', $product))
+            ->assertOk()
+            ->assertSee('Use a imagem ao lado como referência')
+            ->assertSeeHtml('id="imagePreview"');
+    }
+
     public function test_super_admin_can_deactivate_an_administrator(): void
     {
         $superAdmin = $this->admin(AdminRole::SuperAdmin);
