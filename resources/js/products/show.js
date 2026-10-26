@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const variants = JSON.parse(form.dataset.productVariants || '[]');
     const variantInput = form.querySelector('[name="variant_id"]');
+    const selectedColorName = form.querySelector('[data-selected-color-name]');
     let color = form.dataset.productInitialColor;
     let size = form.dataset.productInitialSize;
 
@@ -38,6 +39,10 @@ document.addEventListener('DOMContentLoaded', () => {
         form.querySelectorAll('[data-product-color]').forEach((button) => {
             button.setAttribute('aria-pressed', String(button.dataset.productColor === color));
         });
+
+        if (selectedColorName) {
+            selectedColorName.textContent = color || 'Única';
+        }
     };
 
     form.querySelectorAll('[data-product-color]').forEach((button) => {

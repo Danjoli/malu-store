@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use App\Services\Public\Shop\CatalogCacheService;
 use App\Services\Public\Shop\ProductFilterService;
 use Illuminate\Http\Request;
@@ -31,6 +32,18 @@ class HomeController extends Controller
                 ->get(),
         );
 
-        return view('public.home.index', compact('products'));
+        $categories = Category::query()
+            ->whereHas('products', fn ($query) => $query->where('active', true)->inStock())
+            ->with(['products' => fn ($query) => $query
+                ->where('active', true)
+                ->inStock()
+                ->with('images')
+                ->latest('created_at')
+                ->latest('id')
+                ->limit(1)])
+            ->orderBy('name')
+            ->get();
+
+        return view('public.home.index', compact('products', 'categories'));
     }
 }

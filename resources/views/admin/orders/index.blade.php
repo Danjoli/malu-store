@@ -17,6 +17,13 @@
         </p>
     </div>
 
+    <x-admin.filter-panel :action="route('admin.orders.index')" :reset="route('admin.orders.index')">
+        <input name="q" value="{{ request('q') }}" placeholder="Nº, cliente ou e-mail" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm">
+        <select name="status" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm"><option value="">Todos os status</option>@foreach(['pending'=>'Aguardando','pending_payment'=>'Pagamento pendente','paid'=>'Pago','failed'=>'Falhou','expired'=>'Expirado','cancelled'=>'Cancelado','shipped'=>'Enviado','delivered'=>'Entregue'] as $value=>$label)<option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>@endforeach</select>
+        <input type="date" name="from" value="{{ request('from') }}" title="Data inicial" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm">
+        <input type="date" name="to" value="{{ request('to') }}" title="Data final" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm">
+    </x-admin.filter-panel>
+
     <div class="overflow-hidden rounded-2xl border border-[#eaded9] bg-white shadow-[0_8px_24px_rgba(76,50,47,0.05)]">
         <div class="overflow-x-auto">
             <table class="w-full min-w-[720px] text-left text-sm">

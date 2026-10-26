@@ -124,4 +124,19 @@ class CatalogTest extends TestCase
             ->assertViewHas('products', fn ($products) => $products->count() === 12)
             ->assertSee(route('catalog.index'), false);
     }
+
+    public function test_home_lists_every_available_category_even_outside_product_showcase_limit(): void
+    {
+        $categories = Category::factory()->count(13)->create();
+
+        foreach ($categories as $category) {
+            $product = Product::factory()->for($category)->create(['active' => true]);
+            ProductVariant::factory()->for($product)->create(['stock' => 2]);
+        }
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSee($categories->first()->name)
+            ->assertSee($categories->last()->name);
+    }
 }

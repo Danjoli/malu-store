@@ -17,6 +17,12 @@
         </p>
     </div>
 
+    <x-admin.filter-panel :action="route('admin.shipments.index')" :reset="route('admin.shipments.index')">
+        <input name="q" value="{{ request('q') }}" placeholder="Pedido, cliente ou rastreio" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm lg:col-span-2">
+        <select name="status" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm"><option value="">Todos os status</option>@foreach(['pending'=>'Aguardando pagamento','waiting_post'=>'Aguardando postagem','shipped'=>'Postado','in_transit'=>'Em trânsito','delivered'=>'Entregue','failed'=>'Falha','problem'=>'Problema','cancelled'=>'Cancelado'] as $value=>$label)<option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>@endforeach</select>
+        <select name="carrier" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm"><option value="">Todas as transportadoras</option>@foreach($carriers as $carrier)<option value="{{ $carrier }}" @selected(request('carrier') === $carrier)>{{ $carrier }}</option>@endforeach</select>
+    </x-admin.filter-panel>
+
     <div class="overflow-hidden rounded-2xl border border-[#eaded9] bg-white shadow-[0_8px_24px_rgba(76,50,47,0.05)]">
         <div class="overflow-x-auto">
             <table class="w-full min-w-[950px] text-left text-sm">
@@ -78,4 +84,5 @@
             </table>
         </div>
     </div>
+    <div class="mt-6">{{ $shipments->links() }}</div>
 @endsection

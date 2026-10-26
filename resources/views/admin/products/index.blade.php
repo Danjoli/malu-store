@@ -18,6 +18,13 @@
         </x-slot:actions>
     </x-admin.page-header>
 
+    <x-admin.filter-panel :action="route('admin.products.index')" :reset="route('admin.products.index')">
+        <input name="q" value="{{ request('q') }}" placeholder="Nome ou identificador" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm">
+        <select name="category" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm"><option value="">Todas as categorias</option>@foreach($categories as $category)<option value="{{ $category->id }}" @selected((string) request('category') === (string) $category->id)>{{ $category->name }}</option>@endforeach</select>
+        <select name="status" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm"><option value="">Todos os status</option><option value="active" @selected(request('status') === 'active')>Ativos</option><option value="inactive" @selected(request('status') === 'inactive')>Inativos</option></select>
+        <select name="stock" class="rounded-xl border border-[#ded4d0] px-4 py-2.5 text-sm"><option value="">Qualquer estoque</option><option value="available" @selected(request('stock') === 'available')>Com estoque</option><option value="empty" @selected(request('stock') === 'empty')>Sem estoque</option></select>
+    </x-admin.filter-panel>
+
     <x-admin.table-card>
         <table class="w-full min-w-[850px] text-left text-sm">
             <thead class="bg-[#fdf8f6] text-xs font-bold uppercase tracking-wide text-[#746b68]">
