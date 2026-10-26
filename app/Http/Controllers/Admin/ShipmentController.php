@@ -4,14 +4,16 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Shipments\UpdateShipmentRequest;
-use App\Jobs\GenerateShipmentLabel;
+use App\Jobs\GenerateShipmentLabelJob;
 use App\Models\Shipment;
 use App\Services\Admin\Shipments\ShipmentService;
+use App\UseCases\Shipping\SyncShipmentStatus;
 
 class ShipmentController extends Controller
 {
     public function __construct(
-        protected ShipmentService $shipmentService
+        protected ShipmentService $shipmentService,
+        protected SyncShipmentStatus $syncShipmentStatus,
     ) {}
 
     public function index()
@@ -39,14 +41,14 @@ class ShipmentController extends Controller
 
     public function gerarEtiqueta($id)
     {
-        GenerateShipmentLabel::dispatch((int) $id);
+        GenerateShipmentLabelJob::dispatch((int) $id);
 
         return back()->with('success', 'A geração da etiqueta foi enviada para processamento.');
     }
 
     public function atualizarStatus($id)
     {
-        $this->shipmentService->syncStatus($id);
+        $this->syncShipmentStatus->execute((int) $id);
 
         return back()->with('success', 'Status atualizado com sucesso!');
     }

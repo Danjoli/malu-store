@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Public\Checkout;
+namespace App\UseCases\Checkout;
 
 use App\Actions\Checkout\CreateOrderAction;
 use App\Actions\Checkout\CreateOrderItemsAction;
@@ -8,14 +8,13 @@ use App\Actions\Checkout\CreateShipmentAction;
 use App\Actions\Checkout\ResolveAddressAction;
 use App\Data\CheckoutData;
 use App\Exceptions\Domain\EmptyCartException;
-use App\Exceptions\Domain\UnauthenticatedCheckoutException;
 use App\Models\Cart;
 use App\Models\Order;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class CheckoutService
+class PlaceOrder
 {
     public function __construct(
         private ResolveAddressAction $resolveAddress,
@@ -24,16 +23,11 @@ class CheckoutService
         private CreateShipmentAction $createShipment,
     ) {}
 
-    public function process(array $input): Order
+    public function execute(User $user, array $input): Order
     {
-        $user = Auth::user();
-        if (! $user) {
-            throw new UnauthenticatedCheckoutException;
-        }
-        // Normaliza os dados antes de iniciar a transação do checkout.
         $data = CheckoutData::fromArray($input);
 
-        return DB::transaction(function () use ($user, $data) {
+        return DB::transaction(function () use ($user, $data): Order {
             $cart = Cart::with('items.variant')
                 ->where('user_id', $user->id)
                 ->where('status', 'active')
@@ -43,13 +37,11 @@ class CheckoutService
                 throw new EmptyCartException;
             }
 
-            // Todas as etapas precisam ser concluídas ou nenhuma delas é persistida.
             $address = $this->resolveAddress->execute($user, $data);
             $order = $this->createOrder->execute($user, $cart, $address, $data);
             $this->createOrderItems->execute($order, $cart);
             $this->createShipment->execute($order, $data);
 
-            // O log registra contexto operacional sem dados sensíveis do cliente.
             Log::info('Checkout concluído.', [
                 'order_id' => $order->id,
                 'user_id' => $user->id,

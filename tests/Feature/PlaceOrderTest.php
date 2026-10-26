@@ -9,11 +9,11 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
-use App\Services\Public\Checkout\CheckoutService;
+use App\UseCases\Checkout\PlaceOrder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class CheckoutServiceTest extends TestCase
+class PlaceOrderTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -25,7 +25,7 @@ class CheckoutServiceTest extends TestCase
         $cart = Cart::create(['user_id' => $user->id, 'status' => 'active']);
         CartItem::create(['cart_id' => $cart->id, 'product_variant_id' => $variant->id, 'name_snapshot' => $product->name, 'image_snapshot' => '', 'color_snapshot' => $variant->color, 'size_snapshot' => $variant->size, 'price' => 99.90, 'quantity' => 2]);
 
-        $order = $this->actingAs($user)->app->make(CheckoutService::class)->process([
+        $order = $this->actingAs($user)->app->make(PlaceOrder::class)->execute($user, [
             'recipient_name' => 'Cliente Teste', 'phone' => '11999999999', 'cpf' => '123.456.789-09',
             'street' => 'Rua Teste', 'number' => '100', 'complement' => '', 'neighborhood' => 'Centro',
             'city' => 'São Paulo', 'state' => 'sp', 'cep' => '01001-000', 'shipping_cost' => 15.50,
@@ -47,7 +47,7 @@ class CheckoutServiceTest extends TestCase
         $cart = Cart::create(['user_id' => $user->id, 'status' => 'active']);
         CartItem::create(['cart_id' => $cart->id, 'product_variant_id' => $variant->id, 'name_snapshot' => $product->name, 'image_snapshot' => '', 'color_snapshot' => $variant->color, 'size_snapshot' => $variant->size, 'price' => 50, 'quantity' => 1]);
 
-        $order = $this->actingAs($user)->app->make(CheckoutService::class)->process([
+        $order = $this->actingAs($user)->app->make(PlaceOrder::class)->execute($user, [
             'recipient_name' => 'Cliente Teste', 'phone' => '11999999999', 'cpf' => '123.456.789-09',
             'street' => 'Rua Teste', 'number' => '100', 'complement' => 'Apto 2', 'neighborhood' => 'Novo Centro',
             'city' => 'São Paulo', 'state' => 'SP', 'cep' => '01001-000', 'shipping_cost' => 15,

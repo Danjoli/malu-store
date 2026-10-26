@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Jobs\ProcessAsaasWebhook;
-use App\Jobs\ProcessMelhorEnvioWebhook;
+use App\Jobs\ProcessAsaasWebhookJob;
+use App\Jobs\ProcessMelhorEnvioWebhookJob;
 use App\Notifications\CriticalOperationalAlert;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
@@ -24,7 +24,7 @@ class WebhookQueueTest extends TestCase
             ->assertOk()
             ->assertJson(['status' => 'ok']);
 
-        Bus::assertDispatched(ProcessAsaasWebhook::class, fn (ProcessAsaasWebhook $job) => $job->payload['event'] === 'PAYMENT_RECEIVED'
+        Bus::assertDispatched(ProcessAsaasWebhookJob::class, fn (ProcessAsaasWebhookJob $job) => $job->payload['event'] === 'PAYMENT_RECEIVED'
             && $job->queue === 'critical');
     }
 
@@ -61,8 +61,8 @@ class WebhookQueueTest extends TestCase
         )->assertOk()->assertJson(['status' => 'ok']);
 
         Bus::assertDispatched(
-            ProcessMelhorEnvioWebhook::class,
-            fn (ProcessMelhorEnvioWebhook $job): bool => $job->payload['id'] === 'shipment_test_1'
+            ProcessMelhorEnvioWebhookJob::class,
+            fn (ProcessMelhorEnvioWebhookJob $job): bool => $job->payload['id'] === 'shipment_test_1'
                 && $job->queue === 'critical',
         );
     }
@@ -83,7 +83,7 @@ class WebhookQueueTest extends TestCase
         Notification::fake();
         config(['alerts.email' => 'alerts@example.test']);
 
-        $job = new ProcessAsaasWebhook([
+        $job = new ProcessAsaasWebhookJob([
             'event' => 'PAYMENT_RECEIVED',
             'payment' => ['id' => 'pay_test_1'],
         ]);

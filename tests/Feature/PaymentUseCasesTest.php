@@ -2,18 +2,18 @@
 
 namespace Tests\Feature;
 
-use App\Actions\Payment\CreateBoletoPaymentAction;
-use App\Actions\Payment\CreatePixPaymentAction;
-use App\Actions\Payment\ProcessCardPaymentAction;
 use App\Models\Order;
 use App\Models\User;
 use App\Services\OperationalAlertService;
 use App\Services\Public\Payment\AsaasService;
+use App\UseCases\Payment\CreateBoletoPayment;
+use App\UseCases\Payment\CreateCardCheckout;
+use App\UseCases\Payment\CreatePixPayment;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use Tests\TestCase;
 
-class PaymentActionsTest extends TestCase
+class PaymentUseCasesTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -53,12 +53,12 @@ class PaymentActionsTest extends TestCase
 
         $order = $this->order();
 
-        $result = (new CreatePixPaymentAction(
+        $result = (new CreatePixPayment(
             $asaas,
             app(OperationalAlertService::class)
         ))->execute($order);
 
-        $this->assertSame('pix-payload', $result['qr_code']);
+        $this->assertSame('pix-payload', $result->qrCode);
 
         $this->assertDatabaseHas('orders', [
             'id' => $order->id,
@@ -82,7 +82,7 @@ class PaymentActionsTest extends TestCase
 
         $order = $this->order();
 
-        (new CreateBoletoPaymentAction(
+        (new CreateBoletoPayment(
             $asaas,
             app(OperationalAlertService::class)
         ))->execute($order);
@@ -108,7 +108,7 @@ class PaymentActionsTest extends TestCase
 
         $order = $this->order();
 
-        (new ProcessCardPaymentAction(
+        (new CreateCardCheckout(
             $asaas,
             app(OperationalAlertService::class),
         ))->execute($order);

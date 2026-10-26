@@ -2,8 +2,8 @@
 
 namespace App\Jobs;
 
-use App\Services\Admin\Shipments\ShipmentService;
 use App\Services\OperationalAlertService;
+use App\UseCases\Shipping\ProcessMelhorEnvioWebhook;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -12,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-class GenerateShipmentLabel implements ShouldQueue
+class ProcessMelhorEnvioWebhookJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -20,24 +20,27 @@ class GenerateShipmentLabel implements ShouldQueue
 
     public int $backoff = 30;
 
-    public function __construct(public readonly int $shipmentId) {}
-
-    public function handle(ShipmentService $shipments): void
+    public function __construct(public readonly array $payload)
     {
-        $shipments->generateLabel($this->shipmentId);
+        $this->onQueue('critical');
+    }
+
+    public function handle(ProcessMelhorEnvioWebhook $processWebhook): void
+    {
+        $processWebhook->execute($this->payload);
     }
 
     public function failed(Throwable $exception): void
     {
-        Log::critical('Geração de etiqueta falhou definitivamente.', [
-            'shipment_id' => $this->shipmentId,
+        Log::critical('Webhook Melhor Envio falhou definitivamente.', [
+            'shipment_id' => $this->payload['id'] ?? null,
             'exception' => $exception::class,
         ]);
 
         app(OperationalAlertService::class)->critical(
-            'Geração de etiqueta falhou após todas as tentativas.',
+            'Webhook do Melhor Envio falhou após todas as tentativas.',
             [
-                'Envio' => $this->shipmentId,
+                'Envio' => $this->payload['id'] ?? null,
                 'Tipo de erro' => $exception::class,
             ],
         );
