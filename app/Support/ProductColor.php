@@ -29,6 +29,7 @@ class ProductColor
             'amarelo manteiga' => '#f5ed9b', 'amarelo' => '#f1d348', 'champagne' => '#dbc49c',
             'lilas' => '#a982c5', 'branco' => '#f8f8f5', 'off-white' => '#eee9dc',
             'bege' => '#cdb58f', 'marrom' => '#76523b', 'preto' => '#24201f',
+            'natural' => '#ddd3bd',
         ];
     }
 }
