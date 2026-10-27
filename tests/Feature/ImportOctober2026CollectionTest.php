@@ -22,8 +22,8 @@ class ImportOctober2026CollectionTest extends TestCase
         $this->artisan('catalog:import-october-2026', ['--force' => true])->assertSuccessful();
         $this->artisan('catalog:import-october-2026', ['--force' => true])->assertSuccessful();
 
-        $this->assertSame(21, Product::query()->whereIn('slug', $this->slugs())->count());
-        $this->assertSame(52, ProductImage::query()->whereHas('product', fn ($query) => $query->whereIn('slug', $this->slugs()))->count());
+        $this->assertSame(22, Product::query()->whereIn('slug', $this->slugs())->count());
+        $this->assertSame(57, ProductImage::query()->whereHas('product', fn ($query) => $query->whereIn('slug', $this->slugs()))->count());
         $this->assertSame(0, ProductVariant::query()->whereHas('product', fn ($query) => $query->whereIn('slug', $this->slugs()))->where('size', 'P')->count());
         $this->assertTrue(Category::query()->where('slug', 'macaquinhos')->exists());
         $sandy = Product::query()->where('slug', 'conjunto-sandy')->firstOrFail();
@@ -51,6 +51,11 @@ class ImportOctober2026CollectionTest extends TestCase
         $this->assertSame(12, $agata->variants()->count());
         $this->assertSame(4, $agata->images()->count());
 
+        $iris = Product::query()->where('slug', 'conjunto-iris')->firstOrFail();
+        $this->assertSame('99.90', $iris->price);
+        $this->assertSame(10, $iris->variants()->count());
+        $this->assertSame(5, $iris->images()->count());
+
         foreach (ProductImage::query()->get() as $image) {
             Storage::disk('local')->assertExists('products/'.$image->image);
         }
@@ -71,6 +76,7 @@ class ImportOctober2026CollectionTest extends TestCase
             'conjunto-lorena',
             'conjunto-stella',
             'vestido-agata',
+            'conjunto-iris',
         ];
     }
 }
