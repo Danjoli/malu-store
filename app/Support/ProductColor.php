@@ -24,7 +24,7 @@ class ProductColor
     {
         return [
             'vermelho' => '#c92134', 'rose' => '#d993a4', 'rosa' => '#e78eae',
-            'verde militar' => '#384936', 'verde floresta' => '#174b35', 'verde' => '#2d8b65',
+            'verde militar' => '#384936', 'verde floresta' => '#174b35', 'verde menta' => '#a8d99b', 'verde' => '#2d8b65',
             'azul serenity' => '#8bbbe5', 'azul claro' => '#b8d9ef', 'azul' => '#3159a7',
             'amarelo manteiga' => '#f5ed9b', 'amarelo' => '#f1d348', 'champagne' => '#dbc49c',
             'lilas' => '#a982c5', 'branco' => '#f8f8f5', 'off-white' => '#eee9dc',
