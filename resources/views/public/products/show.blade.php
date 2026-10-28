@@ -26,14 +26,14 @@
                     @foreach ($product->images as $image)
                         <button
                             type="button"
-                            class="block h-20 w-16 overflow-hidden rounded-sm border border-[#eadfdd]"
+                            class="block h-20 w-16 overflow-hidden rounded-sm border border-[#eadfdd] bg-[#f7efe9]"
                             data-product-gallery-thumbnail="{{ $image->url }}"
                             data-product-gallery-alt="{{ $product->name }}"
                         >
                             <img
                                 src="{{ $image->url }}"
                                 alt="{{ $product->name }}"
-                                class="h-full w-full object-cover"
+                                class="h-full w-full object-contain"
                             >
                         </button>
                     @endforeach
@@ -45,7 +45,7 @@
                             data-product-gallery-main
                             src="{{ $product->images->first()->url }}"
                             alt="{{ $product->name }}"
-                            class="aspect-[3/4] w-full object-cover"
+                            class="aspect-[3/4] w-full object-contain"
                         >
                     @endif
                 </div>
