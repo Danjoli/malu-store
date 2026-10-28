@@ -39,13 +39,13 @@
                     @endforeach
                 </div>
 
-                <div class="min-w-0 flex-1 bg-[#f7efe9]">
+                <div class="min-w-0 flex-1 overflow-hidden">
                     @if ($product->images->isNotEmpty())
                         <img
                             data-product-gallery-main
                             src="{{ $product->images->first()->url }}"
                             alt="{{ $product->name }}"
-                            class="aspect-[3/4] w-full object-contain"
+                            class="block h-auto w-full"
                         >
                     @endif
                 </div>

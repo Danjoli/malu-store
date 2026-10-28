@@ -40,7 +40,7 @@ class ProductObserverTest extends TestCase
 
         $this->get(route('product.show', $product))
             ->assertOk()
-            ->assertSee('aspect-[3/4] w-full object-contain', false)
+            ->assertSee('block h-auto w-full', false)
             ->assertSee('h-full w-full object-contain', false);
 
         $this->get(route('catalog.index'))
