@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductImage;
+use App\Models\ProductVariant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -28,5 +30,21 @@ class ProductObserverTest extends TestCase
         $this->get(route('product.show', $product))->assertOk();
         $this->get(route('product.legacy-show', $product->id))
             ->assertRedirect(route('product.show', $product));
+    }
+
+    public function test_product_images_are_centered_without_cropping_in_gallery_and_cards(): void
+    {
+        $product = Product::factory()->create(['name' => 'Conjunto com foto horizontal']);
+        ProductImage::factory()->for($product)->create();
+        ProductVariant::factory()->for($product)->create(['stock' => 5]);
+
+        $this->get(route('product.show', $product))
+            ->assertOk()
+            ->assertSee('aspect-[3/4] w-full object-contain', false)
+            ->assertSee('h-full w-full object-contain', false);
+
+        $this->get(route('catalog.index'))
+            ->assertOk()
+            ->assertSee('h-full w-full object-contain p-2', false);
     }
 }

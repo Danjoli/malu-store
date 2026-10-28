@@ -14,7 +14,7 @@
                 <img
                     src="{{ $image->url }}"
                     alt="{{ $product->name }}"
-                    class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    class="h-full w-full object-contain p-2 transition duration-300 group-hover:opacity-95"
                 >
             @else
                 <div class="flex h-full items-center justify-center text-sm text-stone-400">
