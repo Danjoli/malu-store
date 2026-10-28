@@ -7,6 +7,11 @@ on:
         description: Commit de main a implantar
         required: true
         default: main
+      import_october_catalog:
+        description: Atualizar a coleção curada após o deploy
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -127,4 +132,14 @@ jobs:
           checksum="malu-store-${release_sha}.sha256"
           scp -P "$DEPLOY_PORT" ".release/$archive" ".release/$checksum" scripts/deploy/activate-release.sh "$DEPLOY_USER@$DEPLOY_HOST:~/"
           ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "bash ~/activate-release.sh '$archive' '$checksum' '$release_sha'"
+
+      - name: Atualizar coleção curada
+        if: ${{ inputs.import_october_catalog }}
+        shell: bash
+        env:
+          DEPLOY_HOST: ${{ secrets.PRODUCTION_SSH_HOST }}
+          DEPLOY_PORT: ${{ secrets.PRODUCTION_SSH_PORT }}
+          DEPLOY_USER: ${{ secrets.PRODUCTION_SSH_USER }}
+        run: |
+          ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "cd ~/domains/malu-store.com/public_html && /opt/alt/php85/usr/bin/php artisan catalog:import-october-2026"
 
