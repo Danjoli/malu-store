@@ -32,7 +32,7 @@ class ProductObserverTest extends TestCase
             ->assertRedirect(route('product.show', $product));
     }
 
-    public function test_product_images_preserve_gallery_ratio_and_fill_catalog_cards(): void
+    public function test_product_images_fill_gallery_and_catalog_cards(): void
     {
         $product = Product::factory()->create(['name' => 'Conjunto com foto horizontal']);
         ProductImage::factory()->for($product)->create();
@@ -40,8 +40,8 @@ class ProductObserverTest extends TestCase
 
         $this->get(route('product.show', $product))
             ->assertOk()
-            ->assertSee('block h-auto w-full', false)
-            ->assertSee('h-full w-full object-contain', false);
+            ->assertSee('aspect-[3/4] w-full object-cover object-center', false)
+            ->assertSee('h-full w-full object-cover object-center', false);
 
         $this->get(route('catalog.index'))
             ->assertOk()
