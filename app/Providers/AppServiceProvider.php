@@ -45,6 +45,8 @@ class AppServiceProvider extends ServiceProvider
             ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
         RateLimiter::for('payment', fn (Request $request) => Limit::perMinute(15)
             ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
+        RateLimiter::for('webhooks', fn (Request $request) => Limit::perMinute(120)
+            ->by((string) $request->ip()));
 
         Blade::anonymousComponentPath(
             resource_path('views/components/public'),

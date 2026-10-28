@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\AdminRole;
 use App\Notifications\AdminResetPasswordNotification;
+use App\Notifications\AdminTwoFactorCodeNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -37,5 +38,10 @@ class Admin extends Authenticatable
     public function sendPasswordResetNotification($token): void
     {
         $this->notify(new AdminResetPasswordNotification($token));
+    }
+
+    public function sendTwoFactorCode(string $code): void
+    {
+        $this->notify(new AdminTwoFactorCodeNotification($code));
     }
 }

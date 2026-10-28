@@ -38,9 +38,8 @@ class CheckoutRequest extends FormRequest
             'cep' => ['required', 'string', 'max:20', 'regex:/^\D*\d(?:\D*\d){7}\D*$/'],
             'cpf' => 'required|string|max:14',
 
-            'shipping_cost' => 'required|numeric|gt:0',
-            'carrier' => 'required|string|max:100',
-            'service' => 'required|string',
+            // O preço e a transportadora são recalculados no servidor.
+            'service' => 'required|string|max:100',
             'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
         ];
     }
@@ -67,11 +66,6 @@ class CheckoutRequest extends FormRequest
             'cep.required' => 'Informe o CEP.',
             'cpf.required' => 'Informe o CPF.',
 
-            'shipping_cost.required' => 'Selecione um frete antes de finalizar o pedido.',
-            'shipping_cost.numeric' => 'O valor do frete é inválido.',
-            'shipping_cost.gt' => 'Selecione uma opção de entrega válida.',
-
-            'carrier.required' => 'Selecione uma transportadora.',
             'service.required' => 'Selecione um serviço de entrega.',
             'payment_method.required' => 'Escolha uma forma de pagamento.',
         ];

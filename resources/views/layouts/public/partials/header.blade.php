@@ -2,15 +2,7 @@
     @include('layouts.public.partials.header.top-bar')
 
     <div
-        x-data="{
-            searchOpen: false,
-            menuOpen: false,
-            dark: document.documentElement.classList.contains('dark'),
-            toggleTheme() {
-                this.dark = !this.dark;
-                window.storeTheme.set(this.dark);
-            }
-        }"
+        x-data="storeHeader"
         class="store-container relative flex min-h-18 items-center justify-between gap-5 py-[clamp(0.8rem,1vw,1.25rem)]"
     >
         <button
@@ -156,7 +148,7 @@
 
             <button
                 type="button"
-                @click="searchOpen = !searchOpen; $nextTick(() => $refs.searchInput?.focus())"
+                @click="toggleSearch()"
                 aria-label="Buscar"
                 class="p-1 transition hover:text-[#bd5564]"
             >

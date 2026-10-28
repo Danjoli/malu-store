@@ -46,6 +46,19 @@ class AdminAuthorizationTest extends TestCase
             ->assertOk();
     }
 
+    public function test_admin_loses_panel_access_immediately_after_deactivation(): void
+    {
+        $admin = $this->admin(AdminRole::SuperAdmin);
+        $this->actingAs($admin, 'admin');
+        $admin->update(['is_active' => false]);
+
+        $this->get(route('admin.dashboard'))
+            ->assertRedirect(route('admin.login'))
+            ->assertSessionHasErrors('email');
+
+        $this->assertGuest('admin');
+    }
+
     private function admin(AdminRole $role): Admin
     {
         return Admin::query()->create([

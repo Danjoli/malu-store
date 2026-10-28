@@ -18,7 +18,7 @@ class UpdateProductImagesRequest extends FormRequest
     {
         return [
             'images' => ['required', 'array', 'min:1', 'max:8'],
-            'images.*' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'images.*' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'dimensions:max_width=6000,max_height=6000', 'max:2048'],
         ];
     }
 

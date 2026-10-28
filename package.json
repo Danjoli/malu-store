@@ -17,6 +17,7 @@
         "vite": "^8.3.2"
     },
     "dependencies": {
+        "@alpinejs/csp": "^3.17.5",
         "alpinejs": "^3.17.4",
         "chart.js": "^4.5.1",
         "sweetalert2": "^11.26.25"

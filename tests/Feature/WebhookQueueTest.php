@@ -7,6 +7,7 @@ use App\Jobs\ProcessMelhorEnvioWebhookJob;
 use App\Notifications\CriticalOperationalAlert;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Notification;
 use RuntimeException;
 use Tests\TestCase;
@@ -14,6 +15,12 @@ use Tests\TestCase;
 class WebhookQueueTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Cache::flush();
+    }
 
     public function test_authorized_asaas_webhook_is_dispatched_to_queue(): void
     {
@@ -94,5 +101,37 @@ class WebhookQueueTest extends TestCase
             CriticalOperationalAlert::class,
             fn (CriticalOperationalAlert $notification, array $channels): bool => $channels === ['mail'],
         );
+    }
+
+    public function test_duplicate_webhook_is_acknowledged_without_dispatching_twice(): void
+    {
+        Bus::fake();
+        config(['services.asaas.webhook_token' => 'test-token']);
+        $payload = ['event' => 'PAYMENT_RECEIVED', 'id' => 'evt_unique_1'];
+
+        $this->postJson('/api/webhooks/asaas', $payload, ['asaas-access-token' => 'test-token'])
+            ->assertJson(['status' => 'ok']);
+        $this->postJson('/api/webhooks/asaas', $payload, ['asaas-access-token' => 'test-token'])
+            ->assertJson(['status' => 'duplicate']);
+
+        Bus::assertDispatchedTimes(ProcessAsaasWebhookJob::class, 1);
+    }
+
+    public function test_oversized_webhook_is_rejected_before_processing(): void
+    {
+        Bus::fake();
+        config(['services.asaas.webhook_token' => 'test-token']);
+
+        $this->call(
+            'POST',
+            '/api/webhooks/asaas',
+            [],
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json', 'HTTP_ASAAS_ACCESS_TOKEN' => 'test-token'],
+            json_encode(['payload' => str_repeat('x', 262145)], JSON_THROW_ON_ERROR),
+        )->assertStatus(413);
+
+        Bus::assertNothingDispatched();
     }
 }

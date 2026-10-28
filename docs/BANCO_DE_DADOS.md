@@ -85,6 +85,11 @@ Os produtos do catálogo de demonstração recebem slug diretamente no seeder, p
 
 O banco guarda apenas o caminho da imagem na tabela `product_images`; um produto pode ter várias imagens. O catálogo de demonstração cria três registros por produto, e `ProductImageFactory` escolhe uma imagem de demonstração quando for usada em testes. Para cenários que precisem de uma galeria completa, use `Product::factory()->withGallery()->create()`.
 
+Todo upload administrativo é decodificado e gerado novamente como WebP antes do
+armazenamento. Isso remove metadados do arquivo original, impede que o nome
+fornecido pelo usuário seja reutilizado e padroniza o catálogo. As dimensões
+aceitas são limitadas a 6000 × 6000 pixels.
+
 Os arquivos devem existir em:
 
 ```text

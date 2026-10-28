@@ -47,15 +47,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('Nenhuma opção de entrega está disponível para este CEP.');
             }
 
-            results.innerHTML = options.map((option) => `
-                <li class="flex items-center justify-between gap-3 border-t border-[#eee6e4] py-3 first:border-t-0 first:pt-0">
-                    <span>
-                        <strong class="block text-xs text-stone-800">${option.name || 'Entrega'}</strong>
-                        <small class="text-[11px] text-stone-500">Prazo estimado: ${option.delivery_time ?? '-'} dias úteis</small>
-                    </span>
-                    <strong class="whitespace-nowrap text-xs text-stone-800">${money(option.price)}</strong>
-                </li>
-            `).join('');
+            results.replaceChildren(...options.map((option) => {
+                const item = document.createElement('li');
+                item.className = 'flex items-center justify-between gap-3 border-t border-[#eee6e4] py-3 first:border-t-0 first:pt-0';
+                const details = document.createElement('span');
+                const name = document.createElement('strong');
+                name.className = 'block text-xs text-stone-800';
+                name.textContent = option.name || 'Entrega';
+                const time = document.createElement('small');
+                time.className = 'text-[11px] text-stone-500';
+                time.textContent = `Prazo estimado: ${option.delivery_time ?? '-'} dias úteis`;
+                const price = document.createElement('strong');
+                price.className = 'whitespace-nowrap text-xs text-stone-800';
+                price.textContent = money(option.price);
+                details.append(name, time);
+                item.append(details, price);
+                return item;
+            }));
             feedback.textContent = 'Valores estimados para uma unidade deste produto.';
             feedback.className = 'mt-3 text-[11px] text-stone-500';
             results.classList.remove('hidden');

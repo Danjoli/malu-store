@@ -26,7 +26,7 @@ class SecurityHeaders
             "frame-ancestors 'self'",
             "frame-src 'none'",
             "form-action 'self'",
-            "script-src 'self' 'nonce-{$nonce}' 'unsafe-eval'",
+            "script-src 'self' 'nonce-{$nonce}'",
             "script-src-attr 'none'",
             "style-src 'self' 'nonce-{$nonce}' https://fonts.googleapis.com",
             "style-src-attr 'unsafe-inline'",

@@ -135,6 +135,7 @@ LOG_LEVEL=warning
 SESSION_SECURE_COOKIE=true
 SESSION_SAME_SITE=lax
 SECURITY_HSTS=true
+ADMIN_TWO_FACTOR_ENABLED=true
 ```
 
 `SESSION_SAME_SITE` já é lida nativamente por `config/session.php`; a variável não precisa existir em outro arquivo de configuração. `lax` preserva os fluxos normais da loja e reduz o risco de requisições cross-site. Os cabeçalhos HTTP de proteção são aplicados automaticamente pela aplicação; HSTS só é enviado quando a requisição já usa HTTPS.
@@ -142,9 +143,9 @@ SECURITY_HSTS=true
 O middleware `SecurityHeaders` aplica uma CSP restritiva com nonce único por
 resposta, bloqueia objetos, frames e scripts inline sem nonce, limita imagens aos
 domínios autorizados e remove `X-Powered-By`. O `.htaccess` também remove esse
-cabeçalho no Apache. `unsafe-eval` permanece temporariamente em `script-src` por
-compatibilidade com o avaliador padrão do Alpine.js; a diretiva
-`style-src-attr 'unsafe-inline'` permanece para cores dinâmicas de produtos. Ao adicionar CDN,
+cabeçalho no Apache. O front-end usa a distribuição CSP do Alpine.js, portanto
+`script-src` não permite `unsafe-eval`; a diretiva
+`style-src-attr 'unsafe-inline'` permanece somente para cores dinâmicas de produtos. Ao adicionar CDN,
 fonte, script ou integração no navegador, ajuste a CSP pelo menor escopo possível
 e execute os testes de navegador nos dois temas.
 
@@ -165,7 +166,20 @@ deve conter `X-Powered-By`.
   `MELHOR_ENVIO_PRODUCTION_WEBHOOK_SECRET`. A aplicação seleciona o secret pelo
   `MELHOR_ENVIO_ENV` e valida `X-ME-Signature` via HMAC-SHA256 no corpo original.
 
+Os dois endpoints limitam o corpo a 256 KiB, aceitam no máximo 120 requisições por
+minuto e ignoram por 24 horas uma repetição byte a byte do mesmo evento. O
+processamento continua assíncrono na fila `critical`.
+
 Não use chaves de API como tokens de webhook. Depois de alterar variáveis, execute `php artisan optimize:clear` e `php artisan config:cache`.
+
+### Acesso administrativo em duas etapas
+
+Em produção, mantenha `ADMIN_TWO_FACTOR_ENABLED=true`. Depois de validar e-mail e
+senha, o painel envia um código de seis dígitos ao endereço do administrador. O
+código dura 10 minutos, permite no máximo cinco tentativas e fica armazenado
+somente como hash na sessão. Uma conta desativada perde acesso imediatamente,
+mesmo que já possua uma sessão aberta. Antes de ativar, valide o SMTP pelo
+procedimento de teste de e-mail desta documentação.
 
 ### Cartão de crédito
 

@@ -5,7 +5,7 @@
 </h2>
 
 @forelse ($addresses as $address)
-    <div class="mb-4 rounded-md border border-[#eadfdd] bg-[#fffaf9] p-5">
+    <div x-data="addressEditor" class="mb-4 rounded-md border border-[#eadfdd] bg-[#fffaf9] p-5">
         <div class="mb-2 flex items-center justify-between">
             <div class="font-semibold text-stone-800">
                 {{ $address->label ?: 'Endereço' }}
@@ -35,7 +35,7 @@
         </p>
 
         <div class="mt-4 flex flex-wrap items-center gap-4">
-            <button type="button" class="text-sm text-[#bd5564] hover:underline" x-data @click="$dispatch('toggle-address-edit', { id: {{ $address->id }} })">
+            <button type="button" class="text-sm text-[#bd5564] hover:underline" @click="open = !open">
                 Editar endereço
             </button>
             @if (!$address->is_default)
@@ -70,7 +70,7 @@
             </form>
         </div>
 
-        <div x-data="{ open: false }" @toggle-address-edit.window="if ($event.detail.id === {{ $address->id }}) open = !open" x-show="open" x-cloak class="mt-5 border-t border-[#eadfdd] pt-5">
+        <div x-show="open" x-cloak class="mt-5 border-t border-[#eadfdd] pt-5">
             <form method="POST" action="{{ route('addresses.update', $address->id) }}">
                 @csrf
                 @method('PUT')

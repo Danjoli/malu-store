@@ -4,7 +4,7 @@
 @include('layouts.admin.partials.head')
 
 <body
-    x-data="{ adminMenuOpen: false, sidebarCollapsed: false }"
+    x-data="adminLayout"
     class="bg-[#f8f3f1] font-sans text-[#2d2928]"
 >
     <div class="flex min-h-screen">
