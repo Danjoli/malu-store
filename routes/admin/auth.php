@@ -8,7 +8,15 @@ Route::get('/login', [AdminAuthController::class, 'showLogin'])
     ->name('login');
 
 Route::post('/login', [AdminAuthController::class, 'login'])
+    ->middleware('throttle:10,1')
     ->name('login.submit');
+
+Route::get('/verificar-acesso', [AdminAuthController::class, 'showTwoFactorChallenge'])
+    ->name('two-factor.challenge');
+
+Route::post('/verificar-acesso', [AdminAuthController::class, 'verifyTwoFactor'])
+    ->middleware('throttle:10,1')
+    ->name('two-factor.verify');
 
 Route::get('/esqueci-a-senha', [AdminAuthController::class, 'showForgotPassword'])
     ->middleware('redirect.authenticated:admin')

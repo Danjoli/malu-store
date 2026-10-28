@@ -31,6 +31,7 @@ class StoreProductRequest extends FormRequest
                 'nullable',
                 'image',
                 'mimes:jpg,jpeg,png,webp',
+                'dimensions:max_width=6000,max_height=6000',
                 'max:2048',
             ],
 

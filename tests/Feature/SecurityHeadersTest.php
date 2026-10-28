@@ -24,7 +24,8 @@ class SecurityHeadersTest extends TestCase
         $this->assertStringContainsString("default-src 'self'", $policy);
         $this->assertStringContainsString("object-src 'none'", $policy);
         $this->assertStringContainsString("frame-ancestors 'self'", $policy);
-        $this->assertMatchesRegularExpression("/script-src 'self' 'nonce-[^']+' 'unsafe-eval'/", $policy);
+        $this->assertMatchesRegularExpression("/script-src 'self' 'nonce-[^']+'/", $policy);
+        $this->assertStringNotContainsString("'unsafe-eval'", $policy);
     }
 
     public function test_https_responses_include_hsts_when_enabled(): void

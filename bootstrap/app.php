@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Middleware\AdminRole;
+use App\Http\Middleware\EnsureAdminIsActive;
+use App\Http\Middleware\LimitWebhookPayload;
 use App\Http\Middleware\ProtectStagingEnvironment;
 use App\Http\Middleware\RedirectAuthenticatedUser;
 use App\Http\Middleware\RequestId;
@@ -32,6 +34,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'admin.role' => AdminRole::class,
+            'admin.active' => EnsureAdminIsActive::class,
+            'webhook.body' => LimitWebhookPayload::class,
             'redirect.authenticated' => RedirectAuthenticatedUser::class,
         ]);
 

@@ -26,15 +26,15 @@ class ProductImagesTest extends TestCase
         Storage::disk('public')->put('products/imagem-antiga.png', 'old-image');
 
         app(ProductService::class)->replaceImages($product, [
-            UploadedFile::fake()->create('nova-frente.png', 100, 'image/png'),
-            UploadedFile::fake()->create('nova-costas.png', 100, 'image/png'),
+            UploadedFile::fake()->image('nova-frente.png', 800, 1200),
+            UploadedFile::fake()->image('nova-costas.png', 800, 1200),
         ]);
 
         $this->assertDatabaseCount('product_images', 2);
         Storage::disk('public')->assertMissing('products/imagem-antiga.png');
         $this->assertCount(2, Storage::disk('public')->files('products'));
         foreach (Storage::disk('public')->files('products') as $path) {
-            $this->assertMatchesRegularExpression('/^products\/[0-9A-HJKMNP-TV-Z]{26}\.png$/', $path);
+            $this->assertMatchesRegularExpression('/^products\/[0-9A-HJKMNP-TV-Z]{26}\.webp$/', $path);
             $this->assertStringNotContainsString('nova-', $path);
         }
     }

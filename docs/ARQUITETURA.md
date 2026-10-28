@@ -271,7 +271,9 @@ O checkout é transacional: se uma etapa falhar, nenhuma parte parcial do pedido
 ```text
 CheckoutController
   → PlaceOrder (Use Case)
-    → CheckoutData (normaliza CPF, CEP, estado, complemento e frete)
+    → ResolveCheckoutShippingAction (recalcula e valida o frete no servidor)
+    → CheckoutData (normaliza CPF, CEP, estado e complemento)
+    → RefreshCartForCheckoutAction (revalida disponibilidade, estoque e preço)
     → ResolveAddressAction
     → CreateOrderAction
     → CreateOrderItemsAction
@@ -280,14 +282,18 @@ CheckoutController
 
 Detalhes:
 
-1. O cliente informa endereço e seleciona frete.
-2. `CheckoutData` normaliza os dados de entrada.
-3. O endereço é criado ou atualizado.
-4. Pedidos antigos ainda pendentes são cancelados.
-5. O pedido é criado com totais e snapshot do endereço.
-6. Itens do carrinho tornam-se `order_items`.
-7. Um `shipment` pendente é criado.
-8. O cliente é encaminhado à forma de pagamento.
+1. O cliente informa endereço e seleciona o identificador de uma opção de frete.
+2. O servidor consulta novamente o Melhor Envio e deriva preço e transportadora;
+   valores enviados pelo navegador nunca são usados como fonte de verdade.
+3. O carrinho é relido com bloqueio das variantes. Produtos inativos são
+   recusados e nome, imagem, cor, tamanho e preço são atualizados pelo catálogo.
+4. `CheckoutData` normaliza os dados de entrada.
+5. O endereço é criado ou atualizado.
+6. Pedidos antigos ainda pendentes são cancelados.
+7. O pedido é criado com totais e snapshot do endereço.
+8. Itens do carrinho tornam-se `order_items`.
+9. Um `shipment` pendente é criado.
+10. O cliente é encaminhado à forma de pagamento.
 
 ## Pagamentos com Asaas
 

@@ -36,6 +36,12 @@ class CartService
         $variant = ProductVariant::with('product.images')
             ->findOrFail($variantId);
 
+        if (! $variant->product || ! $variant->product->active) {
+            throw ValidationException::withMessages([
+                'variant_id' => 'Este produto não está disponível para compra.',
+            ]);
+        }
+
         $item = CartItem::where('cart_id', $cart->id)
             ->where('product_variant_id', $variant->id)
             ->first();
@@ -76,7 +82,9 @@ class CartService
 
         $item->loadMissing('variant');
 
-        if (! $item->variant || $quantity > $item->variant->stock) {
+        $item->variant?->loadMissing('product');
+
+        if (! $item->variant || ! $item->variant->product?->active || $quantity > $item->variant->stock) {
             throw ValidationException::withMessages([
                 'quantity' => 'A quantidade solicitada não está disponível em estoque.',
             ]);

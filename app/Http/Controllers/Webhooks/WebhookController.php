@@ -7,6 +7,8 @@ use App\Jobs\ProcessAsaasWebhookJob;
 use App\Jobs\ProcessMelhorEnvioWebhookJob;
 use App\Services\Security\WebhookSignatureValidator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Throwable;
 
 class WebhookController extends Controller
 {
@@ -23,7 +25,17 @@ class WebhookController extends Controller
             return response()->json(['message' => 'Unauthorized'], 401);
         }
 
-        ProcessMelhorEnvioWebhookJob::dispatch($request->all());
+        if (! $this->claim($request, 'melhor-envio')) {
+            return response()->json(['status' => 'duplicate']);
+        }
+
+        try {
+            ProcessMelhorEnvioWebhookJob::dispatch($request->all());
+        } catch (Throwable $exception) {
+            Cache::forget($this->fingerprint($request, 'melhor-envio'));
+
+            throw $exception;
+        }
 
         return response()->json([
             'status' => 'ok',
@@ -38,10 +50,34 @@ class WebhookController extends Controller
             ], 401);
         }
 
-        ProcessAsaasWebhookJob::dispatch($request->all());
+        if (! $this->claim($request, 'asaas')) {
+            return response()->json(['status' => 'duplicate']);
+        }
+
+        try {
+            ProcessAsaasWebhookJob::dispatch($request->all());
+        } catch (Throwable $exception) {
+            Cache::forget($this->fingerprint($request, 'asaas'));
+
+            throw $exception;
+        }
 
         return response()->json([
             'status' => 'ok',
         ]);
+    }
+
+    private function claim(Request $request, string $provider): bool
+    {
+        return Cache::add(
+            $this->fingerprint($request, $provider),
+            true,
+            now()->addDay(),
+        );
+    }
+
+    private function fingerprint(Request $request, string $provider): string
+    {
+        return 'webhook:'.$provider.':'.hash('sha256', $request->getContent());
     }
 }

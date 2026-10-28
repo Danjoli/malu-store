@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Throwable;
 
 class AdminAuthController extends Controller
 {
@@ -40,6 +41,85 @@ class AdminAuthController extends Controller
         }
 
         RateLimiter::clear($throttleKey);
+
+        /** @var Admin $admin */
+        $admin = Auth::guard('admin')->user();
+
+        if (config('admin_security.two_factor_enabled')) {
+            Auth::guard('admin')->logout();
+            $request->session()->regenerate();
+
+            $code = (string) random_int(100000, 999999);
+            $request->session()->put('admin_two_factor', [
+                'admin_id' => $admin->id,
+                'code_hash' => Hash::make($code),
+                'expires_at' => now()->addMinutes((int) config('admin_security.two_factor_ttl_minutes'))->timestamp,
+                'attempts' => 0,
+            ]);
+
+            try {
+                $admin->sendTwoFactorCode($code);
+            } catch (Throwable) {
+                $request->session()->forget('admin_two_factor');
+
+                return back()->withErrors([
+                    'email' => 'Não foi possível enviar o código de segurança. Tente novamente em instantes.',
+                ])->onlyInput('email');
+            }
+
+            return redirect()->route('admin.two-factor.challenge');
+        }
+
+        $request->session()->regenerate();
+
+        return redirect()->route('admin.dashboard');
+    }
+
+    public function showTwoFactorChallenge(Request $request)
+    {
+        abort_unless($request->session()->has('admin_two_factor'), 404);
+
+        return view('admin.auth.two-factor-challenge');
+    }
+
+    public function verifyTwoFactor(Request $request)
+    {
+        $request->validate(['code' => ['required', 'digits:6']]);
+        $pending = $request->session()->get('admin_two_factor');
+
+        if (! is_array($pending) || (int) ($pending['expires_at'] ?? 0) < now()->timestamp) {
+            $request->session()->forget('admin_two_factor');
+
+            return redirect()->route('admin.login')->withErrors([
+                'email' => 'O código expirou. Entre novamente para receber outro.',
+            ]);
+        }
+
+        $attempts = (int) ($pending['attempts'] ?? 0) + 1;
+        if ($attempts > (int) config('admin_security.two_factor_max_attempts')) {
+            $request->session()->forget('admin_two_factor');
+
+            return redirect()->route('admin.login')->withErrors([
+                'email' => 'Limite de tentativas atingido. Entre novamente.',
+            ]);
+        }
+
+        if (! Hash::check($request->string('code')->toString(), (string) ($pending['code_hash'] ?? ''))) {
+            $pending['attempts'] = $attempts;
+            $request->session()->put('admin_two_factor', $pending);
+
+            return back()->withErrors(['code' => 'Código inválido.']);
+        }
+
+        $admin = Admin::query()->whereKey($pending['admin_id'] ?? null)->where('is_active', true)->first();
+        if (! $admin) {
+            $request->session()->forget('admin_two_factor');
+
+            return redirect()->route('admin.login')->withErrors(['email' => 'Conta administrativa indisponível.']);
+        }
+
+        $request->session()->forget('admin_two_factor');
+        Auth::guard('admin')->login($admin);
         $request->session()->regenerate();
 
         return redirect()->route('admin.dashboard');

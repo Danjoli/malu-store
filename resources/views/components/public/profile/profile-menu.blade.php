@@ -1,5 +1,5 @@
 <div
-    x-data="{ open: false }"
+    x-data="dropdown"
     class="relative"
 >
     {{-- Botão perfil --}}

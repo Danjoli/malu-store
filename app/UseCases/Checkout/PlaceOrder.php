@@ -5,7 +5,9 @@ namespace App\UseCases\Checkout;
 use App\Actions\Checkout\CreateOrderAction;
 use App\Actions\Checkout\CreateOrderItemsAction;
 use App\Actions\Checkout\CreateShipmentAction;
+use App\Actions\Checkout\RefreshCartForCheckoutAction;
 use App\Actions\Checkout\ResolveAddressAction;
+use App\Actions\Checkout\ResolveCheckoutShippingAction;
 use App\Data\CheckoutData;
 use App\Exceptions\Domain\EmptyCartException;
 use App\Models\Cart;
@@ -18,6 +20,8 @@ class PlaceOrder
 {
     public function __construct(
         private ResolveAddressAction $resolveAddress,
+        private ResolveCheckoutShippingAction $resolveShipping,
+        private RefreshCartForCheckoutAction $refreshCart,
         private CreateOrderAction $createOrder,
         private CreateOrderItemsAction $createOrderItems,
         private CreateShipmentAction $createShipment,
@@ -25,7 +29,7 @@ class PlaceOrder
 
     public function execute(User $user, array $input): Order
     {
-        $data = CheckoutData::fromArray($input);
+        $data = CheckoutData::fromArray($this->resolveShipping->execute($input));
 
         return DB::transaction(function () use ($user, $data): Order {
             $cart = Cart::with('items.variant')
@@ -36,6 +40,8 @@ class PlaceOrder
             if ($cart->items->isEmpty()) {
                 throw new EmptyCartException;
             }
+
+            $cart = $this->refreshCart->execute($cart);
 
             $address = $this->resolveAddress->execute($user, $data);
             $order = $this->createOrder->execute($user, $cart, $address, $data);
