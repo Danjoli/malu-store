@@ -72,6 +72,25 @@ class CatalogTest extends TestCase
             ->assertDontSee($unavailable->name);
     }
 
+    public function test_catalog_sidebar_only_lists_categories_with_available_products(): void
+    {
+        $available = Category::factory()->create(['name' => 'Categoria Disponível']);
+        $inactive = Category::factory()->create(['name' => 'Categoria Inativa']);
+        $outOfStock = Category::factory()->create(['name' => 'Categoria Esgotada']);
+        $empty = Category::factory()->create(['name' => 'Categoria Vazia']);
+
+        $this->product('Produto disponível', $available);
+        $this->product('Produto inativo', $inactive, active: false);
+        $this->product('Produto esgotado', $outOfStock, stock: 0);
+
+        $this->get(route('catalog.index'))
+            ->assertOk()
+            ->assertSee($available->name)
+            ->assertDontSee($inactive->name)
+            ->assertDontSee($outOfStock->name)
+            ->assertDontSee($empty->name);
+    }
+
     public function test_catalog_reuses_cached_data_and_invalidates_it_after_a_change(): void
     {
         $category = Category::factory()->create();
