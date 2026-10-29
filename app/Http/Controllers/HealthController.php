@@ -15,7 +15,8 @@ class HealthController extends Controller
 {
     public function __invoke(): JsonResponse
     {
-        $checks = Cache::remember('health:readiness', now()->addSeconds(30), fn (): array => [
+        // O cache do health check não pode depender do mesmo Redis que ele verifica.
+        $checks = Cache::store('file')->remember('health:readiness', now()->addSeconds(30), fn (): array => [
             'database' => $this->databaseIsReady(),
             'queue' => $this->queueIsReady(),
             'storage' => $this->storageIsReady(),

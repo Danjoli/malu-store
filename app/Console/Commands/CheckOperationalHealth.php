@@ -42,14 +42,14 @@ class CheckOperationalHealth extends Command
         }
 
         if ($problems === []) {
-            Cache::forget('operations:health-alert');
+            Cache::store('file')->forget('operations:health-alert');
             $this->info('Operação saudável.');
 
             return self::SUCCESS;
         }
 
         $throttleMinutes = (int) config('alerts.throttle_minutes', 60);
-        if (Cache::add('operations:health-alert', true, now()->addMinutes($throttleMinutes))) {
+        if (Cache::store('file')->add('operations:health-alert', true, now()->addMinutes($throttleMinutes))) {
             $alerts->critical('A Malu Store requer atenção operacional.', $problems);
         }
 
