@@ -1,5 +1,10 @@
 <?php
 
+$sessionConnection = env('SESSION_CONNECTION');
+$sessionConnection = in_array($sessionConnection, [null, '', 'default'], true)
+    ? null
+    : $sessionConnection;
+
 use Illuminate\Support\Str;
 
 return [
@@ -73,7 +78,7 @@ return [
     |
     */
 
-    'connection' => env('SESSION_CONNECTION'),
+    'connection' => $sessionConnection,
 
     /*
     |--------------------------------------------------------------------------
