@@ -2,6 +2,18 @@
 
 use Illuminate\Support\Str;
 
+$databaseCacheConnection = env('DB_CACHE_CONNECTION');
+$databaseCacheLockConnection = env('DB_CACHE_LOCK_CONNECTION');
+
+// "default" is a common symbolic value in hosted .env files, but Laravel's
+// database manager expects null when the application's default DB is intended.
+$databaseCacheConnection = in_array($databaseCacheConnection, [null, '', 'default'], true)
+    ? null
+    : $databaseCacheConnection;
+$databaseCacheLockConnection = in_array($databaseCacheLockConnection, [null, '', 'default'], true)
+    ? null
+    : $databaseCacheLockConnection;
+
 return [
 
     'catalog_ttl_seconds' => (int) env('CATALOG_CACHE_SECONDS', 60),
@@ -43,9 +55,9 @@ return [
 
         'database' => [
             'driver' => 'database',
-            'connection' => env('DB_CACHE_CONNECTION'),
+            'connection' => $databaseCacheConnection,
             'table' => env('DB_CACHE_TABLE', 'cache'),
-            'lock_connection' => env('DB_CACHE_LOCK_CONNECTION'),
+            'lock_connection' => $databaseCacheLockConnection,
             'lock_table' => env('DB_CACHE_LOCK_TABLE'),
         ],
 
