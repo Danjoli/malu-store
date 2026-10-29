@@ -93,23 +93,41 @@ fi
 healthy=false
 origin_ip="$(getent ahostsv4 "$origin_host" 2>/dev/null | awk 'NR == 1 { print $1 }')"
 for attempt in {1..10}; do
-    curl_args=(--fail --silent --max-time 10)
+    curl_args=(--fail --silent --show-error --max-time 10 --output /dev/null --write-out '%{http_code}')
     if [[ -n "$origin_ip" ]]; then
         # Valida a release diretamente na origem. O monitor externo separado
         # continua verificando Cloudflare/DNS sem sujeitar o rollback a um 429.
         curl_args+=(--resolve "malu-store.com:443:$origin_ip")
     fi
 
-    if curl "${curl_args[@]}" "$health_url" >/dev/null; then
+    if http_code="$(curl "${curl_args[@]}" "$health_url")"; then
         healthy=true
         break
     fi
 
-    printf 'Health check ainda indisponível (tentativa %s/10).\n' "$attempt"
+    printf 'Health check ainda indisponível (tentativa %s/10, HTTP %s).\n' "$attempt" "${http_code:-000}"
     sleep 3
 done
 
 if [[ "$healthy" != true ]]; then
+    latest_log="$(find "$current/storage/logs" -maxdepth 1 -type f -name '*.log' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -n 1 | cut -d' ' -f2-)"
+    if [[ -n "$latest_log" && -f "$latest_log" ]]; then
+        # Exibe apenas classe, mensagem e arquivo da exceção mais recente. Isso
+        # ajuda a diagnosticar o rollback sem publicar contexto sensível.
+        tail -n 100 "$latest_log" \
+            | grep '"level_name":"ERROR"' \
+            | tail -n 1 \
+            | "$php_bin" -r '
+                $entry = json_decode(stream_get_contents(STDIN), true);
+                $error = $entry["context"]["exception"] ?? [];
+                printf(
+                    "Último erro: %s: %s em %s\n",
+                    $error["class"] ?? "desconhecido",
+                    $error["message"] ?? "sem mensagem",
+                    $error["file"] ?? "arquivo desconhecido",
+                );
+            ' || true
+    fi
     rollback
     exit 1
 fi
