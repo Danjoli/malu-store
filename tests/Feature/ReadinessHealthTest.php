@@ -14,7 +14,7 @@ class ReadinessHealthTest extends TestCase
     public function test_readiness_endpoint_checks_required_dependencies(): void
     {
         Storage::fake('public');
-        Cache::forget('health:readiness');
+        Cache::store('file')->forget('health:readiness');
 
         $this->getJson('/health')
             ->assertOk()

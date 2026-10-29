@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Str;
 use Pdo\Mysql;
+use Predis\Retry\Strategy\ExponentialBackoff;
 
 return [
 
@@ -160,7 +161,17 @@ return [
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_DB', '0'),
-            'max_retries' => env('REDIS_MAX_RETRIES', 3),
+            'timeout' => (float) env('REDIS_CONNECT_TIMEOUT', 3),
+            'read_timeout' => (float) env('REDIS_READ_TIMEOUT', 10),
+            'read_write_timeout' => (float) env('REDIS_READ_TIMEOUT', 10),
+            'max_retries' => (int) env('REDIS_MAX_RETRIES', 2),
+            'retry' => [
+                ExponentialBackoff::class => [
+                    (int) env('REDIS_BACKOFF_BASE', 100) * 1000,
+                    (int) env('REDIS_BACKOFF_CAP', 1000) * 1000,
+                    true,
+                ],
+            ],
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
             'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
             'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
@@ -173,7 +184,17 @@ return [
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_CACHE_DB', '1'),
-            'max_retries' => env('REDIS_MAX_RETRIES', 3),
+            'timeout' => (float) env('REDIS_CONNECT_TIMEOUT', 3),
+            'read_timeout' => (float) env('REDIS_READ_TIMEOUT', 10),
+            'read_write_timeout' => (float) env('REDIS_READ_TIMEOUT', 10),
+            'max_retries' => (int) env('REDIS_MAX_RETRIES', 2),
+            'retry' => [
+                ExponentialBackoff::class => [
+                    (int) env('REDIS_BACKOFF_BASE', 100) * 1000,
+                    (int) env('REDIS_BACKOFF_CAP', 1000) * 1000,
+                    true,
+                ],
+            ],
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
             'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
             'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),

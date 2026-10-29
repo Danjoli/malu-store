@@ -9,8 +9,8 @@ para o Git, documentação, logs ou comandos compartilhados.
 | Recurso | Local | Homologação | Produção |
 |---|---|---|---|
 | Banco principal | MySQL `malu_store` | MySQL exclusivo com `staging` no nome | MySQL exclusivo de produção |
-| Cache | `database` por padrão | Redis | Redis |
-| Sessões | `file` por padrão | Redis | Redis |
+| Cache | `database` por padrão | Redis com fallback MySQL | Redis com fallback MySQL |
+| Sessões | `file` por padrão | MySQL | MySQL |
 | Filas | `database` por padrão | Redis | Redis |
 | Imagens | disco Laravel `public` | Cloudflare R2, bucket exclusivo | Cloudflare R2, bucket exclusivo |
 | Pagamento e frete | sandbox | sandbox | produção |
@@ -27,14 +27,19 @@ bucket, domínio de assets e integrações totalmente separados.
 Redis armazena cache, sessões e filas nos ambientes hospedados:
 
 ```env
-CACHE_STORE=redis
-SESSION_DRIVER=redis
+CACHE_STORE=failover
+SESSION_DRIVER=database
 QUEUE_CONNECTION=redis
 REDIS_CLIENT=phpredis
 REDIS_URL=
 REDIS_PREFIX=malu-store-ambiente-
 REDIS_DB=0
 REDIS_CACHE_DB=1
+REDIS_CONNECT_TIMEOUT=3
+REDIS_READ_TIMEOUT=10
+REDIS_MAX_RETRIES=2
+REDIS_BACKOFF_BASE=100
+REDIS_BACKOFF_CAP=1000
 ```
 
 Use a URL TLS fornecida pelo serviço gerenciado. Quando `REDIS_URL` estiver
@@ -62,8 +67,16 @@ php artisan tinker --execute="dump([
 ]); Cache::store()->forget('diagnostic:cache');"
 ```
 
-O endpoint `/health` também envia `PING` à conexão Redis usada pela fila. Ele
-responde `503` se banco, fila ou armazenamento não estiverem disponíveis.
+O cache `failover` tenta Redis primeiro e usa a tabela `cache` do MySQL durante
+uma falha transitória. Sessões ficam no MySQL para que uma oscilação do Redis não
+desconecte clientes nem derrube páginas. A fila permanece no Redis: quando ela
+está indisponível, webhooks devem responder com erro para que o fornecedor tente
+novamente. Predis e PhpRedis usam timeout curto, até duas reconexões e espera
+exponencial com jitter.
+
+O endpoint `/health` guarda seu resultado por 30 segundos em cache de arquivo,
+independente do Redis, e envia `PING` à conexão usada pela fila. Ele responde
+`503` se banco, fila ou armazenamento não estiverem disponíveis.
 
 Não execute `FLUSHALL`, `FLUSHDB` ou limpeza global em produção. Uma limpeza
 indiscriminada pode encerrar sessões, remover jobs e apagar caches de outras

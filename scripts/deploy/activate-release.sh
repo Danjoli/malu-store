@@ -33,6 +33,10 @@ mkdir -p "$release"
 tar -xzf "$archive_name" -C "$release"
 cp "$current/.env" "$release/.env"
 sed -i 's|^APP_URL=.*$|APP_URL=https://malu-store.com|' "$release/.env"
+# Sessões permanecem disponíveis mesmo durante uma oscilação do Redis. O cache
+# usa Redis como primário e faz fallback para a tabela cache do MySQL.
+sed -i 's|^SESSION_DRIVER=.*$|SESSION_DRIVER=database|' "$release/.env"
+sed -i 's|^CACHE_STORE=.*$|CACHE_STORE=failover|' "$release/.env"
 rm -rf "$release/storage"
 cp -a "$current/storage" "$release/storage"
 rm -f "$release/public/storage"

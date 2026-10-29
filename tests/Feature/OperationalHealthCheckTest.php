@@ -17,6 +17,7 @@ class OperationalHealthCheckTest extends TestCase
     {
         parent::setUp();
         Cache::flush();
+        Cache::store('file')->flush();
         config(['queue.default' => 'database']);
     }
 
