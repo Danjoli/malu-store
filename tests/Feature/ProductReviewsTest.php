@@ -39,7 +39,9 @@ class ProductReviewsTest extends TestCase
             ->assertSee('70% viscose e 30% linho.')
             ->assertSee('Avaliações (1)')
             ->assertSee('Ótimo caimento')
-            ->assertSee('Compra verificada');
+            ->assertSee('Compra verificada')
+            ->assertSee('aggregateRating')
+            ->assertSee('"reviewCount":1', false);
     }
 
     public function test_demo_review_is_clearly_identified_and_not_presented_as_verified_purchase(): void
@@ -59,7 +61,35 @@ class ProductReviewsTest extends TestCase
         $this->get(route('product.show', $product))
             ->assertOk()
             ->assertSee('Avaliação demonstrativa')
-            ->assertDontSee('Compra verificada');
+            ->assertDontSee('Compra verificada')
+            ->assertDontSee('aggregateRating');
+    }
+
+    public function test_product_page_has_size_guide_stock_feedback_trust_and_product_schema(): void
+    {
+        $product = Product::factory()->create([
+            'description' => 'Conjunto confortável para diferentes ocasiões.',
+        ]);
+        ProductVariant::factory()->for($product)->create([
+            'size' => 'M',
+            'stock' => 3,
+        ]);
+        ProductVariant::factory()->for($product)->create([
+            'size' => 'GG',
+            'stock' => 12,
+        ]);
+
+        $this->get(route('product.show', $product))
+            ->assertOk()
+            ->assertSee('Guia de medidas')
+            ->assertSee('88–94')
+            ->assertSee('102–110')
+            ->assertSee('Postagem em até 2 dias úteis')
+            ->assertSee('Troca fácil em até 7 dias')
+            ->assertSee('data-variant-stock', false)
+            ->assertSee('application/ld+json', false)
+            ->assertSee('"@type":"Product"', false)
+            ->assertSee('<link rel="canonical"', false);
     }
 
     public function test_only_customer_with_delivered_purchase_can_review_product(): void
