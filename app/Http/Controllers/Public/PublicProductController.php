@@ -2,14 +2,19 @@
 
 namespace App\Http\Controllers\Public;
 
+use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
+use App\Models\OrderItem;
 use App\Models\Product;
+use Illuminate\Support\Collection;
 
 class PublicProductController extends Controller
 {
     public function show(Product $product)
     {
         $product = Product::with(['images', 'variants', 'category'])
+            ->withCount('reviews')
+            ->withAvg('reviews', 'rating')
             ->where('active', 1)
             ->whereKey($product->id)
             ->firstOrFail();
@@ -34,7 +39,32 @@ class PublicProductController extends Controller
             );
         }
 
-        return view('public.products.show', compact('product', 'relatedProducts'));
+        $reviews = $product->reviews()
+            ->with('user:id,name')
+            ->latest()
+            ->take(12)
+            ->get();
+
+        /** @var Collection<int, OrderItem> $eligibleReviewItems */
+        $eligibleReviewItems = collect();
+
+        if (auth()->check()) {
+            $eligibleReviewItems = OrderItem::query()
+                ->with('review')
+                ->where('product_id', $product->id)
+                ->whereHas('order', fn ($query) => $query
+                    ->where('user_id', auth()->id())
+                    ->where('status', OrderStatus::Delivered->value))
+                ->latest()
+                ->get();
+        }
+
+        return view('public.products.show', compact(
+            'product',
+            'relatedProducts',
+            'reviews',
+            'eligibleReviewItems',
+        ));
     }
 
     public function legacyShow(int $id)

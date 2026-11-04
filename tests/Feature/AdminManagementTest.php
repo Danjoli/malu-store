@@ -76,6 +76,8 @@ class AdminManagementTest extends TestCase
                 'category_id' => $category->id,
                 'name' => 'Vestido de teste',
                 'description' => 'Produto criado pelo teste administrativo.',
+                'details' => 'Modelagem reta e fechamento frontal.',
+                'composition' => '70% viscose e 30% linho.',
                 'price' => 189.90,
                 'active' => true,
                 'images' => [UploadedFile::fake()->image('vestido.jpg')],
@@ -88,6 +90,8 @@ class AdminManagementTest extends TestCase
         $this->assertDatabaseHas('products', [
             'name' => 'Vestido de teste',
             'category_id' => $category->id,
+            'details' => 'Modelagem reta e fechamento frontal.',
+            'composition' => '70% viscose e 30% linho.',
         ]);
         $this->assertDatabaseHas('product_variants', [
             'color' => 'Rosé',

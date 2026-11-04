@@ -115,6 +115,8 @@ class ProductController extends Controller
                 'category_id' => $product->category_id,
                 'price' => (string) $product->price,
                 'description' => $product->description,
+                'details' => $product->details,
+                'composition' => $product->composition,
                 'active' => $product->active,
                 'images' => $product->images->map(fn ($image): array => [
                     'id' => $image->id,

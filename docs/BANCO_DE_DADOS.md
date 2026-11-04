@@ -17,6 +17,7 @@ Cliente 1 ── N Carrinhos 1 ── N Itens de carrinho ── 1 Variante
 Cliente 1 ── N Pedidos  1 ── N Itens do pedido
                           └── 1 Envio
 Cliente N ── N Produtos (favoritos)
+Cliente 1 ── N Avaliações N ── 1 Produto
 ```
 
 ## Tabelas principais
@@ -26,16 +27,17 @@ Cliente N ── N Produtos (favoritos)
 | `users` | Clientes da loja. | Endereços, carrinhos, pedidos e favoritos. |
 | `admins` | Acessos ao painel administrativo. | Não se mistura com clientes. |
 | `categories` | Agrupa produtos do catálogo. | Possui muitos produtos. |
-| `products` | Produto base, slug, preço, descrição e ativo. | Categoria, imagens, variantes e favoritos. |
+| `products` | Produto base, slug, preço, descrição, detalhes, composição e ativo. | Categoria, imagens, variantes, favoritos e avaliações. |
 | `product_images` | Caminhos das fotos do produto. | Pertence a um produto. |
 | `product_variants` | Cor, tamanho e estoque. | Pertence a um produto; é selecionada no carrinho. |
 | `carts` | Carrinho por cliente e status. | Possui itens de carrinho. |
 | `cart_items` | Variante, quantidade e snapshots do carrinho. | Pertence a carrinho e variante. |
 | `addresses` | Endereços salvos do cliente. | Pertence a um cliente. |
 | `orders` | Pedido, totais, pagamento e snapshot de entrega. | Cliente, itens e envio. |
-| `order_items` | Itens comprados com snapshots de produto. | Pertence a pedido e variante quando aplicável. |
+| `order_items` | Itens comprados com snapshots e referência estável ao produto. | Pertence a pedido, produto e variante quando aplicável. |
 | `shipments` | Frete, transportadora, rastreio e status. | Pertence a um pedido. |
 | `favorites` | Produtos salvos por cada cliente. | Liga `users` a `products`. |
+| `product_reviews` | Nota e comentário de uma compra entregue. | Liga cliente, produto e item do pedido. |
 | `password_reset_tokens` | Tokens de recuperação de senha de clientes. | Associado ao e-mail do cliente. |
 | `admin_password_reset_tokens` | Tokens de recuperação de senha administrativa. | Associado ao e-mail administrativo. |
 | `jobs` / `failed_jobs` | Fila de tarefas do Laravel. | Webhooks do Asaas usam esta estrutura. |
@@ -53,6 +55,8 @@ O estoque está em `product_variants.stock`. Ele é baixado apenas quando o webh
 - Um identificador de cobrança do gateway só pode pertencer a um pedido.
 - Se uma variante for removida, itens de pedidos antigos preservam seus snapshots e ficam com `product_variant_id` nulo; o histórico não é apagado.
 - Itens de carrinho continuam ligados à variante e impedem a remoção acidental de uma variante que ainda esteja em um carrinho.
+- Uma avaliação pertence a um único item de pedido; o cliente pode atualizá-la, mas não duplicá-la.
+- A publicação de avaliação exige que o item pertença ao cliente autenticado e que o pedido esteja entregue.
 
 ## Dados de demonstração
 

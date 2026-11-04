@@ -126,6 +126,7 @@ class StoreDemoDataSeeder extends Seeder
                     'order_id' => $order->id,
                     'product_variant_id' => $variant->id],
                 [
+                    'product_id' => $product->id,
                     'name_snapshot' => $product->name,
                     'image_snapshot' => $product->images->first()?->image ?? '',
                     'color_snapshot' => $variant->color,

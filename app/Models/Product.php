@@ -18,6 +18,8 @@ class Product extends Model
         'name',
         'slug',
         'description',
+        'details',
+        'composition',
         'price',
         'active',
     ];
@@ -53,6 +55,11 @@ class Product extends Model
     public function favorites(): HasMany
     {
         return $this->hasMany(Favorite::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class);
     }
 
     /**
