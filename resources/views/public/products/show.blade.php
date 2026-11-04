@@ -128,7 +128,7 @@
                     </span>
                 </p>
 
-                <p class="mt-5 text-3xl font-bold text-stone-900">
+                <p class="store-price mt-5 text-3xl font-bold text-stone-900">
                     R$ {{ number_format($product->price, 2, ',', '.') }}
                 </p>
 
