@@ -151,6 +151,21 @@ test('produto mantém frete legível e tamanho selecionado destacado nos dois te
     }
 });
 
+test('catálogo filtra enquanto a pessoa pesquisa sem recarregar a página', async ({ page }) => {
+    await page.goto('/produtos');
+    const search = page.getByRole('searchbox', { name: 'Buscar no catálogo' });
+
+    await search.fill('Vestido Midi Floral');
+    await expect(page).toHaveURL(/search=Vestido(?:\+|%20)Midi(?:\+|%20)Floral/);
+    await expect(page.getByRole('heading', { name: 'Vestido Midi Floral', exact: true })).toBeVisible();
+    await expect(search).toBeFocused();
+
+    await search.fill('produto que não existe');
+    await expect(page.getByText('Nenhum produto encontrado.')).toBeVisible();
+    await page.getByRole('link', { name: 'Limpar filtros' }).click();
+    await expect(page).toHaveURL(/\/produtos$/);
+});
+
 async function loginAsCustomer(page) {
     await page.goto('/login');
     await page.getByLabel('E-mail').fill('test@gmail.com');

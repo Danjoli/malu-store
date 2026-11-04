@@ -15,13 +15,19 @@ class ProductFilterService
      */
     public function query(Request $request): Builder
     {
+        $colors = array_values(array_filter((array) $request->input('color'), 'is_string'));
+        $sizes = array_values(array_filter((array) $request->input('size'), 'is_string'));
+
         $query = Product::with(['category', 'images', 'variants'])
             ->where('active', 1)
-            ->inStock($request->string('color')->toString(), $request->string('size')->toString());
+            ->inStock($colors, $sizes);
 
         // Busca por nome
-        if ($request->search) {
-            $query->where('name', 'like', '%'.$request->search.'%');
+        if ($request->filled('search')) {
+            $search = trim($request->string('search')->toString());
+            $query->where(fn (Builder $builder) => $builder
+                ->where('name', 'like', '%'.$search.'%')
+                ->orWhere('description', 'like', '%'.$search.'%'));
         }
 
         // Preço mínimo
