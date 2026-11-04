@@ -16,6 +16,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class AdminManagementTest extends TestCase
@@ -163,15 +164,21 @@ class AdminManagementTest extends TestCase
         $this->actingAs($superAdmin, 'admin')
             ->get(route('admin.products.create'))
             ->assertOk()
-            ->assertSee('Visualização da roupa')
-            ->assertSeeHtml('id="productImageStage"')
-            ->assertSeeHtml('id="productImageStageImage"');
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Admin/Products/Form')
+                ->where('mode', 'create')
+                ->has('categories', 1)
+                ->has('sizes'));
 
         $this->actingAs($superAdmin, 'admin')
             ->get(route('admin.products.edit', $product))
             ->assertOk()
-            ->assertSee('Use a imagem ao lado como referência')
-            ->assertSeeHtml('id="imagePreview"');
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Admin/Products/Form')
+                ->where('mode', 'edit')
+                ->where('product.id', $product->id)
+                ->has('product.images')
+                ->has('product.variants', 1));
     }
 
     public function test_super_admin_can_deactivate_an_administrator(): void

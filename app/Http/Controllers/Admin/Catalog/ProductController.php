@@ -11,6 +11,8 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Services\Admin\Catalog\ProductService;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ProductController extends Controller
 {
@@ -48,17 +50,9 @@ class ProductController extends Controller
         return view('admin.products.show', compact('product', 'totalStock'));
     }
 
-    public function create()
+    public function create(): Response
     {
-        $categories = Category::all();
-        $variantIndex = 1;
-        $sizes = ClothingSize::cases();
-
-        return view('admin.products.create', compact(
-            'categories',
-            'variantIndex',
-            'sizes'
-        ));
+        return Inertia::render('Admin/Products/Form', $this->formProps());
     }
 
     public function store(StoreProductRequest $request)
@@ -70,21 +64,11 @@ class ProductController extends Controller
             ->with('success', 'Produto criado com sucesso!');
     }
 
-    public function edit(Product $product)
+    public function edit(Product $product): Response
     {
-        $categories = Category::all();
-
         $product->load(['images', 'variants']);
 
-        $variantIndex = $product->variants->count();
-        $sizes = ClothingSize::cases();
-
-        return view('admin.products.edit', compact(
-            'product',
-            'categories',
-            'variantIndex',
-            'sizes'
-        ));
+        return Inertia::render('Admin/Products/Form', $this->formProps($product));
     }
 
     public function update(UpdateProductRequest $request, Product $product)
@@ -112,5 +96,43 @@ class ProductController extends Controller
         return redirect()
             ->route('admin.products.index')
             ->with('success', 'Produto removido!');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function formProps(?Product $product = null): array
+    {
+        return [
+            'mode' => $product ? 'edit' : 'create',
+            'categories' => Category::query()
+                ->orderBy('name')
+                ->get(['id', 'name']),
+            'sizes' => array_map(fn (ClothingSize $size): string => $size->value, ClothingSize::cases()),
+            'product' => $product ? [
+                'id' => $product->id,
+                'name' => $product->name,
+                'category_id' => $product->category_id,
+                'price' => (string) $product->price,
+                'description' => $product->description,
+                'active' => $product->active,
+                'images' => $product->images->map(fn ($image): array => [
+                    'id' => $image->id,
+                    'url' => $image->url,
+                ])->values(),
+                'variants' => $product->variants->map(fn ($variant): array => [
+                    'id' => $variant->id,
+                    'color' => $variant->color,
+                    'size' => $variant->size,
+                    'stock' => $variant->stock,
+                ])->values(),
+            ] : null,
+            'urls' => [
+                'submit' => $product
+                    ? route('admin.products.update', $product)
+                    : route('admin.products.store'),
+                'index' => route('admin.products.index'),
+            ],
+        ];
     }
 }
