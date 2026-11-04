@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
+import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
     plugins: [
@@ -8,6 +9,7 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
+                'resources/js/inertia.js',
                 'resources/js/checkout/index.js',
                 'resources/js/dashboard/index.js',
                 'resources/js/admin/products/form.js',
@@ -17,6 +19,7 @@ export default defineConfig({
             ],
             refresh: true,
         }),
+        vue(),
         tailwindcss(),
     ],
     server: {

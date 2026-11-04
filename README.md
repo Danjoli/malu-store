@@ -47,6 +47,8 @@ O funcionamento do catálogo, carrinho, checkout, pagamentos, webhooks, banco de
 ### Frontend
 
 * Blade
+* Inertia.js
+* Vue 3
 * HTML5
 * CSS3
 * JavaScript

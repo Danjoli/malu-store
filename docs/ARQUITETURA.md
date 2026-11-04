@@ -10,7 +10,7 @@ Tecnologias principais:
 
 - PHP 8.4+ e Laravel 13;
 - MySQL em desenvolvimento/local;
-- Blade, Tailwind CSS 4, Vite e Alpine.js;
+- Blade, Inertia.js, Vue 3, Tailwind CSS 4, Vite e Alpine.js;
 - Asaas para Pix, boleto e cartão;
 - Melhor Envio para serviços de frete e acompanhamento de envio.
 
@@ -56,6 +56,10 @@ resources/views/
 ├── layouts/                 Cabeçalho, rodapé e layouts
 ├── admin/                   Telas do painel administrativo
 └── public/                  Telas da loja
+resources/js/
+├── Pages/                   Páginas Vue carregadas pelo Inertia
+├── inertia.js              Inicialização do cliente Inertia/Vue
+└── app.js                  Inicialização global das telas Blade
 routes/
 ├── public/                  Vitrine, autenticação, cliente e pagamentos
 ├── admin/                   Login, dashboard, gestão e operações do painel
@@ -117,7 +121,9 @@ Os caminhos e nomes de rota permanecem iguais; a divisão organiza somente os ar
 ### Front-end e componentes
 
 - `resources/js/app.js` contém apenas inicialização global (Alpine, alertas e bootstrap).
-- Scripts de checkout, produto, dashboard, formulário de produto e pagamentos são entradas Vite próprias e são carregados apenas pelas telas que os utilizam.
+- `resources/js/inertia.js` inicializa Vue 3 e resolve as páginas em `resources/js/Pages/`.
+- A criação e a edição de produtos são a primeira migração gradual para Inertia/Vue. Elas preservam as mesmas rotas, validações, Services, autorização e layout administrativo do Laravel.
+- Scripts de checkout, produto, dashboard e pagamentos continuam como entradas Vite próprias e são carregados apenas pelas telas que os utilizam.
 - Pix e boleto compartilham o módulo de consulta de status em `resources/js/payments/shared/`.
 - Componentes Blade encapsulam padrões repetidos, como métricas administrativas, etapas de checkout, formulários de perfil e blocos da página de produto.
 - Código JavaScript é ligado por atributos `data-*`; comportamentos novos não dependem de `onclick` nem de funções globais na view.
@@ -178,7 +184,7 @@ O layout público usa a classe `.store-container`, que ocupa a largura disponív
 
 ### Estrutura das views
 
-As páginas continuam usando `@extends('layouts.admin.app')` e `@section('content')` para compor a tela dentro do layout. Esse padrão define a página, enquanto os componentes Blade são usados apenas para blocos repetidos.
+As páginas Blade continuam usando `@extends('layouts.admin.app')` e `@section('content')` para compor a tela dentro do layout. As páginas Inertia usam `resources/views/admin/inertia.blade.php` como view raiz e mantêm o mesmo layout administrativo. Esse modelo permite migrar telas isoladamente, sem criar uma API paralela nem duplicar autenticação, sessão, CSRF ou regras de negócio.
 
 Componentes administrativos já criados em `resources/views/components/admin/`:
 
@@ -190,7 +196,11 @@ Componentes administrativos já criados em `resources/views/components/admin/`:
 
 As páginas de **Produtos** e **Categorias** já utilizam esses componentes. As páginas públicas usam os componentes em `components/public/` para checkout e perfil, além dos componentes de produto em `components/store/` e `components/public/product/`.
 
-As views administrativas usam `@extends('layouts.admin.app')` e `@section('content')`; as públicas usam os respectivos layouts públicos. Em ambos os casos, novos componentes só devem ser extraídos quando o mesmo bloco tiver uso real em mais de uma tela, sem transformar conteúdo específico em componente desnecessário.
+As views administrativas Blade usam `@extends('layouts.admin.app')` e `@section('content')`; as páginas Vue administrativas são renderizadas pelo Inertia; as públicas usam os respectivos layouts públicos. Em todos os casos, novos componentes só devem ser extraídos quando o mesmo bloco tiver uso real em mais de uma tela, sem transformar conteúdo específico em componente desnecessário.
+
+### Estratégia de evolução da interface
+
+A aplicação permanece um monólito modular Laravel. Inertia/Vue é adotado apenas onde a interatividade traz ganho claro, começando pelo formulário de produtos (pré-visualização de imagens, variações e envio com progresso). Blade e Alpine continuam adequados para páginas simples e para a vitrine existente. Uma separação completa entre front-end e back-end só deve ser considerada quando houver um consumidor externo real da API, como aplicativo móvel ou múltiplos clientes independentes.
 
 ## Páginas legais
 
