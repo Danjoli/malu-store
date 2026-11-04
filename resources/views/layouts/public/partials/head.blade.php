@@ -20,6 +20,8 @@
 
     <title>@yield('title') - Malu Store</title>
 
+    @stack('head')
+
     @vite([
         'resources/css/app.css',
         'resources/js/app.js',

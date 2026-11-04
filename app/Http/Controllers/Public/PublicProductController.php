@@ -6,11 +6,12 @@ use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Support\ProductSizeGuide;
 use Illuminate\Support\Collection;
 
 class PublicProductController extends Controller
 {
-    public function show(Product $product)
+    public function show(Product $product, ProductSizeGuide $sizeGuide)
     {
         $product = Product::with(['images', 'variants', 'category'])
             ->withCount('reviews')
@@ -45,6 +46,14 @@ class PublicProductController extends Controller
             ->take(12)
             ->get();
 
+        $verifiedReviewSummary = $product->reviews()
+            ->where('is_demo', false)
+            ->selectRaw('COUNT(*) as count, AVG(rating) as average')
+            ->first();
+
+        $sizeGuideRows = $sizeGuide->for($product);
+        $modelInformation = $sizeGuide->modelInformation($product);
+
         /** @var Collection<int, OrderItem> $eligibleReviewItems */
         $eligibleReviewItems = collect();
 
@@ -64,6 +73,9 @@ class PublicProductController extends Controller
             'relatedProducts',
             'reviews',
             'eligibleReviewItems',
+            'verifiedReviewSummary',
+            'sizeGuideRows',
+            'modelInformation',
         ));
     }
 

@@ -1,6 +1,13 @@
 import './shipping-calculator';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const sizeGuideDialog = document.querySelector('[data-size-guide-dialog]');
+    document.querySelector('[data-size-guide-open]')?.addEventListener('click', () => sizeGuideDialog?.showModal());
+    sizeGuideDialog?.querySelector('[data-size-guide-close]')?.addEventListener('click', () => sizeGuideDialog.close());
+    sizeGuideDialog?.addEventListener('click', (event) => {
+        if (event.target === sizeGuideDialog) sizeGuideDialog.close();
+    });
+
     const tabs = document.querySelector('[data-product-tabs]');
 
     if (tabs) {
@@ -54,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const variants = JSON.parse(form.dataset.productVariants || '[]');
     const variantInput = form.querySelector('[name="variant_id"]');
     const selectedColorName = form.querySelector('[data-selected-color-name]');
+    const stockMessage = form.querySelector('[data-variant-stock]');
     let color = form.dataset.productInitialColor;
     let size = form.dataset.productInitialSize;
 
@@ -62,6 +70,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (variant) {
             variantInput.value = variant.id;
+            if (stockMessage) {
+                stockMessage.textContent = variant.stock <= 5
+                    ? `Últimas ${variant.stock} unidades nesta combinação.`
+                    : 'Em estoque e pronto para envio.';
+                stockMessage.classList.toggle('font-bold', variant.stock <= 5);
+                stockMessage.classList.toggle('text-[#b44259]', variant.stock <= 5);
+            }
+        } else {
+            variantInput.value = '';
+            if (stockMessage) stockMessage.textContent = 'Selecione outra combinação disponível.';
         }
 
         form.querySelectorAll('[data-product-size]').forEach((button) => {

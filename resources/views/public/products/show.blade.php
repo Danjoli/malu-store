@@ -2,22 +2,78 @@
 
 @section('title', $product->name)
 
+@push('head')
+    <meta name="description" content="{{ Str::limit($product->description, 155) }}">
+    <meta property="og:type" content="product">
+    <meta property="og:title" content="{{ $product->name }} | Malu Store">
+    <meta property="og:description" content="{{ Str::limit($product->description, 180) }}">
+    <meta property="og:url" content="{{ route('product.show', $product) }}">
+    @if ($product->images->isNotEmpty())
+        <meta property="og:image" content="{{ $product->images->first()->url }}">
+    @endif
+    <meta property="product:price:amount" content="{{ $product->price }}">
+    <meta property="product:price:currency" content="BRL">
+
+    @php
+        $structuredProduct = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Product',
+            'name' => $product->name,
+            'description' => $product->description,
+            'sku' => 'MALU-'.$product->id,
+            'brand' => ['@type' => 'Brand', 'name' => 'Malu Store'],
+            'image' => $product->images->map->url->values()->all(),
+            'category' => $product->category?->name,
+            'offers' => [
+                '@type' => 'Offer',
+                'url' => route('product.show', $product),
+                'priceCurrency' => 'BRL',
+                'price' => $product->price,
+                'priceValidUntil' => now()->addYear()->toDateString(),
+                'availability' => $product->variants->sum('stock') > 0
+                    ? 'https://schema.org/InStock'
+                    : 'https://schema.org/OutOfStock',
+                'itemCondition' => 'https://schema.org/NewCondition',
+            ],
+        ];
+
+        if ((int) ($verifiedReviewSummary?->count ?? 0) > 0) {
+            $structuredProduct['aggregateRating'] = [
+                '@type' => 'AggregateRating',
+                'ratingValue' => round((float) $verifiedReviewSummary->average, 1),
+                'reviewCount' => (int) $verifiedReviewSummary->count,
+                'bestRating' => 5,
+                'worstRating' => 1,
+            ];
+        }
+    @endphp
+    <script type="application/ld+json" nonce="{{ Vite::cspNonce() }}">{!! json_encode($structuredProduct, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}</script>
+@endpush
+
 @section('content')
     @php
         $availableVariants = $product->variants->where('stock', '>', 0);
         $stock = $availableVariants->sum('stock');
         $colors = $availableVariants->pluck('color')->filter()->unique();
         $sizes = $availableVariants->pluck('size')->filter()->unique();
+        $variantOptions = $availableVariants
+            ->map(fn ($variant) => [
+                'id' => $variant->id,
+                'color' => $variant->color,
+                'size' => $variant->size,
+                'stock' => $variant->stock,
+            ])
+            ->values();
     @endphp
 
     <div class="store-container py-7 md:py-10">
         {{-- Breadcrumb --}}
-        <div class="mb-6 text-xs text-stone-500">
-            Home <span class="mx-1">›</span>
-            {{ $product->category?->name }}
+        <nav class="mb-6 text-xs text-stone-500" aria-label="Navegação estrutural">
+            <a href="{{ route('home') }}" class="hover:underline">Home</a> <span class="mx-1">›</span>
+            <a href="{{ route('catalog.index', ['category' => $product->category?->slug]) }}" class="hover:underline">{{ $product->category?->name }}</a>
             <span class="mx-1">›</span>
-            {{ $product->name }}
-        </div>
+            <span aria-current="page">{{ $product->name }}</span>
+        </nav>
 
         <div class="grid gap-9 lg:grid-cols-[1.05fr_.95fr] lg:gap-12">
             {{-- Galeria --}}
@@ -89,7 +145,7 @@
                     method="POST"
                     class="mt-6"
                     data-product-variant-form
-                    data-product-variants='@json($availableVariants->map(fn ($variant) => ["id" => $variant->id, "color" => $variant->color, "size" => $variant->size])->values())'
+                    data-product-variants='@json($variantOptions)'
                     data-product-initial-color="{{ $colors->first() }}"
                     data-product-initial-size="{{ $sizes->first() }}"
                 >
@@ -147,9 +203,12 @@
                         value="{{ $availableVariants->first()?->id }}"
                     >
 
-                    <a href="#descricao" class="text-xs font-semibold underline underline-offset-4">
+                    <button type="button" data-size-guide-open class="text-xs font-semibold underline underline-offset-4">
                         Guia de medidas
-                    </a>
+                    </button>
+
+                    <p class="mt-3 text-xs text-stone-500" data-variant-stock aria-live="polite"></p>
+                    <p class="mt-2 text-[11px] leading-5 text-stone-500">{{ $modelInformation }}</p>
 
                     {{-- Estimativa antes da compra; a opção final é escolhida no checkout. --}}
                     <section
@@ -214,6 +273,13 @@
                         </button>
                     @endif
 
+                    <div class="mt-4 grid gap-2 text-[11px] text-stone-600 sm:grid-cols-2">
+                        <p class="rounded-md border border-[var(--store-border)] px-3 py-2">✓ Postagem em até 2 dias úteis</p>
+                        <p class="rounded-md border border-[var(--store-border)] px-3 py-2">✓ Troca fácil em até 7 dias</p>
+                        <p class="rounded-md border border-[var(--store-border)] px-3 py-2">✓ Pagamento processado com segurança</p>
+                        <p class="rounded-md border border-[var(--store-border)] px-3 py-2">✓ Atendimento humano via WhatsApp</p>
+                    </div>
+
                     @auth
                         @php
                             $isFavorite = $product
@@ -251,6 +317,35 @@
                 @endauth
             </div>
         </div>
+
+        <dialog data-size-guide-dialog class="m-auto w-[min(92vw,680px)] rounded-xl border border-[var(--store-border)] bg-[var(--store-surface)] p-0 text-[var(--store-text)] shadow-2xl backdrop:bg-black/60">
+            <div class="flex items-start justify-between border-b border-[var(--store-border)] p-5">
+                <div>
+                    <h2 class="store-title text-3xl">Guia de medidas</h2>
+                    <p class="mt-1 text-xs text-stone-500">Medidas corporais aproximadas em centímetros.</p>
+                </div>
+                <button type="button" data-size-guide-close class="rounded-full border border-[var(--store-border)] px-3 py-1.5" aria-label="Fechar guia de medidas">×</button>
+            </div>
+            <div class="p-5">
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[480px] text-left text-xs">
+                        <thead class="bg-[var(--store-surface-soft)] text-[var(--store-text)]">
+                            <tr><th class="p-3">Tamanho</th><th class="p-3">Busto</th><th class="p-3">Cintura</th><th class="p-3">Quadril</th></tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($sizeGuideRows as $row)
+                                <tr class="border-b border-[var(--store-border)]"><th class="p-3">{{ $row['size'] }}</th><td class="p-3">{{ $row['bust'] }}</td><td class="p-3">{{ $row['waist'] }}</td><td class="p-3">{{ $row['hip'] }}</td></tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-5 space-y-2 text-xs leading-5 text-stone-600">
+                    <p><strong>Como medir:</strong> mantenha a fita paralela ao chão, sem apertar o corpo.</p>
+                    <p><strong>Dúvida entre dois tamanhos?</strong> Prefira o maior para um caimento mais confortável.</p>
+                    <p class="text-[11px] text-stone-500">Tabela provisória. As medidas da peça podem variar até 2 cm conforme o lote e a modelagem.</p>
+                </div>
+            </div>
+        </dialog>
 
         <x-public.product.benefits />
         <x-public.product.details
