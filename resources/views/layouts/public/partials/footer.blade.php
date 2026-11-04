@@ -1,7 +1,7 @@
 <footer class="store-panel mt-20 border-t">
     <div class="store-container grid gap-8 py-[clamp(2.5rem,4vw,5rem)] text-[clamp(0.75rem,0.82vw,1rem)] text-stone-600 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-            <h3 class="store-title mb-3 text-[clamp(1.6rem,2vw,3rem)] font-semibold tracking-[-.06em] text-stone-900">
+            <h3 class="store-brand mb-3 text-[clamp(1.3rem,1.7vw,2.4rem)] text-stone-900">
                 MALU <span class="font-semibold text-[var(--store-accent)]">STORE</span>
             </h3>
 

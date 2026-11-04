@@ -5,7 +5,7 @@
 
 <body
     x-data="adminLayout"
-    class="bg-[#f8f3f1] font-sans text-[#2d2928]"
+    class="admin-shell bg-[#faf6f2] font-sans text-[#2a2224] antialiased"
 >
     <div class="flex min-h-screen">
         @include('layouts.admin.partials.sidebar')

@@ -7,7 +7,7 @@
     <header class="store-header border-b px-5 py-4 text-center">
         <a
             href="{{ route('home') }}"
-            class="store-title text-2xl font-semibold tracking-[0.04em]"
+            class="store-brand text-2xl"
         >
             MALU STORE
         </a>

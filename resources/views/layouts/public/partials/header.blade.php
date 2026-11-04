@@ -27,10 +27,10 @@
             href="{{ route('home') }}"
             class="absolute left-1/2 flex shrink-0 -translate-x-1/2 items-center gap-2.5 text-stone-900 md:static md:translate-x-0"
         >
-            <span class="store-title flex h-9 w-9 items-center justify-center rounded-full bg-[var(--store-accent)] text-sm font-semibold tracking-[-.08em] text-[var(--store-accent-contrast)] shadow-sm">
+            <span class="store-brand flex h-9 w-9 items-center justify-center rounded-full bg-[var(--store-accent)] text-sm text-[var(--store-accent-contrast)] shadow-sm">
                 MS
             </span>
-            <span class="store-title hidden text-[clamp(1.1rem,1.35vw,1.65rem)] font-semibold tracking-[-.06em] sm:inline">
+            <span class="store-brand hidden text-[clamp(1.1rem,1.35vw,1.65rem)] sm:inline">
                 MALU <span class="font-semibold text-[var(--store-accent)]">STORE</span>
             </span>
         </a>

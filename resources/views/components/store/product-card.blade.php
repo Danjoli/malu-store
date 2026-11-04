@@ -38,11 +38,11 @@
         </div>
 
         <div class="p-4">
-            <h3 class="min-h-10 text-sm font-medium text-stone-800">
+            <h3 class="store-title min-h-10 text-xl text-stone-800">
                 {{ $product->name }}
             </h3>
 
-            <p class="mt-2 text-base font-bold text-stone-900">
+            <p class="store-price mt-2 text-base font-bold text-stone-900">
                 R$ {{ number_format($product->price, 2, ',', '.') }}
             </p>
 
