@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\Catalog\ProductController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ClientController;
+use App\Http\Controllers\Admin\OperationsController;
+use App\Http\Controllers\Admin\StoreSettingController;
 use Illuminate\Support\Facades\Route;
 
 $superAdmin = AdminRole::SuperAdmin->value;
@@ -37,3 +39,15 @@ Route::resource('products', ProductController::class)
 Route::put('products/{product}/images', [ProductController::class, 'updateImages'])
     ->middleware($managementRoles)
     ->name('products.images.update');
+
+Route::get('operacao', [OperationsController::class, 'index'])
+    ->middleware($managementRoles)
+    ->name('operations.index');
+
+Route::get('configuracoes', [StoreSettingController::class, 'edit'])
+    ->middleware("admin.role:{$superAdmin}")
+    ->name('settings.edit');
+
+Route::put('configuracoes', [StoreSettingController::class, 'update'])
+    ->middleware("admin.role:{$superAdmin}")
+    ->name('settings.update');

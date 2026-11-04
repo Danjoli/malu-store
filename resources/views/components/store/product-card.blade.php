@@ -47,7 +47,7 @@
             </p>
 
             <p class="mt-1 text-xs text-stone-500">
-                3x de R$ {{ number_format($product->price / 3, 2, ',', '.') }}
+                {{ \App\Models\StoreSetting::current()->max_installments }}x de R$ {{ number_format($product->price / \App\Models\StoreSetting::current()->max_installments, 2, ',', '.') }}
             </p>
         </div>
     </a>

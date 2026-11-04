@@ -96,7 +96,7 @@
             </p>
 
             <p class="mt-2 text-xs text-[#857b78]">
-                Produtos com até 5 unidades
+                Produtos com até {{ $lowStockThreshold }} unidades
             </p>
         </a>
     </div>

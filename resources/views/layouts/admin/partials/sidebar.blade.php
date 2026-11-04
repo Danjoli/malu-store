@@ -48,27 +48,29 @@
                     <a
                         @click="adminMenuOpen = false"
                         href="{{ route('admin.clients.index') }}"
-                        class="block rounded-xl px-3 py-2.5 text-[#ded2cf] transition hover:bg-white/10 hover:text-white"
+                        class="block rounded-xl px-3 py-2.5 transition {{ request()->routeIs('admin.clients.*') ? 'bg-[#cf7184] text-white shadow-[0_6px_16px_rgba(207,113,132,0.25)]' : 'text-[#ded2cf] hover:bg-white/10 hover:text-white' }}"
                     >
                         Clientes
                     </a>
                 </li>
 
-                <li>
-                    <a
-                        @click="adminMenuOpen = false"
-                        href="{{ route('admin.admins.index') }}"
-                        class="block rounded-xl px-3 py-2.5 text-[#ded2cf] transition hover:bg-white/10 hover:text-white"
-                    >
-                        Admins
-                    </a>
-                </li>
+                @if (Auth::guard('admin')->user()->role === \App\Enums\AdminRole::SuperAdmin)
+                    <li>
+                        <a
+                            @click="adminMenuOpen = false"
+                            href="{{ route('admin.admins.index') }}"
+                            class="block rounded-xl px-3 py-2.5 transition {{ request()->routeIs('admin.admins.*') ? 'bg-[#cf7184] text-white shadow-[0_6px_16px_rgba(207,113,132,0.25)]' : 'text-[#ded2cf] hover:bg-white/10 hover:text-white' }}"
+                        >
+                            Admins
+                        </a>
+                    </li>
+                @endif
 
                 <li>
                     <a
                         @click="adminMenuOpen = false"
                         href="{{ route('admin.categories.index') }}"
-                        class="block rounded-xl px-3 py-2.5 text-[#ded2cf] transition hover:bg-white/10 hover:text-white"
+                        class="block rounded-xl px-3 py-2.5 transition {{ request()->routeIs('admin.categories.*') ? 'bg-[#cf7184] text-white shadow-[0_6px_16px_rgba(207,113,132,0.25)]' : 'text-[#ded2cf] hover:bg-white/10 hover:text-white' }}"
                     >
                         Categorias
                     </a>
@@ -98,12 +100,31 @@
                     <a
                         @click="adminMenuOpen = false"
                         href="{{ route('admin.shipments.index') }}"
-                        class="block rounded-xl px-3 py-2.5 text-[#ded2cf] transition hover:bg-white/10 hover:text-white"
+                        class="block rounded-xl px-3 py-2.5 transition {{ request()->routeIs('admin.shipments.*') ? 'bg-[#cf7184] text-white shadow-[0_6px_16px_rgba(207,113,132,0.25)]' : 'text-[#ded2cf] hover:bg-white/10 hover:text-white' }}"
                     >
                         Envios
                     </a>
                 </li>
+
+                <li>
+                    <a
+                        @click="adminMenuOpen = false"
+                        href="{{ route('admin.operations.index') }}"
+                        class="block rounded-xl px-3 py-2.5 transition {{ request()->routeIs('admin.operations.*') ? 'bg-[#cf7184] text-white shadow-[0_6px_16px_rgba(207,113,132,0.25)]' : 'text-[#ded2cf] hover:bg-white/10 hover:text-white' }}"
+                    >
+                        Central operacional
+                    </a>
+                </li>
             </ul>
+
+            @if (Auth::guard('admin')->user()->role === \App\Enums\AdminRole::SuperAdmin)
+                <p class="mb-3 mt-6 px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-[#a99b98]">Sistema</p>
+                <ul class="space-y-1 text-sm font-semibold">
+                    <li>
+                        <a @click="adminMenuOpen = false" href="{{ route('admin.settings.edit') }}" class="block rounded-xl px-3 py-2.5 transition {{ request()->routeIs('admin.settings.*') ? 'bg-[#cf7184] text-white shadow-[0_6px_16px_rgba(207,113,132,0.25)]' : 'text-[#ded2cf] hover:bg-white/10 hover:text-white' }}">Configurações</a>
+                    </li>
+                </ul>
+            @endif
         </nav>
     </div>
 

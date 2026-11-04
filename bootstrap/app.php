@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\AdminRole;
 use App\Http\Middleware\EnsureAdminIsActive;
+use App\Http\Middleware\EnsureStorefrontIsEnabled;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\LimitWebhookPayload;
 use App\Http\Middleware\ProtectStagingEnvironment;
@@ -44,6 +45,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->appendToGroup('web', SecurityHeaders::class);
         $middleware->appendToGroup('web', HandleInertiaRequests::class);
         $middleware->appendToGroup('web', ProtectStagingEnvironment::class);
+        $middleware->appendToGroup('web', EnsureStorefrontIsEnabled::class);
         $middleware->appendToGroup('api', RequestId::class);
         $middleware->appendToGroup('api', SecurityHeaders::class);
     })

@@ -7,6 +7,7 @@ use App\Enums\ShipmentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\StoreSetting;
 use App\Models\User;
 
 class DashboardController extends Controller
@@ -33,7 +34,8 @@ class DashboardController extends Controller
 
         $pendingOrders = Order::whereIn('status', [OrderStatus::Pending->value, OrderStatus::PendingPayment->value])->count();
         $paidOrders = Order::where('status', OrderStatus::Paid->value)->count();
-        $lowStockProducts = Product::whereHas('variants', fn ($query) => $query->where('stock', '<=', 5))->count();
+        $lowStockThreshold = (int) (StoreSetting::current()->low_stock_threshold ?? 5);
+        $lowStockProducts = Product::whereHas('variants', fn ($query) => $query->where('stock', '<=', $lowStockThreshold))->count();
 
         // Vendas mensais (últimos 12 meses)
         $salesData = Order::query()
@@ -68,7 +70,8 @@ class DashboardController extends Controller
             'lowStockProducts',
             'sales',
             'months',
-            'recentOrders'
+            'recentOrders',
+            'lowStockThreshold'
         ));
     }
 }
