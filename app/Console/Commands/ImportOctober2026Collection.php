@@ -4,8 +4,11 @@ namespace App\Console\Commands;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ProductReview;
+use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class ImportOctober2026Collection extends Command
@@ -27,6 +30,7 @@ class ImportOctober2026Collection extends Command
 
         foreach ($this->catalog() as $item) {
             DB::transaction(function () use ($item, $assetDirectory, $disk): void {
+                $content = $this->productContent()[$item['slug']];
                 $category = Category::query()->firstOrCreate(
                     ['slug' => $item['category_slug']],
                     ['name' => $item['category']],
@@ -38,6 +42,8 @@ class ImportOctober2026Collection extends Command
                         'category_id' => $category->id,
                         'name' => $item['name'],
                         'description' => $item['description'],
+                        'details' => $content['details'],
+                        'composition' => $content['composition'],
                         'price' => $item['price'],
                         'active' => true,
                     ],
@@ -81,6 +87,8 @@ class ImportOctober2026Collection extends Command
             $this->line("Importado: {$item['name']}");
         }
 
+        $this->seedDemoReviews();
+
         $this->info(count($this->catalog()).' produtos da coleção importados com sucesso.');
 
         return self::SUCCESS;
@@ -118,5 +126,80 @@ class ImportOctober2026Collection extends Command
             ['slug' => 'conjunto-iris', 'name' => 'Conjunto Íris', 'category' => 'Conjuntos', 'category_slug' => 'conjuntos', 'price' => '99.90', 'description' => 'Conjunto feminino em tecido sensorial, composto por colete de alfaiataria sem mangas com fechamento frontal e calça de cintura alta. Uma combinação moderna, confortável e elegante para diferentes ocasiões.', 'images' => ['conjunto-iris-azul-claro-portrait.webp', 'conjunto-iris-preto-portrait.webp', 'conjunto-iris-bordo-portrait.webp', 'conjunto-iris-verde-menta-portrait.webp', 'conjunto-iris-rosa-portrait.webp'], 'variants' => $grades(['Azul Claro', 'Preto', 'Bordô', 'Verde Menta', 'Rosa'], ['M', 'G'])],
             ['slug' => 'conjunto-zara', 'name' => 'Conjunto Zara', 'category' => 'Conjuntos', 'category_slug' => 'conjuntos', 'price' => '109.90', 'description' => 'Conjunto feminino em linho com elastano, composto por blusa cropped de mangas curtas e calça pantalona de cintura alta. O caimento amplo combina conforto, frescor e elegância para diferentes ocasiões.', 'images' => ['conjunto-zara-azul-petroleo-portrait.webp', 'conjunto-zara-bordo-portrait.webp', 'conjunto-zara-marrom-portrait.webp', 'conjunto-zara-azul-marinho-portrait.webp', 'conjunto-zara-amarelo-portrait.webp', 'conjunto-zara-vermelho-portrait.webp', 'conjunto-zara-rosa-portrait.webp', 'conjunto-zara-natural-portrait.webp', 'conjunto-zara-azul-claro-portrait.webp', 'conjunto-zara-verde-menta-portrait.webp'], 'variants' => $grades(['Azul Petróleo', 'Bordô', 'Marrom', 'Azul Marinho', 'Amarelo', 'Vermelho', 'Rosa', 'Natural', 'Azul Claro', 'Verde Menta'])],
         ];
+    }
+
+    /** @return array<string, array{details: string, composition: string}> */
+    private function productContent(): array
+    {
+        $labelNotice = 'Os percentuais exatos podem variar conforme o lote. Confira a etiqueta interna da peça antes da lavagem.';
+
+        return [
+            'conjunto-pantalona-essenza' => ['details' => 'Conjunto de duas peças. Camisa curta com gola, mangas curtas e fechamento frontal por botões. Calça pantalona de cintura alta, cós confortável e pernas amplas.', 'composition' => "Tecido plano de toque leve. {$labelNotice}"],
+            'conjunto-listrado-riviera' => ['details' => 'Conjunto coordenado de três peças: cropped, camisa alongada e calça pantalona. As listras verticais e a modelagem ampla alongam visualmente a silhueta.', 'composition' => "Tecido plano listrado, leve e sem transparência aparente. {$labelNotice}"],
+            'camisa-aurora' => ['details' => 'Camisa de modelagem solta, gola clássica, mangas longas com punhos e fechamento frontal por botões. Comprimento versátil para usar por dentro ou por fora da parte de baixo.', 'composition' => "Tecido plano leve e de caimento fluido. {$labelNotice}"],
+            'conjunto-saia-lumiere' => ['details' => 'Conjunto com camisa cropped de amarração frontal e saia longa de cintura alta. A saia possui caimento amplo e fenda lateral para facilitar os movimentos.', 'composition' => "Tecido leve, macio e fluido. {$labelNotice}"],
+            'saia-longa-poa-solar' => ['details' => 'Saia longa de cintura alta, bolsos laterais e recorte franzido próximo à barra. Modelagem evasê com bastante movimento.', 'composition' => "Tecido plano estampado de toque leve. {$labelNotice}"],
+            'conjunto-tropical-brisa' => ['details' => 'Conjunto de cropped com alças finas e calça pantalona de cintura alta. Modelagem ampla e estampa de folhagens em destaque.', 'composition' => "Tecido plano estampado, leve e fluido. {$labelNotice}"],
+            'conjunto-cetim-champagne' => ['details' => 'Conjunto de cropped com alças e amarração nas costas, acompanhado de saia longa de cintura alta. Superfície acetinada com brilho delicado.', 'composition' => "Tecido de aspecto acetinado e toque macio. {$labelNotice}"],
+            'saia-longa-folhagem' => ['details' => 'Saia longa de cintura alta, caimento evasê e sobreposição frontal com efeito transpassado. Estampa de folhagens em diferentes combinações de cores.', 'composition' => "Tecido plano estampado, leve e fluido. {$labelNotice}"],
+            'conjunto-pantalona-belle' => ['details' => 'Conjunto monocromático com camisa de modelagem ampla e calça pantalona de cintura alta. Caimento solto para uma produção elegante e confortável.', 'composition' => "Tecido plano leve, com caimento fluido. {$labelNotice}"],
+            'camisa-ampla-nuvem' => ['details' => 'Camisa alongada de modelagem ampla, gola clássica, mangas três quartos com punhos largos e fechamento frontal por botões.', 'composition' => "Tecido plano leve em tonalidade branca. {$labelNotice}"],
+            'conjunto-pantalona-manteiga' => ['details' => 'Conjunto com camisa de mangas ajustáveis e calça pantalona de cintura alta. Modelagem elegante em tonalidade amarelo-manteiga.', 'composition' => "Tecido plano leve e de caimento confortável. {$labelNotice}"],
+            'saia-longa-horizonte' => ['details' => 'Saia longa de cintura alta e modelagem evasê. O corte amplo oferece movimento e facilita combinações com blusas lisas ou estampadas.', 'composition' => "Tecido plano de caimento encorpado e confortável. {$labelNotice}"],
+            'saia-envelope-rose' => ['details' => 'Saia longa de cintura alta, sobreposição frontal e barra assimétrica com efeito envelope. Modelagem fluida e feminina.', 'composition' => "Tecido plano leve e com bom movimento. {$labelNotice}"],
+            'saia-longa-jardim-azul' => ['details' => 'Saia longa de cintura alta, corte evasê e estampa floral delicada. Modelagem ampla para acompanhar os movimentos.', 'composition' => "Tecido plano estampado de toque leve. {$labelNotice}"],
+            'macaquinho-listrado-serena' => ['details' => 'Macaquinho de alças, cintura marcada e shorts de comprimento curto, acompanhado de terceira peça ampla coordenada.', 'composition' => "Tecido plano listrado e leve. {$labelNotice}"],
+            'conjunto-tres-pecas-alva' => ['details' => 'Conjunto de três peças composto por cropped, shorts de alfaiataria com bolsos e terceira peça alongada. Modelagem fresca e coordenada.', 'composition' => "Tecido plano de aspecto natural e toque leve. {$labelNotice}"],
+            'conjunto-sandy' => ['details' => 'Conjunto de duas peças. Camisa de manga longa com gola, fechamento frontal por botões e bolso aplicado. Calça pantalona de cintura alta, cós com passantes e pernas amplas.', 'composition' => "Tecido plano de alfaiataria leve. O fornecedor não informou os percentuais da fibra. {$labelNotice}"],
+            'conjunto-maite' => ['details' => 'Conjunto de duas peças. Blusa transpassada de mangas longas, decote em V e amarração lateral ajustável. Calça pantalona de cintura alta e pernas amplas.', 'composition' => "Tecido plano de toque macio e caimento fluido. O fornecedor não informou os percentuais da fibra. {$labelNotice}"],
+            'conjunto-lorena' => ['details' => 'Conjunto de duas peças. Regata de alças finas e decote reto, acompanhada de calça de cintura alta, comprimento cropped, bolsos e cinto faixa removível.', 'composition' => "Linho com elastano, conforme informação do fornecedor. {$labelNotice}"],
+            'conjunto-stella' => ['details' => 'Conjunto de duas peças. Camisa de mangas longas com fechamento frontal por botões e shorts de cintura alta com bolsos laterais.', 'composition' => "Linho com elastano, conforme informação do fornecedor. {$labelNotice}"],
+            'vestido-agata' => ['details' => 'Vestido curto de um ombro só, com manga longa ampla no lado coberto, faixa removível para marcar a cintura e saia em duas camadas.', 'composition' => "Tecido leve e fluido, com camada externa de aparência delicada. O fornecedor não informou os percentuais da fibra. {$labelNotice}"],
+            'conjunto-iris' => ['details' => 'Conjunto de duas peças. Colete sem mangas com decote em V e fechamento frontal por botões, acompanhado de calça de cintura alta e corte reto.', 'composition' => "Tecido sensorial, conforme informação do fornecedor. Os percentuais da fibra não foram informados. {$labelNotice}"],
+            'conjunto-zara' => ['details' => 'Conjunto de duas peças. Blusa cropped de mangas curtas e decote redondo, acompanhada de calça pantalona de cintura alta e pernas amplas.', 'composition' => "Linho com elastano, conforme informação do fornecedor. {$labelNotice}"],
+        ];
+    }
+
+    private function seedDemoReviews(): void
+    {
+        $reviewers = [
+            'ana' => User::query()->firstOrCreate(
+                ['email' => 'avaliacao.ana@example.invalid'],
+                ['name' => 'Ana (demonstração)', 'password' => Hash::make(str()->random(40))],
+            ),
+            'beatriz' => User::query()->firstOrCreate(
+                ['email' => 'avaliacao.beatriz@example.invalid'],
+                ['name' => 'Beatriz (demonstração)', 'password' => Hash::make(str()->random(40))],
+            ),
+            'carla' => User::query()->firstOrCreate(
+                ['email' => 'avaliacao.carla@example.invalid'],
+                ['name' => 'Carla (demonstração)', 'password' => Hash::make(str()->random(40))],
+            ),
+        ];
+
+        $reviews = [
+            ['conjunto-sandy', 'ana', 5, 'Elegante e versátil', 'A modelagem pantalona deixou o conjunto elegante, e a camisa combina facilmente com outras peças.'],
+            ['conjunto-sandy', 'beatriz', 4, 'Bom caimento', 'Gostei do caimento mais amplo da calça e do acabamento da camisa. A tabela de medidas ajudou na escolha.'],
+            ['conjunto-maite', 'carla', 5, 'Modelagem muito bonita', 'A blusa transpassada valoriza a cintura e a amarração lateral permite ajustar melhor ao corpo.'],
+            ['conjunto-maite', 'ana', 4, 'Confortável para ocasiões especiais', 'O conjunto tem aparência sofisticada e a calça ampla ficou confortável durante o uso.'],
+            ['conjunto-lorena', 'beatriz', 5, 'Leve e confortável', 'O tecido é leve e o cinto faixa ajuda a ajustar a cintura. Gostei bastante dos bolsos.'],
+            ['conjunto-stella', 'carla', 4, 'Ótimo para dias quentes', 'O shorts tem um comprimento confortável e a camisa permite usar as mangas dobradas.'],
+            ['vestido-agata', 'ana', 5, 'Vestido delicado', 'A manga de um ombro só e as camadas da saia deixam o vestido bonito e com bastante movimento.'],
+            ['conjunto-iris', 'beatriz', 5, 'Visual moderno', 'O colete veste bem e também funciona separado da calça. O conjunto ficou moderno e arrumado.'],
+            ['conjunto-iris', 'carla', 4, 'Boa combinação', 'Gostei do corte da calça e do fechamento do colete. As duas peças são fáceis de combinar.'],
+            ['conjunto-zara', 'ana', 5, 'Confortável e elegante', 'A calça pantalona tem bom movimento e a blusa cropped equilibra bem a proporção do conjunto.'],
+        ];
+
+        foreach ($reviews as [$slug, $reviewer, $rating, $title, $comment]) {
+            $product = Product::query()->where('slug', $slug)->firstOrFail();
+            $user = $reviewers[$reviewer];
+
+            ProductReview::query()->updateOrCreate(
+                ['product_id' => $product->id, 'user_id' => $user->id, 'is_demo' => true],
+                ['order_item_id' => null, 'rating' => $rating, 'title' => $title, 'comment' => $comment],
+            );
+        }
+
+        $this->line(count($reviews).' avaliações demonstrativas atualizadas.');
     }
 }

@@ -44,7 +44,7 @@
                                 ☆☆☆☆☆
                             @endif
                         </p>
-                        <p class="text-xs text-stone-500">Baseado em {{ $product->reviews_count }} {{ $product->reviews_count === 1 ? 'avaliação verificada' : 'avaliações verificadas' }}</p>
+                        <p class="text-xs text-stone-500">Baseado em {{ $product->reviews_count }} {{ $product->reviews_count === 1 ? 'avaliação' : 'avaliações' }}</p>
                     </div>
                 </div>
 
@@ -58,7 +58,14 @@
                             <time class="text-[11px] text-stone-400" datetime="{{ $review->created_at->toDateString() }}">{{ $review->created_at->format('d/m/Y') }}</time>
                         </div>
                         <p class="mt-3 text-xs leading-6 text-stone-600">{{ $review->comment }}</p>
-                        <p class="mt-3 text-[11px] font-semibold text-stone-500">{{ Str::before($review->user->name, ' ') }} · <span class="text-emerald-700">Compra verificada</span></p>
+                        <p class="mt-3 text-[11px] font-semibold text-stone-500">
+                            {{ Str::before($review->user->name, ' ') }} ·
+                            @if ($review->is_demo)
+                                <span class="text-amber-700">Avaliação demonstrativa</span>
+                            @else
+                                <span class="text-emerald-700">Compra verificada</span>
+                            @endif
+                        </p>
                     </article>
                 @empty
                     <div class="rounded-lg border border-dashed border-[#d9cecb] p-6 text-center">
