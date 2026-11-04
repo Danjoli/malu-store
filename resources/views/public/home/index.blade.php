@@ -187,7 +187,7 @@
 
             <div>
                 <p class="text-xl text-[var(--store-sage)]">▤</p>
-                <p class="mt-1 text-[10px] font-bold uppercase tracking-wider">Parcele em até 6x</p>
+                <p class="mt-1 text-[10px] font-bold uppercase tracking-wider">Parcele em até {{ \App\Models\StoreSetting::current()->max_installments }}x</p>
                 <p class="text-[10px] text-stone-500">sem juros no cartão</p>
             </div>
         </div>

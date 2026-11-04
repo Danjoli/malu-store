@@ -133,7 +133,7 @@
                 </p>
 
                 <p class="mt-1 text-xs text-stone-600">
-                    3x de R$ {{ number_format($product->price / 3, 2, ',', '.') }} sem juros
+                    {{ \App\Models\StoreSetting::current()->max_installments }}x de R$ {{ number_format($product->price / \App\Models\StoreSetting::current()->max_installments, 2, ',', '.') }} sem juros
                 </p>
 
                 <p class="mt-6 max-w-md text-sm leading-6 text-stone-600">

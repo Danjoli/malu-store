@@ -1,3 +1,5 @@
+@php($storeSettings = \App\Models\StoreSetting::current())
+
 <footer class="store-panel mt-20 border-t">
     <div class="store-container grid gap-8 py-[clamp(2.5rem,4vw,5rem)] text-[clamp(0.75rem,0.82vw,1rem)] text-stone-600 sm:grid-cols-2 lg:grid-cols-4">
         <div>
@@ -42,17 +44,17 @@
             </h3>
 
             <p>
-                Email: elinealvesdelima5@gmail.com
+                Email: {{ $storeSettings->support_email ?: config('mail.from.address') }}
             </p>
 
             <p>
                 WhatsApp:
                 <a
-                    href="https://wa.me/5511931494708?text=Olá,%20gostaria%20de%20mais%20informações"
+                    href="https://wa.me/{{ preg_replace('/\D+/', '', $storeSettings->whatsapp ?: '5511931494708') }}?text=Olá,%20gostaria%20de%20mais%20informações"
                     class="text-[#bd5564] hover:underline"
                     target="_blank"
                 >
-                    (11) 93149-4708
+                    {{ $storeSettings->whatsapp ?: '(11) 93149-4708' }}
                 </a>
             </p>
         </div>

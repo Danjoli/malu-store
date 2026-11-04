@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Models\Shipment;
+use App\Models\StoreSetting;
 use App\Models\User;
 use App\Observers\AdminAuditObserver;
 use App\Observers\CatalogRelationObserver;
@@ -40,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
         Product::observe(AdminAuditObserver::class);
         ProductVariant::observe(AdminAuditObserver::class);
         Shipment::observe(AdminAuditObserver::class);
+        StoreSetting::observe(AdminAuditObserver::class);
 
         RateLimiter::for('checkout', fn (Request $request) => Limit::perMinute(10)
             ->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
