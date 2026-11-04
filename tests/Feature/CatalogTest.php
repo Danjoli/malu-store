@@ -72,6 +72,48 @@ class CatalogTest extends TestCase
             ->assertDontSee($unavailable->name);
     }
 
+    public function test_catalog_accepts_multiple_colors_and_sizes_from_available_stock(): void
+    {
+        $category = Category::factory()->create();
+        $blue = Product::factory()->for($category)->create(['name' => 'Conjunto Azul']);
+        ProductVariant::factory()->for($blue)->create(['color' => 'Azul', 'size' => 'M', 'stock' => 2]);
+        $rose = Product::factory()->for($category)->create(['name' => 'Conjunto Rosé']);
+        ProductVariant::factory()->for($rose)->create(['color' => 'Rosé', 'size' => 'G', 'stock' => 2]);
+        $black = Product::factory()->for($category)->create(['name' => 'Conjunto Preto']);
+        ProductVariant::factory()->for($black)->create(['color' => 'Preto', 'size' => 'GG', 'stock' => 2]);
+
+        $this->get(route('catalog.index', [
+            'color' => ['Azul', 'Rosé'],
+            'size' => ['M', 'G'],
+        ]))
+            ->assertOk()
+            ->assertSee($blue->name)
+            ->assertSee($rose->name)
+            ->assertDontSee($black->name)
+            ->assertSee('data-catalog-form', false)
+            ->assertSee('data-catalog-live-input', false);
+    }
+
+    public function test_catalog_searches_product_description_and_exposes_only_real_stock_filters(): void
+    {
+        $category = Category::factory()->create();
+        $product = Product::factory()->for($category)->create([
+            'name' => 'Peça Serena',
+            'description' => 'Tecido fluido para eventos especiais.',
+        ]);
+        ProductVariant::factory()->for($product)->create(['color' => 'Verde Menta', 'size' => 'G', 'stock' => 2]);
+        $unavailable = Product::factory()->for($category)->create(['name' => 'Peça sem estoque']);
+        ProductVariant::factory()->for($unavailable)->create(['color' => 'Laranja', 'size' => 'PP', 'stock' => 0]);
+
+        $this->get(route('catalog.index', ['search' => 'eventos especiais']))
+            ->assertOk()
+            ->assertSee($product->name)
+            ->assertSee('Verde Menta')
+            ->assertSee('value="G"', false)
+            ->assertDontSee('Laranja')
+            ->assertDontSee('value="PP"', false);
+    }
+
     public function test_catalog_sidebar_only_lists_categories_with_available_products(): void
     {
         $available = Category::factory()->create(['name' => 'Categoria Disponível']);

@@ -68,19 +68,22 @@ class Product extends Model
      * @param  Builder<Product>  $query
      * @return Builder<Product>
      */
-    public function scopeInStock(Builder $query, ?string $color = null, ?string $size = null): Builder
+    public function scopeInStock(Builder $query, string|array|null $color = null, string|array|null $size = null): Builder
     {
         $conditions = ['pv.product_id = products.id'];
         $bindings = [];
 
-        if ($color !== null && $color !== '') {
-            $conditions[] = 'pv.color = ?';
-            $bindings[] = $color;
+        $colors = array_values(array_filter((array) $color, fn ($value) => is_string($value) && $value !== ''));
+        $sizes = array_values(array_filter((array) $size, fn ($value) => is_string($value) && $value !== ''));
+
+        if ($colors !== []) {
+            $conditions[] = 'pv.color IN ('.implode(', ', array_fill(0, count($colors), '?')).')';
+            array_push($bindings, ...$colors);
         }
 
-        if ($size !== null && $size !== '') {
-            $conditions[] = 'pv.size = ?';
-            $bindings[] = $size;
+        if ($sizes !== []) {
+            $conditions[] = 'pv.size IN ('.implode(', ', array_fill(0, count($sizes), '?')).')';
+            array_push($bindings, ...$sizes);
         }
 
         return $query->whereRaw(

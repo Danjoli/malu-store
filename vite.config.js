@@ -14,6 +14,7 @@ export default defineConfig({
                 'resources/js/dashboard/index.js',
                 'resources/js/admin/products/form.js',
                 'resources/js/products/show.js',
+                'resources/js/catalog/index.js',
                 'resources/js/payments/pix/index.js',
                 'resources/js/payments/boleto/index.js',
             ],
