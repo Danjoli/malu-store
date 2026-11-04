@@ -224,4 +224,14 @@ test('administrador entra e consulta pedidos fictícios', async ({ page }) => {
     await page.goto('/admin/orders');
     await expect(page.getByRole('heading', { name: /Pedidos/ })).toBeVisible();
     await expect(page.getByRole('cell', { name: 'test', exact: true }).first()).toBeVisible();
+
+    const search = page.getByPlaceholder('Nº, cliente ou e-mail');
+    await search.fill('cliente-inexistente');
+    await expect(page).toHaveURL(/q=cliente-inexistente/);
+    await expect(page.getByText('Nenhum pedido encontrado.')).toBeVisible();
+
+    await search.fill('test');
+    await expect(page).toHaveURL(/q=test/);
+    await expect(page.getByRole('cell', { name: 'test', exact: true }).first()).toBeVisible();
+    await expect(search).toBeFocused();
 });

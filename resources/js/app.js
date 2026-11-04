@@ -1,4 +1,5 @@
 import './bootstrap';
+import './admin/live-filters';
 
 import Alpine from '@alpinejs/csp';
 import Swal from 'sweetalert2';
