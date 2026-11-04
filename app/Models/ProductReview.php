@@ -10,11 +10,14 @@ class ProductReview extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['product_id', 'user_id', 'order_item_id', 'rating', 'title', 'comment'];
+    protected $fillable = ['product_id', 'user_id', 'order_item_id', 'rating', 'title', 'comment', 'is_demo'];
 
     protected function casts(): array
     {
-        return ['rating' => 'integer'];
+        return [
+            'rating' => 'integer',
+            'is_demo' => 'boolean',
+        ];
     }
 
     public function product(): BelongsTo

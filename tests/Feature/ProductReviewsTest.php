@@ -42,6 +42,26 @@ class ProductReviewsTest extends TestCase
             ->assertSee('Compra verificada');
     }
 
+    public function test_demo_review_is_clearly_identified_and_not_presented_as_verified_purchase(): void
+    {
+        $product = Product::factory()->create();
+        $user = User::factory()->create(['name' => 'Ana']);
+        ProductReview::create([
+            'product_id' => $product->id,
+            'user_id' => $user->id,
+            'order_item_id' => null,
+            'rating' => 5,
+            'title' => 'Avaliação de teste',
+            'comment' => 'Comentário demonstrativo para validar a experiência da página.',
+            'is_demo' => true,
+        ]);
+
+        $this->get(route('product.show', $product))
+            ->assertOk()
+            ->assertSee('Avaliação demonstrativa')
+            ->assertDontSee('Compra verificada');
+    }
+
     public function test_only_customer_with_delivered_purchase_can_review_product(): void
     {
         $product = Product::factory()->create();

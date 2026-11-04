@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductImage;
+use App\Models\ProductReview;
 use App\Models\ProductVariant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -30,6 +31,8 @@ class ImportOctober2026CollectionTest extends TestCase
         $this->assertSame('189.99', $sandy->price);
         $this->assertSame(18, $sandy->variants()->count());
         $this->assertSame(6, $sandy->images()->count());
+        $this->assertStringContainsString('Calça pantalona de cintura alta', $sandy->details);
+        $this->assertStringContainsString('percentuais da fibra', $sandy->composition);
 
         $maite = Product::query()->where('slug', 'conjunto-maite')->firstOrFail();
         $this->assertSame('199.99', $maite->price);
@@ -60,6 +63,11 @@ class ImportOctober2026CollectionTest extends TestCase
         $this->assertSame('109.90', $zara->price);
         $this->assertSame(30, $zara->variants()->count());
         $this->assertSame(10, $zara->images()->count());
+        $this->assertStringContainsString('Linho com elastano', $zara->composition);
+
+        $this->assertSame(10, ProductReview::query()->where('is_demo', true)->count());
+        $this->assertSame(2, ProductReview::query()->where('product_id', $sandy->id)->where('is_demo', true)->count());
+        $this->assertSame(0, ProductReview::query()->where('is_demo', true)->whereNotNull('order_item_id')->count());
 
         foreach (ProductImage::query()->get() as $image) {
             Storage::disk('local')->assertExists('products/'.$image->image);

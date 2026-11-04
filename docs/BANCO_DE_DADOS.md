@@ -37,7 +37,7 @@ Cliente 1 ── N Avaliações N ── 1 Produto
 | `order_items` | Itens comprados com snapshots e referência estável ao produto. | Pertence a pedido, produto e variante quando aplicável. |
 | `shipments` | Frete, transportadora, rastreio e status. | Pertence a um pedido. |
 | `favorites` | Produtos salvos por cada cliente. | Liga `users` a `products`. |
-| `product_reviews` | Nota e comentário de uma compra entregue. | Liga cliente, produto e item do pedido. |
+| `product_reviews` | Nota e comentário de produto. | Avaliações reais ligam cliente, produto e item entregue; registros de interface usam `is_demo` e são identificados publicamente como demonstrativos. |
 | `password_reset_tokens` | Tokens de recuperação de senha de clientes. | Associado ao e-mail do cliente. |
 | `admin_password_reset_tokens` | Tokens de recuperação de senha administrativa. | Associado ao e-mail administrativo. |
 | `jobs` / `failed_jobs` | Fila de tarefas do Laravel. | Webhooks do Asaas usam esta estrutura. |
