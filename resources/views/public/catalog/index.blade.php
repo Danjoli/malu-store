@@ -21,18 +21,17 @@
         </nav>
 
         <form action="{{ route('catalog.index') }}" method="GET" data-catalog-form>
-            <div class="mb-6 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
-                <label class="relative block">
+            <div class="mb-6 flex flex-wrap gap-3">
+                <label class="relative min-w-0 flex-1">
                     <span class="sr-only">Buscar no catálogo</span>
                     <input type="search" name="search" value="{{ request('search') }}" placeholder="Buscar por nome ou descrição..." class="store-input w-full pl-10" autocomplete="off" data-catalog-live-input>
                     <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" aria-hidden="true">⌕</span>
                 </label>
-                <div class="flex gap-2">
-                    <button type="button" data-catalog-filter-toggle aria-expanded="false" class="store-button store-button-outline flex-1 lg:hidden">
-                        Filtros{{ $activeFilterCount ? ' ('.$activeFilterCount.')' : '' }}
-                    </button>
-                    <button class="store-button store-button-primary px-6">Buscar</button>
-                </div>
+                <button type="button" data-catalog-filter-toggle aria-expanded="false" class="store-button store-button-outline lg:hidden">
+                    Filtros{{ $activeFilterCount ? ' ('.$activeFilterCount.')' : '' }}
+                </button>
+                <noscript><button class="store-button store-button-primary px-6">Buscar</button></noscript>
+                <p class="w-full text-[10px] text-stone-500">Os resultados são atualizados automaticamente enquanto você digita.</p>
             </div>
 
             <div class="grid gap-8 lg:grid-cols-[220px_1fr]">

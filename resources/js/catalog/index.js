@@ -85,7 +85,7 @@ document.addEventListener('input', (event) => {
     requestController?.abort();
     const keepSearchFocus = event.target.matches('[name="search"]');
     window.clearTimeout(searchTimer);
-    searchTimer = window.setTimeout(() => submitForm(form, keepSearchFocus), 450);
+    searchTimer = window.setTimeout(() => submitForm(form, keepSearchFocus), 180);
 });
 
 document.addEventListener('click', (event) => {
