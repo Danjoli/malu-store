@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Allura&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Outfit:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap');
 
 @import 'tailwindcss' source(none);
 
@@ -79,6 +79,8 @@
     .store-link { color: inherit; transition: color .2s ease; }
     .store-link:hover { color: var(--store-accent); }
     .store-title { font-family: var(--font-display); letter-spacing: -.035em; }
+    .hero-display { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 600; letter-spacing: -.055em; }
+    .hero-script { font-family: 'Allura', cursive; font-weight: 400; letter-spacing: -.02em; }
     .store-kicker { color: var(--store-accent); font-size: .6875rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
     .store-button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: 999px; padding: .78rem 1.3rem; font-size: .72rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; transition: .2s ease; }
     .store-button-primary { background: var(--store-accent); color: var(--store-accent-contrast); box-shadow: 0 10px 28px color-mix(in srgb, var(--store-accent) 22%, transparent); }
