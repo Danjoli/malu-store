@@ -57,7 +57,7 @@ resources/views/
 ├── admin/                   Telas do painel administrativo
 └── public/                  Telas da loja
 resources/js/
-├── Pages/                   Páginas Vue carregadas pelo Inertia
+├── pages/                   Páginas Vue carregadas pelo Inertia
 ├── inertia.js              Inicialização do cliente Inertia/Vue
 └── app.js                  Inicialização global das telas Blade
 routes/
@@ -121,7 +121,7 @@ Os caminhos e nomes de rota permanecem iguais; a divisão organiza somente os ar
 ### Front-end e componentes
 
 - `resources/js/app.js` contém apenas inicialização global (Alpine, alertas e bootstrap).
-- `resources/js/inertia.js` inicializa Vue 3 e resolve as páginas em `resources/js/Pages/`.
+- `resources/js/inertia.js` inicializa Vue 3 e resolve as páginas em `resources/js/pages/`.
 - A criação e a edição de produtos são a primeira migração gradual para Inertia/Vue. Elas preservam as mesmas rotas, validações, Services, autorização e layout administrativo do Laravel.
 - Scripts de checkout, produto, dashboard e pagamentos continuam como entradas Vite próprias e são carregados apenas pelas telas que os utilizam.
 - Pix e boleto compartilham o módulo de consulta de status em `resources/js/payments/shared/`.
