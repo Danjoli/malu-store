@@ -23,6 +23,8 @@ class UpdateProductRequest extends FormRequest
 
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
+            'details' => ['nullable', 'string', 'max:3000'],
+            'composition' => ['nullable', 'string', 'max:2000'],
 
             'price' => ['required', 'numeric', 'min:0'],
 
@@ -57,6 +59,8 @@ class UpdateProductRequest extends FormRequest
             'category_id' => 'categoria',
             'name' => 'nome do produto',
             'description' => 'descrição',
+            'details' => 'detalhes',
+            'composition' => 'composição',
             'price' => 'preço',
             'active' => 'status',
             'images' => 'imagens',

@@ -96,6 +96,9 @@
     .product-size-option:disabled { cursor: not-allowed; opacity: .42; }
     .product-color-option { border: 2px solid var(--store-surface); outline: 1px solid var(--store-border); outline-offset: 1px; }
     .product-color-option[aria-pressed="true"] { outline: 3px solid var(--store-accent); outline-offset: 2px; }
+    .review-rating label:hover,
+    .review-rating label:hover ~ label,
+    .review-rating input:checked ~ label { color: #f59e0b; }
     .auth-card { overflow: hidden; border: 1px solid var(--store-border); border-radius: 1.25rem; background: var(--store-surface); box-shadow: var(--store-shadow); }
     .auth-card-header { border-bottom: 1px solid var(--store-border); background: var(--store-surface-soft); padding: 1.75rem 1.5rem; text-align: center; }
     .auth-card-body { background: var(--store-surface); padding: 1.75rem 1.5rem; }

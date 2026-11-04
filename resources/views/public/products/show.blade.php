@@ -58,9 +58,17 @@
                 </h1>
 
                 <p class="mt-3 text-sm tracking-wide text-amber-500">
-                    ★★★★★
+                    @if ($product->reviews_count > 0)
+                        {{ str_repeat('★', (int) round($product->reviews_avg_rating)) }}{{ str_repeat('☆', 5 - (int) round($product->reviews_avg_rating)) }}
+                    @else
+                        ☆☆☆☆☆
+                    @endif
                     <span class="ml-1 text-xs text-stone-500">
-                        (48 avaliações)
+                        @if ($product->reviews_count > 0)
+                            {{ number_format($product->reviews_avg_rating, 1, ',', '.') }} · {{ $product->reviews_count }} {{ $product->reviews_count === 1 ? 'avaliação' : 'avaliações' }}
+                        @else
+                            Ainda sem avaliações
+                        @endif
                     </span>
                 </p>
 
@@ -245,7 +253,11 @@
         </div>
 
         <x-public.product.benefits />
-        <x-public.product.details :product="$product" />
+        <x-public.product.details
+            :product="$product"
+            :reviews="$reviews"
+            :eligible-review-items="$eligibleReviewItems"
+        />
 
         {{-- Produtos relacionados --}}
         @if ($relatedProducts->isNotEmpty())

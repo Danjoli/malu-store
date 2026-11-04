@@ -87,6 +87,7 @@ class UserFactory extends Factory
 
             OrderItem::create([
                 'order_id' => $order->id,
+                'product_id' => $product->id,
                 'product_variant_id' => $variant->id,
                 'name_snapshot' => $product->name,
                 'image_snapshot' => $product->images->first()->image,

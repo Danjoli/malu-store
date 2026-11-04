@@ -202,6 +202,8 @@ As views administrativas Blade usam `@extends('layouts.admin.app')` e `@section(
 
 A aplicação permanece um monólito modular Laravel. Inertia/Vue é adotado apenas onde a interatividade traz ganho claro, começando pelo formulário de produtos (pré-visualização de imagens, variações e envio com progresso). Blade e Alpine continuam adequados para páginas simples e para a vitrine existente. Uma separação completa entre front-end e back-end só deve ser considerada quando houver um consumidor externo real da API, como aplicativo móvel ou múltiplos clientes independentes.
 
+Na página pública do produto, descrição, detalhes, composição e avaliações são abas acessíveis controladas pelo JavaScript específico da tela. A nota média e a contagem vêm de `product_reviews`; não existem números simulados. Somente clientes com um `order_item` pertencente a pedido entregue podem publicar ou atualizar uma avaliação, marcada como compra verificada.
+
 ## Páginas legais
 
 As páginas públicas abaixo usam o componente reutilizável `resources/views/components/legal/document.blade.php`, que centraliza o cabeçalho e a leitura do conteúdo:

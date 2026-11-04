@@ -1,6 +1,40 @@
 import './shipping-calculator';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelector('[data-product-tabs]');
+
+    if (tabs) {
+        const activateTab = (name, focus = false) => {
+            tabs.querySelectorAll('[data-product-tab]').forEach((button) => {
+                const active = button.dataset.productTab === name;
+                button.setAttribute('aria-selected', String(active));
+                button.classList.toggle('border-[#d66f7c]', active);
+                button.classList.toggle('border-transparent', !active);
+                if (active && focus) button.focus();
+            });
+
+            tabs.querySelectorAll('[data-product-panel]').forEach((panel) => {
+                panel.classList.toggle('hidden', panel.dataset.productPanel !== name);
+            });
+        };
+
+        tabs.querySelectorAll('[data-product-tab]').forEach((button) => {
+            button.addEventListener('click', () => activateTab(button.dataset.productTab));
+            button.addEventListener('keydown', (event) => {
+                if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+                const buttons = [...tabs.querySelectorAll('[data-product-tab]')];
+                const direction = event.key === 'ArrowRight' ? 1 : -1;
+                const next = buttons[(buttons.indexOf(button) + direction + buttons.length) % buttons.length];
+                activateTab(next.dataset.productTab, true);
+            });
+        });
+
+        if (window.location.hash === '#avaliacoes' || tabs.querySelector('.text-red-600')) {
+            activateTab('reviews');
+            tabs.scrollIntoView({ block: 'start' });
+        }
+    }
+
     const gallery = document.querySelector('[data-product-gallery]');
     const mainImage = gallery?.querySelector('[data-product-gallery-main]');
 

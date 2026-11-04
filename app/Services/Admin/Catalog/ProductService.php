@@ -19,6 +19,8 @@ class ProductService
             'category_id' => $data['category_id'],
             'name' => $data['name'],
             'description' => $data['description'] ?? null,
+            'details' => $data['details'] ?? null,
+            'composition' => $data['composition'] ?? null,
             'price' => $data['price'],
             'active' => $data['active'],
         ]);
@@ -36,6 +38,8 @@ class ProductService
                 'category_id' => $data['category_id'],
                 'name' => $data['name'],
                 'description' => $data['description'] ?? null,
+                'details' => $data['details'] ?? null,
+                'composition' => $data['composition'] ?? null,
                 'price' => $data['price'],
                 'active' => $data['active'],
             ]);

@@ -5,6 +5,7 @@ use App\Http\Controllers\Public\CartController;
 use App\Http\Controllers\Public\CheckoutController;
 use App\Http\Controllers\Public\FavoriteController;
 use App\Http\Controllers\Public\FreteController;
+use App\Http\Controllers\Public\ProductReviewController;
 use App\Http\Controllers\Public\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -81,6 +82,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/favoritos', [FavoriteController::class, 'index'])->name('favorites.index');
     Route::post('/favoritos/{product}', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
+
+    Route::post('/produtos/{product}/avaliacoes', [ProductReviewController::class, 'store'])
+        ->middleware('throttle:6,1')
+        ->name('product.reviews.store');
 
     /*
     |--------------------------------------------------------------------------

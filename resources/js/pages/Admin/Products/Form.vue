@@ -19,6 +19,8 @@ const form = useForm({
     category_id: props.product?.category_id ?? props.categories[0]?.id ?? '',
     price: props.product?.price ?? '',
     description: props.product?.description ?? '',
+    details: props.product?.details ?? '',
+    composition: props.product?.composition ?? '',
     active: props.product?.active ?? true,
     images: [],
     variants: props.product?.variants?.length
@@ -130,6 +132,21 @@ onBeforeUnmount(clearTemporaryPreviews);
                     <p class="mb-2 text-sm text-[#746b68]">Use a foto ao lado para descrever tecido, modelagem, cor e acabamento.</p>
                     <textarea id="product-description" v-model="form.description" rows="7" class="w-full rounded-xl border border-[#ddc9c4] p-3 focus:border-[#cf7184] focus:outline-none"></textarea>
                     <p v-if="errorFor('description')" class="mt-1 text-sm text-red-700">{{ errorFor('description') }}</p>
+                </div>
+
+                <div class="grid gap-5 lg:grid-cols-2">
+                    <div>
+                        <label for="product-details" class="mb-1 block font-medium">Detalhes da peça</label>
+                        <p class="mb-2 text-sm text-[#746b68]">Modelagem, caimento, fechamento, bolsos e cuidados.</p>
+                        <textarea id="product-details" v-model="form.details" rows="5" class="w-full rounded-xl border border-[#ddc9c4] p-3 focus:border-[#cf7184] focus:outline-none"></textarea>
+                        <p v-if="errorFor('details')" class="mt-1 text-sm text-red-700">{{ errorFor('details') }}</p>
+                    </div>
+                    <div>
+                        <label for="product-composition" class="mb-1 block font-medium">Composição</label>
+                        <p class="mb-2 text-sm text-[#746b68]">Informe os materiais e percentuais disponíveis na etiqueta.</p>
+                        <textarea id="product-composition" v-model="form.composition" rows="5" placeholder="Ex.: 70% viscose, 27% linho e 3% elastano." class="w-full rounded-xl border border-[#ddc9c4] p-3 focus:border-[#cf7184] focus:outline-none"></textarea>
+                        <p v-if="errorFor('composition')" class="mt-1 text-sm text-red-700">{{ errorFor('composition') }}</p>
+                    </div>
                 </div>
 
                 <label class="flex cursor-pointer items-center justify-between rounded-xl border border-[#eaded9] bg-[#fdf9f7] p-4">
