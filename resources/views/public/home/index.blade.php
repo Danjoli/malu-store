@@ -65,9 +65,10 @@
 
                     <a
                         href="{{ route('home', ['category' => $category->slug]) }}"
+                        data-home-filter-link
                         class="group w-24 text-center sm:w-32"
                     >
-                        <div class="store-soft-panel mx-auto aspect-square w-full max-w-24 overflow-hidden rounded-[2rem] border-4 border-[var(--store-surface)] shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:rotate-2 group-hover:border-[var(--store-accent)]/30 group-hover:shadow-lg sm:max-w-32">
+                        <div class="store-soft-panel mx-auto aspect-square w-full max-w-24 overflow-hidden rounded-[2rem] border-4 {{ request('category') === $category->slug ? 'border-[var(--store-accent)] shadow-lg' : 'border-[var(--store-surface)]' }} shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:rotate-2 group-hover:border-[var(--store-accent)]/30 group-hover:shadow-lg sm:max-w-32">
                             @if ($categoryImage)
                                 <img
                                     src="{{ $categoryImage->url }}"
@@ -93,13 +94,49 @@
     @endif
 
     {{-- Produtos --}}
-    <section id="produtos" class="store-container home-container py-14">
+    <section id="produtos" data-home-catalog-shell class="store-container home-container py-14 transition-opacity" aria-live="polite">
+        <form action="{{ route('home') }}" method="GET" data-home-filter-form class="store-card mb-8 grid gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_180px_160px]">
+            <label class="relative block">
+                <span class="sr-only">Buscar produtos na página inicial</span>
+                <input type="search" name="search" value="{{ request('search') }}" placeholder="Busque uma roupa..." autocomplete="off" class="store-input w-full pl-10" data-home-live-search>
+                <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" aria-hidden="true">⌕</span>
+            </label>
+
+            <label>
+                <span class="sr-only">Filtrar por categoria</span>
+                <select name="category" class="store-input w-full" data-home-filter-control>
+                    <option value="">Todas as categorias</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->slug }}" @selected(request('category') === $category->slug)>{{ $category->name }}</option>
+                    @endforeach
+                </select>
+            </label>
+
+            <label>
+                <span class="sr-only">Ordenar produtos</span>
+                <select name="sort" class="store-input w-full" data-home-filter-control>
+                    <option value="recent" @selected(request('sort', 'recent') === 'recent')>Mais recentes</option>
+                    <option value="price_asc" @selected(request('sort') === 'price_asc')>Menor preço</option>
+                    <option value="price_desc" @selected(request('sort') === 'price_desc')>Maior preço</option>
+                </select>
+            </label>
+
+            <div class="flex items-center justify-between gap-3 sm:col-span-3">
+                <p class="text-[10px] text-stone-500">A vitrine muda automaticamente enquanto você pesquisa.</p>
+                @if (request()->filled('search') || request()->filled('category') || request()->filled('sort'))
+                    <a href="{{ route('home') }}#produtos" data-home-filter-link class="text-[11px] font-semibold text-[var(--store-accent-strong)] hover:underline">Limpar filtros</a>
+                @endif
+            </div>
+
+            <noscript><button class="store-button store-button-primary sm:col-span-3">Filtrar produtos</button></noscript>
+        </form>
+
         <div class="mb-8 flex items-center gap-2 sm:gap-4">
             <span class="h-px flex-1 bg-[var(--store-border)]"></span>
 
             <div class="text-center">
                 <h2 class="store-title text-2xl sm:text-3xl">
-                    Acabaram de chegar
+                    {{ request('search') ? 'Resultados para “'.request('search').'”' : (request('category') ? 'Peças selecionadas' : 'Acabaram de chegar') }}
                 </h2>
             </div>
 
@@ -118,7 +155,8 @@
                 <x-store.product-card :product="$product" />
             @empty
                 <div class="col-span-full rounded-md border border-dashed border-[#e8d9d6] py-16 text-center text-stone-500">
-                    Nenhum produto disponível no momento.
+                    <p>Nenhum produto encontrado com esses filtros.</p>
+                    <a href="{{ route('home') }}#produtos" data-home-filter-link class="store-button store-button-outline mt-5 inline-flex">Limpar filtros</a>
                 </div>
             @endforelse
         </div>
@@ -190,3 +228,7 @@
         </section>
     @endif
 @endsection
+
+@push('scripts')
+    @vite('resources/js/home/catalog.js')
+@endpush

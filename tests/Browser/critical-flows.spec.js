@@ -166,6 +166,19 @@ test('catálogo filtra enquanto a pessoa pesquisa sem recarregar a página', asy
     await expect(page).toHaveURL(/\/produtos$/);
 });
 
+test('página inicial filtra a vitrine enquanto a pessoa digita', async ({ page }) => {
+    await page.goto('/');
+    const search = page.getByRole('searchbox', { name: 'Buscar produtos na página inicial' });
+
+    await search.fill('Vestido Midi Floral');
+    await expect(page).toHaveURL(/search=Vestido(?:\+|%20)Midi(?:\+|%20)Floral/);
+    await expect(page.getByRole('heading', { name: 'Vestido Midi Floral', exact: true })).toBeVisible();
+    await expect(search).toBeFocused();
+
+    await search.fill('produto que não existe');
+    await expect(page.getByText('Nenhum produto encontrado com esses filtros.')).toBeVisible();
+});
+
 async function loginAsCustomer(page) {
     await page.goto('/login');
     await page.getByLabel('E-mail').fill('test@gmail.com');

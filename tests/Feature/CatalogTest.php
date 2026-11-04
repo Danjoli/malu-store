@@ -201,4 +201,23 @@ class CatalogTest extends TestCase
             ->assertSee($categories->first()->name)
             ->assertSee($categories->last()->name);
     }
+
+    public function test_home_exposes_dynamic_filters_and_applies_search_category_and_sort(): void
+    {
+        $dresses = Category::factory()->create(['name' => 'Vestidos', 'slug' => 'vestidos']);
+        $blouses = Category::factory()->create(['name' => 'Blusas', 'slug' => 'blusas']);
+        $this->product('Vestido Aurora', $dresses)->update(['price' => 129.90]);
+        $this->product('Blusa Serena', $blouses)->update(['price' => 79.90]);
+
+        $this->get(route('home', [
+            'search' => 'Aurora',
+            'category' => 'vestidos',
+            'sort' => 'price_desc',
+        ]))
+            ->assertOk()
+            ->assertSee('data-home-catalog-shell', false)
+            ->assertSee('data-home-live-search', false)
+            ->assertSee('Vestido Aurora')
+            ->assertDontSee('Blusa Serena');
+    }
 }
