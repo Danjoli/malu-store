@@ -5,23 +5,38 @@
 @section('content')
     {{-- Banner principal --}}
     <section class="store-divider border-b bg-[var(--store-surface-soft)]">
-        <div class="relative min-h-[620px] overflow-hidden sm:min-h-[560px] md:min-h-[580px]">
-            <picture>
-                <source media="(max-width: 639px)" srcset="{{ asset('images/home/hero-typographic-mobile.webp') }}">
-                <img
-                    src="{{ asset('images/home/hero-typographic-desktop.webp') }}"
-                    alt="Vista o que faz você florescer"
-                    fetchpriority="high"
-                    class="absolute inset-0 h-full w-full object-cover object-center"
-                >
-            </picture>
+        <div class="relative min-h-[520px] overflow-hidden sm:min-h-[500px] md:min-h-[580px]">
+            <img
+                src="{{ app(\App\Support\ProductImageStorage::class)->url('hero-malu-store.png') }}"
+                alt="Nova coleção Malu Store"
+                fetchpriority="high"
+                class="absolute inset-0 h-full w-full scale-[1.01] object-cover object-[64%_center] sm:object-[65%_center]"
+            >
 
-            <h1 class="sr-only">Vista o que faz você florescer</h1>
+            <div class="absolute inset-0 bg-[linear-gradient(90deg,var(--store-surface-soft)_0%,color-mix(in_srgb,var(--store-surface-soft)_91%,transparent)_38%,transparent_78%)]"></div>
+            <div class="absolute -left-24 top-16 h-72 w-72 rounded-full border border-[var(--store-accent)]/20"></div>
+            <div class="absolute left-10 top-28 h-52 w-52 rounded-full border border-[var(--store-accent)]/15"></div>
 
-            <div class="absolute inset-x-0 bottom-7 z-10 flex justify-center px-5 sm:bottom-8">
-                <a href="#produtos" class="store-button store-button-primary shadow-xl">
-                    Descobrir coleção
-                </a>
+            <div class="store-container home-container relative z-10 flex min-h-[520px] items-center py-16 sm:min-h-[500px] md:min-h-[580px]">
+                <div class="max-w-[20rem] sm:max-w-xl">
+                    <p class="store-kicker mb-6 flex items-center gap-3">
+                        <span class="h-px w-8 bg-[var(--store-accent)]"></span>
+                        Edição Primavera
+                    </p>
+
+                    <h1 class="leading-[.82] text-stone-900">
+                        <span class="hero-display block text-[3.25rem] sm:text-6xl md:text-[5rem]">Vista o que faz você</span>
+                        <em class="hero-script -mt-1 block text-[4.5rem] leading-[.75] text-[var(--store-accent)] sm:text-[6.5rem] md:text-[8rem]">florescer</em>
+                    </h1>
+
+                    <p class="store-muted mt-7 max-w-sm text-sm font-medium leading-6 sm:text-base">
+                        Peças femininas escolhidas para acompanhar dias comuns e momentos inesquecíveis com leveza.
+                    </p>
+
+                    <a href="#produtos" class="store-button store-button-primary mt-7">
+                        Descobrir coleção
+                    </a>
+                </div>
             </div>
 
             <div class="store-panel absolute bottom-6 right-6 z-10 hidden rounded-full border px-5 py-2 text-[10px] font-semibold uppercase tracking-[.18em] md:block">
