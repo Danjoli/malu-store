@@ -6,12 +6,14 @@ use App\Enums\OrderStatus;
 use App\Http\Controllers\Controller;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Services\Public\Shop\FavoriteStateService;
 use App\Support\ProductSizeGuide;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 class PublicProductController extends Controller
 {
-    public function show(Product $product, ProductSizeGuide $sizeGuide)
+    public function show(Product $product, ProductSizeGuide $sizeGuide, Request $request, FavoriteStateService $favoriteState)
     {
         $product = Product::with(['images', 'variants', 'category'])
             ->withCount('reviews')
@@ -39,6 +41,8 @@ class PublicProductController extends Controller
                     ->get()
             );
         }
+
+        $favoriteState->mark($relatedProducts, $request->user());
 
         $reviews = $product->reviews()
             ->with('user:id,name')

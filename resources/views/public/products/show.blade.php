@@ -89,6 +89,8 @@
                             <img
                                 src="{{ $image->url }}"
                                 alt="{{ $product->name }}"
+                                loading="lazy"
+                                decoding="async"
                                 class="h-full w-full object-cover object-center"
                             >
                         </button>
@@ -101,6 +103,8 @@
                             data-product-gallery-main
                             src="{{ $product->images->first()->url }}"
                             alt="{{ $product->name }}"
+                            fetchpriority="high"
+                            decoding="async"
                             class="aspect-[3/4] w-full object-cover object-center"
                         >
                     @endif

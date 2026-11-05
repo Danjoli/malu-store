@@ -75,6 +75,8 @@
                                 <img
                                     src="{{ $categoryImage->url }}"
                                     alt="{{ $category->name }}"
+                                    loading="lazy"
+                                    decoding="async"
                                     class="h-full w-full object-cover transition duration-500 group-hover:scale-110"
                                 >
                             @else
@@ -222,6 +224,8 @@
                         <img
                             src="{{ $image->url }}"
                             alt="Malu Store"
+                            loading="lazy"
+                            decoding="async"
                             class="aspect-[3/4] h-full w-full object-cover"
                         >
                     @endforeach

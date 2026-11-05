@@ -17,6 +17,8 @@ class SecurityHeadersTest extends TestCase
             ->assertHeader('X-Frame-Options', 'SAMEORIGIN')
             ->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin')
             ->assertHeader('Permissions-Policy', 'camera=(), geolocation=(), microphone=()')
+            ->assertHeader('Cross-Origin-Opener-Policy', 'same-origin')
+            ->assertHeader('Origin-Agent-Cluster', '?1')
             ->assertHeaderMissing('X-Powered-By');
 
         $policy = (string) $this->get(route('policy'))->headers->get('Content-Security-Policy');

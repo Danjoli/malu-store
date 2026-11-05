@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Services\Public\Shop\CatalogCacheService;
+use App\Services\Public\Shop\FavoriteStateService;
 use App\Services\Public\Shop\ProductFilterService;
 use Illuminate\Http\Request;
 
@@ -19,7 +20,7 @@ class HomeController extends Controller
         $this->productFilterService = $productFilterService;
     }
 
-    public function index(Request $request, CatalogCacheService $catalogCache)
+    public function index(Request $request, CatalogCacheService $catalogCache, FavoriteStateService $favoriteState)
     {
         $products = $catalogCache->remember(
             'home',
@@ -43,6 +44,8 @@ class HomeController extends Controller
                 ->limit(1)])
             ->orderBy('name')
             ->get();
+
+        $favoriteState->mark($products, $request->user());
 
         return view('public.home.index', compact('products', 'categories'));
     }

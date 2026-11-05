@@ -53,6 +53,7 @@
                     href="https://wa.me/{{ preg_replace('/\D+/', '', $storeSettings->whatsapp ?: '5511931494708') }}?text=Olá,%20gostaria%20de%20mais%20informações"
                     class="text-[#bd5564] hover:underline"
                     target="_blank"
+                    rel="noopener noreferrer"
                 >
                     {{ $storeSettings->whatsapp ?: '(11) 93149-4708' }}
                 </a>

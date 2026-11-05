@@ -97,6 +97,7 @@
                                 action="{{ route('admin.products.destroy', $product) }}"
                                 method="POST"
                                 class="ml-3 inline"
+                                data-confirm="Tem certeza que deseja excluir este produto?"
                             >
                                 @csrf
                                 @method('DELETE')
@@ -104,7 +105,6 @@
                                 <button
                                     type="submit"
                                     class="text-xs font-bold text-[#b44259]"
-                                    onclick="return confirm('Tem certeza que deseja excluir este produto?')"
                                 >
                                     Excluir
                                 </button>
