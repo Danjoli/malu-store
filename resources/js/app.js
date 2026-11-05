@@ -7,6 +7,22 @@ import Swal from 'sweetalert2';
 window.Alpine = Alpine;
 window.Swal = Swal;
 
+document.addEventListener('submit', (event) => {
+    const form = event.target.closest('form[data-confirm]');
+
+    if (form && !window.confirm(form.dataset.confirm)) {
+        event.preventDefault();
+    }
+});
+
+document.addEventListener('click', (event) => {
+    const removeButton = event.target.closest('[data-remove-parent]');
+
+    if (removeButton) {
+        removeButton.parentElement?.remove();
+    }
+});
+
 Alpine.data('storeHeader', () => ({
     searchOpen: false,
     menuOpen: false,

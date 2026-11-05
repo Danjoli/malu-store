@@ -2,6 +2,8 @@ import { defineConfig, devices } from '@playwright/test';
 import path from 'node:path';
 
 const database = path.resolve('database/e2e.sqlite');
+const port = process.env.PLAYWRIGHT_PORT ?? '8000';
+const baseURL = `http://127.0.0.1:${port}`;
 
 export default defineConfig({
     testDir: './tests/Browser',
@@ -10,7 +12,7 @@ export default defineConfig({
     retries: process.env.CI ? 1 : 0,
     reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'list',
     use: {
-        baseURL: 'http://127.0.0.1:8000',
+        baseURL,
         screenshot: 'only-on-failure',
         trace: 'retain-on-failure',
         video: 'retain-on-failure',
@@ -22,8 +24,8 @@ export default defineConfig({
         },
     ],
     webServer: {
-        command: 'php -r "file_exists(\'database/e2e.sqlite\') || touch(\'database/e2e.sqlite\');" && php artisan migrate:fresh --seed --force && php artisan serve --host=127.0.0.1 --port=8000',
-        url: 'http://127.0.0.1:8000/up',
+        command: `php -r "file_exists('database/e2e.sqlite') || touch('database/e2e.sqlite');" && php artisan migrate:fresh --seed --force && php artisan serve --host=127.0.0.1 --port=${port}`,
+        url: `${baseURL}/up`,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
         env: {

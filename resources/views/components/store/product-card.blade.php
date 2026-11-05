@@ -14,6 +14,8 @@
                 <img
                     src="{{ $image->url }}"
                     alt="{{ $product->name }}"
+                    loading="lazy"
+                    decoding="async"
                     class="h-full w-full object-cover object-center transition duration-300 group-hover:opacity-95"
                 >
             @else
@@ -53,12 +55,7 @@
     </a>
 
     @auth
-        @php
-            $isFavorite = $product
-                ->favorites()
-                ->where('user_id', auth()->id())
-                ->exists();
-        @endphp
+        @php($isFavorite = (bool) $product->getAttribute('is_favorited'))
 
         <form
             action="{{ route('favorites.toggle', $product) }}"

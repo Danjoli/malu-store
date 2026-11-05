@@ -112,6 +112,7 @@
                                     action="{{ route('admin.categories.destroy', $category) }}"
                                     method="POST"
                                     class="inline"
+                                    data-confirm="Tem certeza que deseja excluir esta categoria?"
                                 >
                                     @csrf
                                     @method('DELETE')
@@ -119,7 +120,6 @@
                                     <button
                                         type="submit"
                                         class="text-xs font-bold text-[#b44259] transition hover:text-[#923548]"
-                                        onclick="return confirm('Tem certeza que deseja excluir esta categoria?')"
                                     >
                                         Excluir
                                     </button>

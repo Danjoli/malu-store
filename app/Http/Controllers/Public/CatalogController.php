@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\ProductVariant;
 use App\Services\Public\Shop\CatalogCacheService;
+use App\Services\Public\Shop\FavoriteStateService;
 use App\Services\Public\Shop\ProductFilterService;
 use Illuminate\Http\Request;
 
@@ -15,6 +16,7 @@ class CatalogController extends Controller
         Request $request,
         ProductFilterService $productFilter,
         CatalogCacheService $catalogCache,
+        FavoriteStateService $favoriteState,
     ) {
         $data = $catalogCache->remember('index', $request->query(), function () use ($request, $productFilter): array {
             $query = $productFilter->query($request);
@@ -64,6 +66,8 @@ class CatalogController extends Controller
                     ->values(),
             ];
         });
+
+        $favoriteState->mark($data['products']->items(), $request->user());
 
         return view('public.catalog.index', $data);
     }

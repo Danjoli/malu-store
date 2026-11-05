@@ -13,7 +13,8 @@ Route::get('/login', [AuthController::class, 'showLogin'])
     ->middleware('redirect.authenticated:web')
     ->name('login');
 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login'])
+    ->middleware('throttle:10,1');
 
 Route::get('/esqueci-a-senha', [AuthController::class, 'showForgotPassword'])->middleware('redirect.authenticated:web')->name('password.request');
 Route::post('/esqueci-a-senha', [AuthController::class, 'sendResetLink'])->middleware('throttle:5,1')->name('password.email');

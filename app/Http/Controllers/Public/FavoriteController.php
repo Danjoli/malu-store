@@ -16,6 +16,8 @@ class FavoriteController extends Controller
             ->whereHas('favorites', fn ($favorites) => $favorites->where('user_id', $request->user()->id))
             ->get();
 
+        $products->each->setAttribute('is_favorited', true);
+
         return view('public.favorites.index', compact('products'));
     }
 

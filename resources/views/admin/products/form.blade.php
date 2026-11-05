@@ -107,7 +107,7 @@
                             >
                             <button
                                 type="button"
-                                onclick="this.parentElement.remove()"
+                                data-remove-parent
                                 class="rounded bg-red-600 px-3 py-2 text-white"
                             >
                                 Remover
