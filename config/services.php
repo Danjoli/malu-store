@@ -101,4 +101,9 @@ return [
         ),
     ],
 
+    'adsense' => [
+        // Identificador público usado para validar o domínio e carregar anúncios.
+        'client_id' => env('ADSENSE_CLIENT_ID', 'ca-pub-1012866249381163'),
+    ],
+
 ];

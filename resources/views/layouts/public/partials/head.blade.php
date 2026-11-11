@@ -22,6 +22,15 @@
 
     @stack('head')
 
+    @if (app()->environment('production') && filled(config('services.adsense.client_id')))
+        <script
+            async
+            nonce="{{ Vite::cspNonce() }}"
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ config('services.adsense.client_id') }}"
+            crossorigin="anonymous"
+        ></script>
+    @endif
+
     @vite([
         'resources/css/app.css',
         'resources/js/app.js',

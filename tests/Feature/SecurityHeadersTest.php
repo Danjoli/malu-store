@@ -26,6 +26,7 @@ class SecurityHeadersTest extends TestCase
         $this->assertStringContainsString("default-src 'self'", $policy);
         $this->assertStringContainsString("object-src 'none'", $policy);
         $this->assertStringContainsString("frame-ancestors 'self'", $policy);
+        $this->assertStringContainsString('https://pagead2.googlesyndication.com', $policy);
         $this->assertMatchesRegularExpression("/script-src 'self' 'nonce-[^']+'/", $policy);
         $this->assertStringNotContainsString("'unsafe-eval'", $policy);
     }
